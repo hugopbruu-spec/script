@@ -1,18 +1,17 @@
 -- LocalScript em StarterPlayerScripts
+-- Ambiente legítimo de teste / jogo próprio
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
 
-local range = 10 -- Distância de detecção da bola
-local reboundForce = 100 -- Força do rebote
-local enabled = false -- Estado inicial (desligado)
-
+local range = 20               -- raio de detecção maior
+local baseReboundForce = 100   -- força base
+local enabled = false
 local RunService = game:GetService("RunService")
 
 -- 🧱 Interface
 local gui = Instance.new("ScreenGui")
-gui.Name = "RebateGui"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
@@ -29,21 +28,21 @@ button.Parent = gui
 -- 🌀 Função de rebater
 local function rebound(ball)
 	if not ball:IsA("BasePart") then return end
+	local velocity = ball.AssemblyLinearVelocity.Magnitude
 	local direction = (ball.Position - root.Position).Unit
+	local reboundForce = baseReboundForce + (velocity * 0.5) -- quanto mais rápida a bola, maior a força
 	ball.AssemblyLinearVelocity = direction * reboundForce
 end
 
--- 🔄 Loop de checagem contínuo (muito mais rápido)
+-- 🔄 Loop contínuo e reativo
 RunService.Heartbeat:Connect(function()
 	if not enabled then return end
 
-	-- Faz a checagem a cada frame (60x por segundo)
-	for _, obj in ipairs(workspace:GetChildren()) do
-		if obj:IsA("BasePart") and obj.Name == "PhantomBall" then
-			local dist = (obj.Position - root.Position).Magnitude
-			if dist < range then
-				rebound(obj)
-			end
+	-- Pega todas as partes no raio de alcance
+	local partsInRange = workspace:GetPartBoundsInRadius(root.Position, range)
+	for _, part in ipairs(partsInRange) do
+		if part:IsA("BasePart") and part.Name == "PhantomBall" then
+			rebound(part)
 		end
 	end
 end)
