@@ -1,19 +1,11 @@
--- AutoClickBola.lua
+-- AutoBloquePhantomBall.lua
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
-local ALCANCE = 20
-
--- RemoteEvent que será usado para simular o clique
-local autoClickEvento = ReplicatedStorage:FindFirstChild("AutoClickEvento")
-if not autoClickEvento then
-    autoClickEvento = Instance.new("RemoteEvent")
-    autoClickEvento.Name = "AutoClickEvento"
-    autoClickEvento.Parent = ReplicatedStorage
-end
+local ALCANCE = 15 -- alcance de detecção da bola
+local BOTAO_BLOQUE = Enum.KeyCode.E -- ou a tecla correspondente ao botão BLOQUE
 
 local ativo = false
 
@@ -21,9 +13,9 @@ local ativo = false
 -- Botão simples na tela
 -- ===============================
 local playerGui = player:WaitForChild("PlayerGui")
-if not playerGui:FindFirstChild("AutoClickGUI") then
+if not playerGui:FindFirstChild("AutoBloqueGUI") then
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "AutoClickGUI"
+    screenGui.Name = "AutoBloqueGUI"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
@@ -34,23 +26,64 @@ if not playerGui:FindFirstChild("AutoClickGUI") then
     button.TextColor3 = Color3.fromRGB(255,255,255)
     button.Font = Enum.Font.SourceSansBold
     button.TextSize = 20
-    button.Text = "AutoClick: DESATIVADO"
+    button.Text = "AutoBloque: DESATIVADO"
     button.Parent = screenGui
 
     button.MouseButton1Click:Connect(function()
         ativo = not ativo
         if ativo then
-            button.Text = "AutoClick: ATIVADO"
+            button.Text = "AutoBloque: ATIVADO"
             button.BackgroundColor3 = Color3.fromRGB(0,255,0)
         else
-            button.Text = "AutoClick: DESATIVADO"
+            button.Text = "AutoBloque: DESATIVADO"
             button.BackgroundColor3 = Color3.fromRGB(255,0,0)
         end
     end)
 end
 
 -- ===============================
--- Função para pegar todas as bolas
+-- Função para pegar todas as bolas no workspace
 -- ===============================
 local function getBalls()
     local balls = {}
+    for _, obj in ipairs(workspace:GetChildren()) do
+        if obj:IsA("BasePart") and obj.Name:lower():find("ball") then
+            table.insert(balls, obj)
+        end
+    end
+    return balls
+end
+
+-- ===============================
+-- Loop principal para detectar e bloquear
+-- ===============================
+RunService.Heartbeat:Connect(function()
+    if not ativo then return end
+    local char = player.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local balls = getBalls()
+    for _, ball in ipairs(balls) do
+        local distancia = (ball.Position - root.Position).Magnitude
+        if distancia <= ALCANCE then
+            local vel = ball.Velocity
+            local dirParaPlayer = (root.Position - ball.Position).Unit
+            local aproximando = vel:Dot(dirParaPlayer)
+
+            if aproximando > 0 then
+                -- Quanto maior a velocidade da bola, mais rápido bloqueia
+                local delay = math.max(0.05, 1 / (aproximando/20))
+                spawn(function()
+                    -- Simula pressionar a tecla BLOQUE
+                    UserInputService.InputBegan:Fire({
+                        KeyCode = BOTAO_BLOQUE,
+                        UserInputType = Enum.UserInputType.Keyboard
+                    }, false)
+                    wait(delay)
+                end)
+            end
+        end
+    end
+end)
