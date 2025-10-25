@@ -1,60 +1,87 @@
--- LocalScript em StarterPlayerScripts
+-- AutoBlockWithButton.lua
 
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local root = character:WaitForChild("HumanoidRootPart")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
 
-local range = 10 -- Distância de detecção da bola
-local reboundForce = 100 -- Força do rebote
-local enabled = false -- Estado inicial (desligado)
+-- CONFIGURAÇÕES
+local DISTANCIA_ATIVAR = 25
+local DELAY_BASE = 0.3
+local VELOCIDADE_REF = 120
+local DELAY_MIN = 0.05
+local BALL_NAME = "Ball"
 
--- 🧱 Interface
-local gui = Instance.new("ScreenGui")
-gui.Name = "RebateGui"
-gui.ResetOnSpawn = false
-gui.Parent = player:WaitForChild("PlayerGui")
+-- Variável de controle
+local autoBlockAtivo = false
 
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 150, 0, 40)
-button.Position = UDim2.new(0.05, 0, 0.1, 0)
-button.Text = "Ativar Rebater"
-button.BackgroundColor3 = Color3.fromRGB(60, 200, 100)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Font = Enum.Font.GothamBold
-button.TextSize = 16
-button.Parent = gui
-
--- 🌀 Função de rebater
-local function rebound(ball)
-	if not ball:IsA("BasePart") then return end
-	local direction = (ball.Position - root.Position).Unit
-	ball.AssemblyLinearVelocity = direction * reboundForce
+-- Função para ativar bloqueio
+local function ativarBloqueio()
+	if humanoid and humanoid.Health > 0 then
+		print("🛡️ Bloqueio ativado automaticamente!")
+		-- Se você usa RemoteEvent para bloquear
+		ReplicatedStorage:WaitForChild("BloquearEvento"):FireServer()
+	end
 end
 
--- 🔄 Loop de checagem
+-- Função para encontrar a bola
+local function getBall()
+	for _, obj in ipairs(workspace:GetChildren()) do
+		if obj:IsA("BasePart") and obj.Name == BALL_NAME then
+			return obj
+		end
+	end
+	return nil
+end
+
+-- Loop principal
 task.spawn(function()
-	while task.wait(0.1) do
-		if enabled then
-			for _, obj in ipairs(workspace:GetChildren()) do
-				if obj:IsA("BasePart") and obj.Name == "PhantomBall" then
-					local dist = (obj.Position - root.Position).Magnitude
-					if dist < range then
-						rebound(obj)
-					end
+	while task.wait(0.05) do
+		if autoBlockAtivo and char and char:FindFirstChild("HumanoidRootPart") then
+			local ball = getBall()
+			if ball then
+				local root = char.HumanoidRootPart
+				local distancia = (ball.Position - root.Position).Magnitude
+
+				if distancia <= DISTANCIA_ATIVAR then
+					local velocidade = ball.AssemblyLinearVelocity.Magnitude
+					local fator = math.clamp(VELOCIDADE_REF / math.max(velocidade,1),0.1,1)
+					local delayReacao = math.max(DELAY_BASE * fator, DELAY_MIN)
+
+					task.delay(delayReacao, ativarBloqueio)
 				end
 			end
 		end
 	end
 end)
 
--- 🖱️ Botão para ativar/desativar
+-- ==============================
+-- Criação do botão GUI
+-- ==============================
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AutoBlockGUI"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 200, 0, 50)
+button.Position = UDim2.new(0, 20, 0, 20)
+button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+button.TextColor3 = Color3.fromRGB(255,255,255)
+button.Font = Enum.Font.SourceSansBold
+button.TextSize = 24
+button.Text = "AutoBlock: DESATIVADO"
+button.Parent = screenGui
+
+-- Alterna ativação/desativação ao clicar
 button.MouseButton1Click:Connect(function()
-	enabled = not enabled
-	if enabled then
-		button.Text = "Desativar Rebater"
-		button.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	autoBlockAtivo = not autoBlockAtivo
+	if autoBlockAtivo then
+		button.Text = "AutoBlock: ATIVADO"
+		button.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	else
-		button.Text = "Ativar Rebater"
-		button.BackgroundColor3 = Color3.fromRGB(60, 200, 100)
+		button.Text = "AutoBlock: DESATIVADO"
+		button.BackgroundColor3 = Color3.fromRGB(255,0,0)
 	end
 end)
