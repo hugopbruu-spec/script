@@ -1,25 +1,24 @@
--- AutoRebate.lua
--- LocalScript em StarterPlayerScripts
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local rootPart = char:WaitForChild("HumanoidRootPart")
 
--- CONFIGURAÇÕES
-local ALCANCE = 20        -- Distância para rebater a bola
-local FORCA_REBATE = 100  -- Força aplicada ao rebater
-local BALL_NAME = "Ball"  -- Nome da bola no workspace
-
+local ALCANCE = 20
 local autoRebateAtivo = false
 
+-- RemoteEvent do servidor
+local rebaterEvento = ReplicatedStorage:WaitForChild("RebaterBolaEvento")
+
 -- ===============================
--- Função para encontrar a bola
+-- Função para achar a bola
 -- ===============================
 local function getBall()
 	for _, obj in ipairs(workspace:GetChildren()) do
-		if obj:IsA("BasePart") and obj.Name == BALL_NAME then
+		if obj:IsA("BasePart") and obj.Name == "Ball" then
 			return obj
 		end
 	end
@@ -27,33 +26,23 @@ local function getBall()
 end
 
 -- ===============================
--- Função de rebater a bola
--- ===============================
-local function rebaterBola(ball)
-	if ball and ball:IsA("BasePart") then
-		local direcao = (ball.Position - rootPart.Position).Unit
-		-- Aplica força contrária à direção
-		ball.Velocity = direcao * FORCA_REBATE
-	end
-end
-
--- ===============================
 -- Loop principal
 -- ===============================
 RunService.Heartbeat:Connect(function()
-	if autoRebateAtivo then
+	if autoRebateAtivo and char and rootPart then
 		local ball = getBall()
 		if ball then
 			local distancia = (ball.Position - rootPart.Position).Magnitude
 			if distancia <= ALCANCE then
-				rebaterBola(ball)
+				-- Envia evento para o servidor rebater a bola
+				rebaterEvento:FireServer(ball)
 			end
 		end
 	end
 end)
 
 -- ===============================
--- GUI do botão ativar/desativar
+-- GUI botão móvel
 -- ===============================
 local playerGui = player:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
@@ -61,8 +50,8 @@ screenGui.Name = "AutoRebateGUI"
 screenGui.Parent = playerGui
 
 local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 200, 0, 50)
-button.Position = UDim2.new(0, 50, 0, 50)
+button.Size = UDim2.new(0,200,0,50)
+button.Position = UDim2.new(0,50,0,50)
 button.BackgroundColor3 = Color3.fromRGB(255,0,0)
 button.TextColor3 = Color3.fromRGB(255,255,255)
 button.Font = Enum.Font.SourceSansBold
@@ -70,10 +59,9 @@ button.TextSize = 20
 button.Text = "AutoRebate: DESATIVADO"
 button.Parent = screenGui
 
--- Permitir arrastar o botão
+-- Botão móvel
 local dragging = false
 local dragInput, dragStart, startPos
-
 local function updateInput(input)
 	local delta = input.Position - dragStart
 	button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -99,13 +87,13 @@ button.InputChanged:Connect(function(input)
 	end
 end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(input)
 	if dragging and input == dragInput then
 		updateInput(input)
 	end
 end)
 
--- Alterna ativação/desativação ao clicar
+-- Alterna ativação
 button.MouseButton1Click:Connect(function()
 	autoRebateAtivo = not autoRebateAtivo
 	if autoRebateAtivo then
