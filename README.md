@@ -8,6 +8,8 @@ local range = 10 -- Distância de detecção da bola
 local reboundForce = 100 -- Força do rebote
 local enabled = false -- Estado inicial (desligado)
 
+local RunService = game:GetService("RunService")
+
 -- 🧱 Interface
 local gui = Instance.new("ScreenGui")
 gui.Name = "RebateGui"
@@ -31,17 +33,16 @@ local function rebound(ball)
 	ball.AssemblyLinearVelocity = direction * reboundForce
 end
 
--- 🔄 Loop de checagem
-task.spawn(function()
-	while task.wait(0.1) do
-		if enabled then
-			for _, obj in ipairs(workspace:GetChildren()) do
-				if obj:IsA("BasePart") and obj.Name == "PhantomBall" then
-					local dist = (obj.Position - root.Position).Magnitude
-					if dist < range then
-						rebound(obj)
-					end
-				end
+-- 🔄 Loop de checagem contínuo (muito mais rápido)
+RunService.Heartbeat:Connect(function()
+	if not enabled then return end
+
+	-- Faz a checagem a cada frame (60x por segundo)
+	for _, obj in ipairs(workspace:GetChildren()) do
+		if obj:IsA("BasePart") and obj.Name == "PhantomBall" then
+			local dist = (obj.Position - root.Position).Magnitude
+			if dist < range then
+				rebound(obj)
 			end
 		end
 	end
