@@ -1,30 +1,23 @@
--- AutoRebateAvancado.lua
+-- AutoRebateFinal.lua
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local ALCANCE = 20
 
--- RemoteEvent que será usado pelo servidor
+-- RemoteEvent do servidor
 local rebaterEvento = ReplicatedStorage:WaitForChild("RebaterBolaEvento")
 
 -- Flag de ativação
 local autoRebateAtivo = false
 
 -- ===============================
--- Criar GUI persistente
+-- Criar botão simples na tela
 -- ===============================
-local function criarGUI()
-    local playerGui = player:WaitForChild("PlayerGui")
-
-    -- Evitar criar múltiplas GUIs
-    if playerGui:FindFirstChild("AutoRebateGUI") then
-        return playerGui.AutoRebateGUI
-    end
-
+local playerGui = player:WaitForChild("PlayerGui")
+if not playerGui:FindFirstChild("AutoRebateGUI") then
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "AutoRebateGUI"
     screenGui.ResetOnSpawn = false
@@ -40,42 +33,6 @@ local function criarGUI()
     button.Text = "AutoRebate: DESATIVADO"
     button.Parent = screenGui
 
-    -- Botão móvel
-    local dragging = false
-    local dragInput, dragStart, startPos
-
-    local function updateInput(input)
-        local delta = input.Position - dragStart
-        button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-                                    startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-
-    button.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = button.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    button.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input == dragInput then
-            updateInput(input)
-        end
-    end)
-
-    -- Alterna ativação
     button.MouseButton1Click:Connect(function()
         autoRebateAtivo = not autoRebateAtivo
         if autoRebateAtivo then
@@ -86,14 +43,10 @@ local function criarGUI()
             button.BackgroundColor3 = Color3.fromRGB(255,0,0)
         end
     end)
-
-    return screenGui
 end
 
-criarGUI()
-
 -- ===============================
--- Função para pegar bolas no workspace
+-- Função para pegar todas as bolas no workspace
 -- ===============================
 local function getBalls()
     local balls = {}
@@ -106,7 +59,7 @@ local function getBalls()
 end
 
 -- ===============================
--- Loop principal para rebater
+-- Loop principal de detecção
 -- ===============================
 RunService.Heartbeat:Connect(function()
     local char = player.Character
@@ -119,13 +72,13 @@ RunService.Heartbeat:Connect(function()
         for _, ball in ipairs(balls) do
             local distancia = (ball.Position - root.Position).Magnitude
             if distancia <= ALCANCE then
-                -- Calcula se a bola está se aproximando
+                -- Checa se a bola está se aproximando
                 local vel = ball.Velocity
                 local dirParaPlayer = (root.Position - ball.Position).Unit
                 local aproximando = vel:Dot(dirParaPlayer)
 
                 if aproximando > 0 then
-                    -- Força proporcional à velocidade da bola
+                    -- Envia evento para o servidor rebater a bola
                     rebaterEvento:FireServer(ball, aproximando)
                 end
             end
@@ -133,7 +86,11 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Garante GUI persistente após respawn
+-- Garante que o botão exista após respawn
 player.CharacterAdded:Connect(function()
-    criarGUI()
+    if not playerGui:FindFirstChild("AutoRebateGUI") then
+        -- recria GUI caso tenha sido removida
+        local clone = script:Clone()
+        clone.Parent = player
+    end
 end)
