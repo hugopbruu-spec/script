@@ -1,4 +1,4 @@
--- AutoRebatePersistent.lua
+-- AutoRebateAvancado.lua
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -90,10 +90,10 @@ local function criarGUI()
     return screenGui
 end
 
-local gui = criarGUI()
+criarGUI()
 
 -- ===============================
--- Loop para detectar a bola
+-- Função para pegar bolas no workspace
 -- ===============================
 local function getBalls()
     local balls = {}
@@ -105,6 +105,9 @@ local function getBalls()
     return balls
 end
 
+-- ===============================
+-- Loop principal para rebater
+-- ===============================
 RunService.Heartbeat:Connect(function()
     local char = player.Character
     if not char then return end
@@ -116,14 +119,21 @@ RunService.Heartbeat:Connect(function()
         for _, ball in ipairs(balls) do
             local distancia = (ball.Position - root.Position).Magnitude
             if distancia <= ALCANCE then
-                -- Envia evento para o servidor rebater a bola
-                rebaterEvento:FireServer(ball)
+                -- Calcula se a bola está se aproximando
+                local vel = ball.Velocity
+                local dirParaPlayer = (root.Position - ball.Position).Unit
+                local aproximando = vel:Dot(dirParaPlayer)
+
+                if aproximando > 0 then
+                    -- Força proporcional à velocidade da bola
+                    rebaterEvento:FireServer(ball, aproximando)
+                end
             end
         end
     end
 end)
 
--- Garante que GUI não some após respawn
+-- Garante GUI persistente após respawn
 player.CharacterAdded:Connect(function()
     criarGUI()
 end)
