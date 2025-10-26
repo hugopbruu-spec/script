@@ -1,89 +1,41 @@
--- AutoBloquePhantomBall.lua
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+-- Script Local (StarterPlayerScripts)
+-- Sistema de rebater bola automaticamente (para uso em jogo próprio)
 
-local player = Players.LocalPlayer
-local ALCANCE = 15 -- alcance de detecção da bola
-local BOTAO_BLOQUE = Enum.KeyCode.E -- ou a tecla correspondente ao botão BLOQUE
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRoot = character:WaitForChild("HumanoidRootPart")
+local debounce = false
+local autoReflect = false
 
-local ativo = false
+-- Criar botão para ativar/desativar
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local toggleButton = Instance.new("TextButton", screenGui)
+toggleButton.Size = UDim2.new(0, 150, 0, 40)
+toggleButton.Position = UDim2.new(0.5, -75, 0.9, 0)
+toggleButton.Text = "Auto Rebate: OFF"
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
 
--- ===============================
--- Botão simples na tela
--- ===============================
-local playerGui = player:WaitForChild("PlayerGui")
-if not playerGui:FindFirstChild("AutoBloqueGUI") then
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "AutoBloqueGUI"
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = playerGui
+toggleButton.MouseButton1Click:Connect(function()
+	autoReflect = not autoReflect
+	toggleButton.Text = autoReflect and "Auto Rebate: ON" or "Auto Rebate: OFF"
+	toggleButton.BackgroundColor3 = autoReflect and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+end)
 
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0,200,0,50)
-    button.Position = UDim2.new(0,50,0,50)
-    button.BackgroundColor3 = Color3.fromRGB(255,0,0)
-    button.TextColor3 = Color3.fromRGB(255,255,255)
-    button.Font = Enum.Font.SourceSansBold
-    button.TextSize = 20
-    button.Text = "AutoBloque: DESATIVADO"
-    button.Parent = screenGui
+-- Função para detectar bola próxima
+game:GetService("RunService").Heartbeat:Connect(function()
+	if not autoReflect or debounce then return end
 
-    button.MouseButton1Click:Connect(function()
-        ativo = not ativ
-        if ativo then
-            button.Text = "AutoBloque: ATIVADO"
-            button.BackgroundColor3 = Color3.fromRGB(0,255,0)
-        else
-            button.Text = "AutoBloque: DESATIVADO"
-            button.BackgroundColor3 = Color3.fromRGB(255,0,0)
-        end
-    end)
-end
-
--- ===============================
--- Função para pegar todas as bolas no workspace
--- ===============================
-local function getBalls()
-    local balls = {}
-    for _, obj in ipairs(workspace:GetChildren()) do
-        if obj:IsA("BasePart") and obj.Name:lower():find("ball") then
-            table.insert(balls, obj)
-        end
-    end
-    return balls
-end
-
--- ===============================
--- Loop principal para detectar e bloquear
--- ===============================
-RunService.Heartbeat:Connect(function()
-    if not ativo then return end
-    local char = player.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    local balls = getBalls()
-    for _, ball in ipairs(balls) do
-        local distancia = (ball.Position - root.Position).Magnitude
-        if distancia <= ALCANCE then
-            local vel = ball.Velocity
-            local dirParaPlayer = (root.Position - ball.Position).Unit
-            local aproximando = vel:Dot(dirParaPlayer)
-
-            if aproximando > 0 then
-                -- Quanto maior a velocidade da bola, mais rápido bloqueia
-                local delay = math.max(0.05, 1 / (aproximando/20))
-                spawn(function()
-                    -- Simula pressionar a tecla BLOQUE
-                    UserInputService.InputBegan:Fire({
-                        KeyCode = BOTAO_BLOQUE,
-                        UserInputType = Enum.UserInputType.Keyboard
-                    }, false)
-                    wait(delay)
-                end)
-            end
-        end
-    end
+	for _, ball in ipairs(workspace:GetChildren()) do
+		if ball:IsA("Part") and ball.Name == "Ball" then
+			local distance = (ball.Position - humanoidRoot.Position).Magnitude
+			if distance < 10 then -- alcance de rebater
+				debounce = true
+				print("Rebateu a bola!")
+				ball.Velocity = (ball.Position - humanoidRoot.Position).Unit * 150
+				task.wait(0.2)
+				debounce = false
+			end
+		end
+	end
 end)
