@@ -30,7 +30,7 @@ if not playerGui:FindFirstChild("AutoBloqueGUI") then
     button.Parent = screenGui
 
     button.MouseButton1Click:Connect(function()
-        ativo = not ativo
+        ativo = not ativ
         if ativo then
             button.Text = "AutoBloque: ATIVADO"
             button.BackgroundColor3 = Color3.fromRGB(0,255,0)
