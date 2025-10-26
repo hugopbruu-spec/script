@@ -1,13 +1,12 @@
--- Script Local (StarterPlayerScripts)
--- Sistema de rebater bola automaticamente (para uso em jogo próprio)
-
+-- LocalScript em StarterPlayerScripts
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRoot = character:WaitForChild("HumanoidRootPart")
-local debounce = false
-local autoReflect = false
 
--- Criar botão para ativar/desativar
+local autoReflect = false
+local debounce = false
+
+-- Criar GUI para ativar/desativar
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local toggleButton = Instance.new("TextButton", screenGui)
 toggleButton.Size = UDim2.new(0, 150, 0, 40)
@@ -22,17 +21,18 @@ toggleButton.MouseButton1Click:Connect(function()
 	toggleButton.BackgroundColor3 = autoReflect and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
 end)
 
--- Função para detectar bola próxima
-game:GetService("RunService").Heartbeat:Connect(function()
+-- Função de rebater a bola
+game:GetService("RunService").RenderStepped:Connect(function()
 	if not autoReflect or debounce then return end
 
 	for _, ball in ipairs(workspace:GetChildren()) do
 		if ball:IsA("Part") and ball.Name == "Ball" then
 			local distance = (ball.Position - humanoidRoot.Position).Magnitude
-			if distance < 10 then -- alcance de rebater
+			if distance < 10 then -- ajuste o alcance aqui
 				debounce = true
-				print("Rebateu a bola!")
-				ball.Velocity = (ball.Position - humanoidRoot.Position).Unit * 150
+				print("Bola rebatida!")
+				-- Rebater a bola na direção oposta do jogador
+				ball.Velocity = (ball.Position - humanoidRoot.Position).Unit * 100
 				task.wait(0.2)
 				debounce = false
 			end
