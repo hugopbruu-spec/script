@@ -1,4 +1,4 @@
--- PerformanceManager.lua (LocalScript)
+ -- PerformanceManager.lua (LocalScript)
 -- Use em StarterPlayerScripts
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
