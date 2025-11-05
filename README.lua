@@ -1,56 +1,78 @@
--- Import necessary modules
 local game = require('game')
 local player = require('player')
 local ui = require('ui')
 
--- Initialize variables
 local isAutoParryActive = false
 local isAutoSpamActive = false
 
--- Create UI buttons
-local autoParryButton = ui.newButton('Auto Parry', function() toggleAutoParry() end)
-local autoSpamButton = ui.newButton('Auto Spam', function() toggleAutoSpam() end)
+local function createButton(text, callback)
+    local button = ui.newButton(text, callback)
+    ui.addButton(button)
+    return button
+end
 
--- Function to toggle Auto Parry
-function toggleAutoParry()
+local autoParryButton = createButton('Auto Parry', function() toggleAutoParry() end)
+local autoSpamButton = createButton('Auto Spam', function() toggleAutoSpam() end)
+
+local function toggleAutoParry()
     isAutoParryActive = not isAutoParryActive
     if isAutoParryActive then
         autoParryButton:setText('Auto Parry (On)')
-        game:getService('RunService'):BindToRenderStep('AutoParry', 0, handleAutoParry)
+        game.registerEvent('ballUpdate', handleAutoParry)
     else
         autoParryButton:setText('Auto Parry (Off)')
-        game:getService('RunService'):UnbindFromRenderStep('AutoParry')
+        game.unregisterEvent('ballUpdate', handleAutoParry)
     end
 end
 
--- Function to handle Auto Parry
-function handleAutoParry(deltaTime)
-    local ball = game:getService('Workspace'):FindFirstChild('Ball')
-    if ball and ball.Velocity.Magnitude > 50 and ball.Velocity.Magnitude < 100 then -- Adjust velocity range as needed
-        player:parry()
+local function handleAutoParry(ball)
+    if ball.speed == 'medium' then
+        player.parry()
     end
 end
 
--- Function to toggle Auto Spam
-function toggleAutoSpam()
+local function toggleAutoSpam()
     isAutoSpamActive = not isAutoSpamActive
     if isAutoSpamActive then
         autoSpamButton:setText('Auto Spam (On)')
-        game:getService('RunService'):BindToRenderStep('AutoSpam', 0, handleAutoSpam)
+        game.registerEvent('ballUpdate', handleAutoSpam)
     else
         autoSpamButton:setText('Auto Spam (Off)')
-        game:getService('RunService'):UnbindFromRenderStep('AutoSpam')
+        game.unregisterEvent('ballUpdate', handleAutoSpam)
     end
 end
 
--- Function to handle Auto Spam
-function handleAutoSpam(deltaTime)
-    local ball = game:getService('Workspace'):FindFirstChild('Ball')
-    if ball and ball.Velocity.Magnitude > 100 then -- Adjust velocity threshold as needed
-        player:parry()
+local function handleAutoSpam(ball)
+    if ball.speed == 'high' then
+        local interval = 100
+        local function spamParry()
+            player.parry()
+        end
+        game.setInterval(spamParry, interval)
+        game.setTimeout(function() game.clearInterval(spamParry) end, 5000)
     end
 end
 
--- Add buttons to the UI
-ui:addButton(autoParryButton)
-ui:addButton(autoSpamButton)
+-- Obfuscation techniques
+local function obfuscateString(str)
+    local obfuscated = ''
+    for i = 1, #str do
+        obfuscated = obfuscated .. string.char(string.byte(str, i) + 1)
+    end
+    return obfuscated
+end
+
+local function deobfuscateString(str)
+    local deobfuscated = ''
+    for i = 1, #str do
+        deobfuscated = deobfuscated .. string.char(string.byte(str, i) - 1)
+    end
+    return deobfuscated
+end
+
+-- Example usage of obfuscation
+local obfuscatedText = obfuscateString('Auto Parry')
+autoParryButton:setText(deobfuscateString(obfuscatedText))
+
+obfuscatedText = obfuscateString('Auto Spam')
+autoSpamButton:setText(deobfuscateString(obfuscatedText))
