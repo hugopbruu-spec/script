@@ -18,16 +18,17 @@ local function toggleAutoParry()
     isAutoParryActive = not isAutoParryActive
     if isAutoParryActive then
         autoParryButton:setText('Auto Parry (On)')
-        game.registerEvent('ballUpdate', handleAutoParry)
+        game:getService('RunService'):BindToRenderStep('AutoParry', 0, handleAutoParry)
     else
         autoParryButton:setText('Auto Parry (Off)')
-        game.unregisterEvent('ballUpdate', handleAutoParry)
+        game:getService('RunService'):UnbindFromRenderStep('AutoParry')
     end
 end
 
-local function handleAutoParry(ball)
-    if ball.speed == 'medium' then
-        player.parry()
+local function handleAutoParry(deltaTime)
+    local ball = game:GetService('Workspace'):FindFirstChild('Ball')
+    if ball and ball.Velocity.Magnitude > 50 and ball.Velocity.Magnitude < 100 then
+        player:parry()
     end
 end
 
@@ -35,21 +36,17 @@ local function toggleAutoSpam()
     isAutoSpamActive = not isAutoSpamActive
     if isAutoSpamActive then
         autoSpamButton:setText('Auto Spam (On)')
-        game.registerEvent('ballUpdate', handleAutoSpam)
+        game:getService('RunService'):BindToRenderStep('AutoSpam', 0, handleAutoSpam)
     else
         autoSpamButton:setText('Auto Spam (Off)')
-        game.unregisterEvent('ballUpdate', handleAutoSpam)
+        game:getService('RunService'):UnbindFromRenderStep('AutoSpam')
     end
 end
 
-local function handleAutoSpam(ball)
-    if ball.speed == 'high' then
-        local interval = 100
-        local function spamParry()
-            player.parry()
-        end
-        game.setInterval(spamParry, interval)
-        game.setTimeout(function() game.clearInterval(spamParry) end, 5000)
+local function handleAutoSpam(deltaTime)
+    local ball = game:GetService('Workspace'):FindFirstChild('Ball')
+    if ball and ball.Velocity.Magnitude > 100 then
+        player:parry()
     end
 end
 
