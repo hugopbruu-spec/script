@@ -1,75 +1,57 @@
-local game = require('game')
-local player = require('player')
-local ui = require('ui')
+-- Variáveis de controle
+local autoDefesaAtivada = false
+local personagem = getPersonagem()  -- Função fictícia para obter o personagem
 
-local isAutoParryActive = false
-local isAutoSpamActive = false
-
-local function createButton(text, callback)
-    local button = ui.newButton(text, callback)
-    ui.addButton(button)
-    return button
-end
-
-local autoParryButton = createButton('Auto Parry', function() toggleAutoParry() end)
-local autoSpamButton = createButton('Auto Spam', function() toggleAutoSpam() end)
-
-local function toggleAutoParry()
-    isAutoParryActive = not isAutoParryActive
-    if isAutoParryActive then
-        autoParryButton:setText('Auto Parry (On)')
-        game:getService('RunService'):BindToRenderStep('AutoParry', 0, handleAutoParry)
+-- Função para alternar a auto defesa
+function alternarAutoDefesa()
+    if autoDefesaAtivada then
+        autoDefesaAtivada = false
+        print("Auto defesa desativada.")
     else
-        autoParryButton:setText('Auto Parry (Off)')
-        game:getService('RunService'):UnbindFromRenderStep('AutoParry')
+        autoDefesaAtivada = true
+        print("Auto defesa ativada.")
     end
 end
 
-local function handleAutoParry(deltaTime)
-    local ball = game:GetService('Workspace'):FindFirstChild('Ball')
-    if ball and ball.Velocity.Magnitude > 50 and ball.Velocity.Magnitude < 100 then
-        player:parry()
+-- Função para detectar ataques inimigos (simplificada)
+function detectarAtaquesInimigos()
+    -- Aqui você colocaria a lógica de detecção de ataque, como colisões com projéteis ou inimigos
+    -- Vamos simular com uma condição de exemplo:
+    local ataqueDetectado = verificarAtaque()  -- Função fictícia para verificar ataques
+
+    if autoDefesaAtivada and ataqueDetectado then
+        executarDefesa()  -- Função fictícia para realizar defesa
     end
 end
 
-local function toggleAutoSpam()
-    isAutoSpamActive = not isAutoSpamActive
-    if isAutoSpamActive then
-        autoSpamButton:setText('Auto Spam (On)')
-        game:getService('RunService'):BindToRenderStep('AutoSpam', 0, handleAutoSpam)
-    else
-        autoSpamButton:setText('Auto Spam (Off)')
-        game:getService('RunService'):UnbindFromRenderStep('AutoSpam')
-    end
+-- Função de defesa (simulação)
+function executarDefesa()
+    print("Defesa ativada: Personagem executando ação de defesa.")
+    -- Aqui você pode adicionar a lógica de defesa, como desviar ou bloquear ataques
+    personagem.bloquearAtaque()  -- Função fictícia para bloquear ataques
 end
 
-local function handleAutoSpam(deltaTime)
-    local ball = game:GetService('Workspace'):FindFirstChild('Ball')
-    if ball and ball.Velocity.Magnitude > 100 then
-        player:parry()
-    end
+-- Função para verificar se um ataque foi detectado
+function verificarAtaque()
+    -- Lógica para verificar se um inimigo está atacando, como colisões ou proximidade
+    -- Para este exemplo, vamos simplesmente retornar verdadeiro para simular um ataque
+    return true
 end
 
--- Obfuscation techniques
-local function obfuscateString(str)
-    local obfuscated = ''
-    for i = 1, #str do
-        obfuscated = obfuscated .. string.char(string.byte(str, i) + 1)
-    end
-    return obfuscated
+-- Função principal que é chamada em cada atualização do jogo (Loop)
+function atualizarJogo()
+    -- Atualiza o estado do jogo, por exemplo, a posição do personagem
+    detectarAtaquesInimigos()  -- Chama a função que verifica os ataques e ativa a defesa se necessário
 end
 
-local function deobfuscateString(str)
-    local deobfuscated = ''
-    for i = 1, #str do
-        deobfuscated = deobfuscated .. string.char(string.byte(str, i) - 1)
-    end
-    return deobfuscated
+-- Exemplo de como ativar e desativar a auto defesa durante o jogo
+function teclaAtalho()
+    -- A função que é chamada quando o jogador pressiona uma tecla para alternar a auto defesa
+    alternarAutoDefesa()
 end
 
--- Example usage of obfuscation
-local obfuscatedText = obfuscateString('Auto Parry')
-autoParryButton:setText(deobfuscateString(obfuscatedText))
-
-obfuscatedText = obfuscateString('Auto Spam')
-autoSpamButton:setText(deobfuscateString(obfuscatedText))
+-- Simulação de pressionar a tecla de atalho para alternar
+teclaAtalho()  -- Ativa a auto defesa
+atualizarJogo()  -- Atualiza o jogo para realizar a defesa
+teclaAtalho()  -- Desativa a auto defesa
+atualizarJogo()  -- Atualiza o jogo novamente sem a defesa
