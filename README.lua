@@ -16,10 +16,10 @@ function toggleAutoParry()
     isAutoParryActive = not isAutoParryActive
     if isAutoParryActive then
         autoParryButton:setText('Auto Parry (On)')
-        game.on('ballUpdate', handleAutoParry)
+        game.registerEventHandler('ballUpdate', handleAutoParry)
     else
         autoParryButton:setText('Auto Parry (Off)')
-        game.off('ballUpdate', handleAutoParry)
+        game.unregisterEventHandler('ballUpdate', handleAutoParry)
     end
 end
 
@@ -35,10 +35,10 @@ function toggleAutoSpam()
     isAutoSpamActive = not isAutoSpamActive
     if isAutoSpamActive then
         autoSpamButton:setText('Auto Spam (On)')
-        game.on('ballUpdate', handleAutoSpam)
+        game.registerEventHandler('ballUpdate', handleAutoSpam)
     else
         autoSpamButton:setText('Auto Spam (Off)')
-        game.off('ballUpdate', handleAutoSpam)
+        game.unregisterEventHandler('ballUpdate', handleAutoSpam)
     end
 end
 
@@ -49,8 +49,8 @@ function handleAutoSpam(ball)
         local function spamParry()
             player.parry()
         end
-        game:setTimeout(spamParry, interval)
-        game:setTimeout(function() game.clearTimeout(spamParry) end, 5000) -- Stop spamming after 5 seconds
+        game.setTimeout(spamParry, interval)
+        game.setTimeout(function() game.clearTimeout(spamParry) end, 5000) -- Stop spamming after 5 seconds
     end
 end
 
