@@ -24,6 +24,7 @@ AutoBuyToggle.Size = UDim2.new(0.9, 0, 0, 30)
 AutoBuyToggle.Position = UDim2.new(0.05, 0, 0.15, 0)
 AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 AutoBuyToggle.TextColor3 = Color3.new(1, 1, 1)
+AutoBuyToggle.Text = "Auto Buy Seeds: Off"
 AutoBuyToggle.Font = Enum.Font.SourceSans
 AutoBuyToggle.Parent = MainFrame
 
@@ -99,7 +100,7 @@ local function autoBuySeeds()
     end
 end
 
--- Função para duplicar um item (ATUALIZADA e REFINADA)
+-- Função para duplicar um item (ATUALIZADA e CAMUFLADA)
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
@@ -112,7 +113,10 @@ local function duplicateItem()
 
     if item then
         local newItem = item:Clone()
-        newItem.Name = item.Name .. "Copy"
+
+        -- Gerar um nome único para o novo item
+        newItem.Name = item.Name -- Mantém o mesmo nome do original (se for seguro)
+        newItem.Name = newItem.Name .. math.random(1000,9999) --Remove essa linha se o jogo usa o nome para validação
         newItem.Parent = character
 
         -- Se for um Tool, a posição é controlada pelo personagem.
@@ -147,10 +151,18 @@ local function duplicateItem()
                     end)
                 end
 
+                -- Remover o nome "Copy" dos scripts para evitar detecção
+                if string.find(newChild.Name, "Copy") then
+                    newChild.Name = string.gsub(newChild.Name, "Copy", "")
+                end
+
                 -- Gerar um novo ID único para o item duplicado (se necessário)
                 if newChild:FindFirstChild("ItemID") and newChild.ItemID:IsA("StringValue") then
                     newChild.ItemID.Value = tostring(math.random(100000, 999999)) -- Exemplo
                 end
+
+            -- Remova essa linha se o jogo usa o nome para validação
+            newChild.Name = newChild.Name .. math.random(1000,9999)
             end
         end
 
