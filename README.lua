@@ -24,22 +24,34 @@ AutoBuyToggle.Size = UDim2.new(0.9, 0, 0, 30)
 AutoBuyToggle.Position = UDim2.new(0.05, 0, 0.15, 0)
 AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 AutoBuyToggle.TextColor3 = Color3.new(1, 1, 1)
-AutoBuyToggle.Text = "Auto Buy Seeds: Off"
 AutoBuyToggle.Font = Enum.Font.SourceSans
 AutoBuyToggle.Parent = MainFrame
 
 local AutoBuyEnabled = false
 
-AutoBuyToggle.MouseButton1Click:Connect(function()
-    AutoBuyEnabled = not AutoBuyEnabled
+-- Função para atualizar o texto do botão AutoBuy
+local function updateAutoBuyButtonText()
     if AutoBuyEnabled then
         AutoBuyToggle.Text = "Auto Buy Seeds: On"
-        print("Auto Buy Ativado")
+        AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(100, 150, 100) -- Verde claro
     else
         AutoBuyToggle.Text = "Auto Buy Seeds: Off"
+        AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    end
+end
+
+AutoBuyToggle.MouseButton1Click:Connect(function()
+    AutoBuyEnabled = not AutoBuyEnabled
+    updateAutoBuyButtonText() -- Atualiza o texto do botão
+    if AutoBuyEnabled then
+        print("Auto Buy Ativado")
+    else
         print("Auto Buy Desativado")
     end
 end)
+
+-- Inicializa o texto do botão
+updateAutoBuyButtonText()
 
 local DuplicateButton = Instance.new("TextButton")
 DuplicateButton.Size = UDim2.new(0.9, 0, 0, 30)
@@ -87,7 +99,7 @@ local function autoBuySeeds()
     end
 end
 
--- Função para duplicar um item (ATUALIZADA e APRIMORADA)
+-- Função para duplicar um item (ATUALIZADA e REFINADA)
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
@@ -118,14 +130,15 @@ local function duplicateItem()
 
         -- Copiar todos os filhos (incluindo scripts, ValueObjects, etc.)
         for _, child in pairs(item:GetChildren()) do
-            if child:IsA("Script") then
-                local newScript = child:Clone()
-                newScript.Parent = newItem
-                newScript.Disabled = false -- Ativa o script
+            local newChild = child:Clone()
+            newChild.Parent = newItem
+
+            if newChild:IsA("Script") then
+                newChild.Disabled = false -- Ativa o script
 
                 -- Conectar eventos específicos do script (adapte para cada script)
                 if child.Name == "PlantingScript" then
-                    newScript.Parent.Touched:Connect(function(hit)
+                    newChild.Parent.Touched:Connect(function(hit)
                         if hit.Name == "PlantingArea" then
                             print("Planta plantada (cópia)!")
                             -- Lógica de plantação (adapte para o seu jogo)
@@ -133,22 +146,11 @@ local function duplicateItem()
                         end
                     end)
                 end
-            elseif child:IsA("ClickDetector") then
-                local newClickDetector = child:Clone()
-                newClickDetector.Parent = newItem
-                newClickDetector.MouseClick:Connect(function(player)
-                    -- Lógica para lidar com o clique
-                    print("Item " .. newItem.Name .. " clicado por " .. player.Name)
-                end)
-            elseif child:IsA("Sound") then
-                local newSound = child:Clone()
-                newSound.Parent = newItem
-            elseif child:IsA("ValueBase") then -- IntValue, StringValue, BoolValue, etc.
-                local newValue = child:Clone()
-                newValue.Parent = newItem
-            else
-                local newChild = child:Clone()
-                newChild.Parent = newItem
+
+                -- Gerar um novo ID único para o item duplicado (se necessário)
+                if newChild:FindFirstChild("ItemID") and newChild.ItemID:IsA("StringValue") then
+                    newChild.ItemID.Value = tostring(math.random(100000, 999999)) -- Exemplo
+                end
             end
         end
 
