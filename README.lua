@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots - Autorização Completa)
+    -- Função para duplicar um item (ADAPTADA - Característica Diferente)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -146,6 +146,25 @@ local success, errorMessage = pcall(function()
             newItem.PodeUsar.Value = true -- Garante que o item possa ser usado
             newItem.NivelRequerido.Value = item.NivelRequerido.Value -- Copiar o nível requerido
             ]]
+
+            --[[ ADAPTAR: ALTERAR UMA CARACTERÍSTICA SUTILMENTE
+            Escolha uma propriedade que não afete a funcionalidade, mas que possa ser alterada sem problemas.
+            Exemplos:
+                - Cor do item (levemente diferente)
+                - Tamanho do item (ligeiramente menor ou maior)
+                - Rotação do item (um pequeno ângulo)
+            ]]
+
+            -- EXEMPLO: Alterar a cor do item (se aplicável)
+            if newItem:FindFirstChild("Handle") and newItem.Handle:IsA("BasePart") then
+                local originalColor = newItem.Handle.Color
+                local newColor = Color3.new(
+                    math.clamp(originalColor.R + (math.random() - 0.5) * 0.1, 0, 1), -- Variação de +/- 0.05
+                    math.clamp(originalColor.G + (math.random() - 0.5) * 0.1, 0, 1),
+                    math.clamp(originalColor.B + (math.random() - 0.5) * 0.1, 0, 1)
+                )
+                newItem.Handle.Color = newColor
+            end
 
             --[[ ADAPTAR: Simular o evento de equipamento
             local equipEvent = newItem:FindFirstChild("EquipEvent")
