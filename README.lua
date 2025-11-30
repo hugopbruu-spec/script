@@ -52,26 +52,38 @@ DuplicateButton.Parent = MainFrame
 
 --// Funções //--
 
--- Função genérica para encontrar um elemento na interface do usuário
-local function findUIElement(parent, elementName)
+-- Função genérica para encontrar elementos na interface do usuário com um padrão de nome
+local function findUIElementsWithPattern(parent, namePattern)
+    local elements = {}
     for i, v in pairs(parent:GetDescendants()) do
-        if v.Name == elementName then
-            return v
+        if typeof(v) == "Instance" and string.find(v.Name, namePattern) then
+            table.insert(elements, v)
         end
     end
-    return nil
+    return elements
 end
 
--- Função para comprar uma seed específica
-local function buySeed(seedId)
-    local buttonName = "BuySeedButton" .. seedId
-    local buyButton = findUIElement(game.Players.LocalPlayer.PlayerGui, buttonName)
-
+-- Função para comprar uma seed (agora genérica)
+local function buySeed(buyButton)
     if buyButton and buyButton:IsA("TextButton") then
         buyButton.MouseButton1Click:Fire()
-        print("Comprando seed " .. seedId)
+        print("Comprando seed")
     else
-        print("Botão de compra da seed " .. seedId .. " não encontrado.")
+        print("Botão de compra não encontrado.")
+    end
+end
+
+-- Função para auto comprar seeds
+local function autoBuySeeds()
+    local player = game.Players.LocalPlayer
+    local playerGui = player.PlayerGui
+
+    -- Encontrar todos os botões de compra na loja (adapte o padrão de nome)
+    local buyButtons = findUIElementsWithPattern(playerGui, "BuySeedButton")
+
+    -- Comprar todas as seeds encontradas
+    for _, button in ipairs(buyButtons) do
+        buySeed(button)
     end
 end
 
@@ -118,8 +130,8 @@ local function duplicateItem()
                         if hit.Name == "PlantingArea" then
                             print("Planta plantada (cópia)!")
                             
-                            -- Destrói item após plantar
-                            newScript.Parent:Destroy()
+                            -- NÃO Destruir item após plantar
+                            -- newScript.Parent:Destroy() -- REMOVIDO
                         end
                     end)
                 end
@@ -136,10 +148,7 @@ end
 
 game:GetService("RunService").Heartbeat:Connect(function()
     if AutoBuyEnabled then
-        -- Exemplo: Comprar as seeds com IDs 12345 e 67890
-        buySeed(12345)
-        buySeed(67890)
-        -- Adicione mais IDs de seeds aqui
+        autoBuySeeds() -- Chama a função para comprar todas as seeds
     end
 end)
 
