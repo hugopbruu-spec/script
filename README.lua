@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA - Característica Diferente)
+    -- Função para duplicar um item (ADAPTADA - Reconstrução Dinâmica)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -138,52 +138,32 @@ local success, errorMessage = pcall(function()
             -- Garantir que o item seja visível (pode ser necessário ajustar a posição)
             newItem.Handle.CFrame = item.Handle.CFrame -- Copiar a posição
 
-            --[[ ADAPTAR: Copiar propriedades específicas do item, incluindo propriedades de autorização
-            Por exemplo:
-            newItem.Dano.Value = item.Dano.Value
-            newItem.Alcance.Value = item.Alcance.Value
-            newItem.Custo.Value = item.Custo.Value
-            newItem.PodeUsar.Value = true -- Garante que o item possa ser usado
-            newItem.NivelRequerido.Value = item.NivelRequerido.Value -- Copiar o nível requerido
+            --[[ ADAPTAR: REPLICAÇÃO DINÂMICA
+            Copiar as propriedades e scripts essenciais do item original para o duplicado em tempo real.
+            Use loops para copiar propriedades e scripts dinamicamente.
             ]]
 
-            --[[ ADAPTAR: ALTERAR UMA CARACTERÍSTICA SUTILMENTE
-            Escolha uma propriedade que não afete a funcionalidade, mas que possa ser alterada sem problemas.
-            Exemplos:
-                - Cor do item (levemente diferente)
-                - Tamanho do item (ligeiramente menor ou maior)
-                - Rotação do item (um pequeno ângulo)
+            -- Exemplo (copiar todas as propriedades):
+            for propertyName, propertyValue in pairs(item:GetAttributes()) do
+                newItem:SetAttribute(propertyName, propertyValue)
+            end
+
+            -- Exemplo (copiar todos os scripts):
+            for i, child in ipairs(item:GetChildren()) do
+                if child:IsA("Script") then
+                    local newScript = child:Clone()
+                    newScript.Parent = newItem
+                    newScript.Disabled = false -- Ativar o script
+                end
+            end
+
+            --[[ ADAPTAR: SIMULAR A COMUNICAÇÃO COM O SERVIDOR (se necessário)
+            Se o item se comunica com o servidor ao plantar ou vender, simule essa comunicação.
             ]]
 
-            -- EXEMPLO: Alterar a cor do item (se aplicável)
-            if newItem:FindFirstChild("Handle") and newItem.Handle:IsA("BasePart") then
-                local originalColor = newItem.Handle.Color
-                local newColor = Color3.new(
-                    math.clamp(originalColor.R + (math.random() - 0.5) * 0.1, 0, 1), -- Variação de +/- 0.05
-                    math.clamp(originalColor.G + (math.random() - 0.5) * 0.1, 0, 1),
-                    math.clamp(originalColor.B + (math.random() - 0.5) * 0.1, 0, 1)
-                )
-                newItem.Handle.Color = newColor
-            end
-
-            --[[ ADAPTAR: Simular o evento de equipamento
-            local equipEvent = newItem:FindFirstChild("EquipEvent")
-            if equipEvent and equipEvent:IsA("RemoteEvent") then
-                equipEvent:FireServer()
-            end
+            --[[ ADAPTAR: REMOVER O ITEM ORIGINAL (se necessário)
+            Se você quiser que apenas o item duplicado seja utilizável, remova o item original do inventário.
             ]]
-
-            --[[ ADAPTAR: Simular a função de uso (se houver)
-            local useFunction = newItem:FindFirstChild("UseFunction")
-            if useFunction and useFunction:IsA("RemoteFunction") then
-                useFunction:InvokeServer()
-            end
-            ]]
-
-            -- Simular o evento de equipamento/ativação específico do jogo (ADAPTAR!)
-            if newItem:FindFirstChild("OnEquip") and newItem.OnEquip:IsA("RemoteEvent") then
-                newItem.OnEquip:FireServer()
-            end
 
             print("Item duplicado: " .. newItem.Name)
         else
