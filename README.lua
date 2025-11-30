@@ -100,7 +100,7 @@ local function autoBuySeeds()
     end
 end
 
--- Função para duplicar um item (ATUALIZADA e CAMUFLADA)
+-- Função para duplicar um item (ATUALIZADA e ISOLADA)
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
@@ -112,6 +112,13 @@ local function duplicateItem()
     local item = character:FindFirstChildOfClass("Tool")
 
     if item then
+        -- Desconectar todos os eventos do item original
+        for _, connection in pairs(item:GetDescendants()) do
+            if typeof(connection) == "RBXScriptConnection" then
+                connection:Disconnect()
+            end
+        end
+
         local newItem = item:Clone()
 
         -- Gerar um nome único para o novo item
@@ -126,7 +133,7 @@ local function duplicateItem()
         end
 
         -- Se for um modelo ou outra instância
-        if newItem:IsA("BasePart") then
+        if newItem:FindFirstChild("BasePart") then
             newItem.CFrame = item.CFrame * CFrame.new(0, 1, 0)
             newItem.CanCollide = true
             newItem.Anchored = false
