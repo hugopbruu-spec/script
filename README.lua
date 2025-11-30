@@ -2,7 +2,7 @@
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PVBHelper"
-ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Aguarda o PlayerGui carregar
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 250, 0, 300)
@@ -79,8 +79,10 @@ end
 -- Função para comprar uma seed (agora genérica)
 local function buySeed(buyButton)
     if buyButton and buyButton:IsA("TextButton") then
-        buyButton.MouseButton1Click:Fire()
-        print("Comprando seed")
+        pcall(function() -- Usar pcall para evitar erros ao executar o clique
+            buyButton.MouseButton1Click:Fire()
+            print("Comprando seed")
+        end)
     else
         print("Botão de compra não encontrado.")
     end
@@ -124,8 +126,10 @@ local function duplicateItem()
         newItem.Parent = character
 
         -- Copiar propriedades essenciais do item original
-        newItem. рукоятка = item.Handle:Clone() --Copia a рукоятка (punho/cabo) do item
-        newItem. рукоятка.Parent = newItem
+        if item:FindFirstChild("Handle") then
+          newItem.Handle = item.Handle:Clone() --Copia a рукоятка (punho/cabo) do item
+          newItem.Handle.Parent = newItem
+        end
 
         -- Se for um modelo ou outra instância
         if newItem:FindFirstChild("BasePart") then
@@ -169,15 +173,6 @@ local function duplicateItem()
         end
 
         print("Item duplicado: " .. item.Name)
-
-        -- Tentar camuflar o ID do jogador (altamente experimental e arriscado)
-        local playerId = player.UserId
-        local newPlayerId = math.random(100000000, 999999999)
-        player.UserId = newPlayerId
-
-        -- Tentar restaurar o ID do jogador após um curto período de tempo
-        wait(1)
-        player.UserId = playerId
     else
         print("Nenhum item equipado para duplicar.")
     end
