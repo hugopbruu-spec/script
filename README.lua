@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots - REPLICAÇÃO PERFEITA)
+    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots - Funcionalidade Completa)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -119,7 +119,7 @@ local success, errorMessage = pcall(function()
         local item = character:FindFirstChildOfClass("Tool")
 
         if item then
-            -- Desconectar todos os eventos do item original (IMPORTANTE)
+            -- Desconectar todos os eventos do item original (CRUCIAL)
             for _, connection in pairs(item:GetDescendants()) do
                 if typeof(connection) == "RBXScriptConnection" then
                     connection:Disconnect()
@@ -143,24 +143,42 @@ local success, errorMessage = pcall(function()
             newItem.Dano.Value = item.Dano.Value
             newItem.Alcance.Value = item.Alcance.Value
             newItem.Custo.Value = item.Custo.Value
+            newItem.PodePlantar.Value = item.PodePlantar.Value
+            newItem.PodeVender.Value = item.PodeVender.Value
+            ]]
+
+            --[[ ADAPTAR: Simular o evento de plantio (se necessário)
+            local plantEvent = newItem:FindFirstChild("PlantEvent")
+            if plantEvent and plantEvent:IsA("RemoteEvent") then
+                plantEvent:FireServer()
+            end
+            ]]
+
+            --[[ ADAPTAR: Simular o evento de venda (se necessário)
+            local sellEvent = newItem:FindFirstChild("SellEvent")
+            if sellEvent and sellEvent:IsA("RemoteEvent") then
+                sellEvent:FireServer()
+            end
+            ]]
+
+            --[[ ADAPTAR: Simular o evento de troca (se necessário)
+            local tradeEvent = newItem:FindFirstChild("TradeEvent")
+            if tradeEvent and tradeEvent:IsA("RemoteEvent") then
+                tradeEvent:FireServer()
+            end
             ]]
 
             -- Simular o evento de equipamento/ativação específico do jogo (ADAPTAR!)
             if newItem:FindFirstChild("OnEquip") and newItem.OnEquip:IsA("RemoteEvent") then
                 newItem.OnEquip:FireServer()
             end
-            --Ou
-          --[[ ADAPTAR Simular o evento especifico de equipar o item
-             local equipEvent = newItem:FindFirstChild("EquipEvent")
-             if equipEvent and equipEvent:IsA("RemoteEvent") then
-                equipEvent:FireServer(newItem)
-             end
-          ]]
+
             print("Item duplicado: " .. newItem.Name)
         else
             print("Nenhum item equipado para duplicar.")
         end
     end
+
     --// Loop de Auto Compra (Exemplo) //--
 
     game:GetService("RunService").Heartbeat:Connect(function()
