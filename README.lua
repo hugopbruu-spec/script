@@ -113,7 +113,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ATUALIZADA, EXTREMA e OCULTA)
+    -- Função para duplicar um item (ATUALIZADA e COMPLETA)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -181,6 +181,11 @@ local success, errorMessage = pcall(function()
                 -- Remova essa linha se o jogo usa o nome para validação
                 newChild.Name = newChild.Name .. math.random(1000,9999)
                 end
+            end
+
+            -- Simular o evento de equipamento (se necessário)
+            if newItem:FindFirstChild("EquipFunction") and newItem.EquipFunction:IsA("RemoteFunction") then
+                newItem.EquipFunction:InvokeServer()
             end
 
             print("Item duplicado: " .. item.Name)
