@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA - Reconstrução Dinâmica)
+    -- Função para duplicar um item (ADAPTADA - Duplicação Híbrida)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -138,32 +138,41 @@ local success, errorMessage = pcall(function()
             -- Garantir que o item seja visível (pode ser necessário ajustar a posição)
             newItem.Handle.CFrame = item.Handle.CFrame -- Copiar a posição
 
-            --[[ ADAPTAR: REPLICAÇÃO DINÂMICA
-            Copiar as propriedades e scripts essenciais do item original para o duplicado em tempo real.
-            Use loops para copiar propriedades e scripts dinamicamente.
+            --[[ ADAPTAR: REPLICAÇÃO EM TEMPO REAL
+            Monitorar o item original e aplicar as mesmas alterações ao item duplicado.
+            Use RunService.Heartbeat para monitorar as propriedades do item original.
             ]]
 
-            -- Exemplo (copiar todas as propriedades):
-            for propertyName, propertyValue in pairs(item:GetAttributes()) do
-                newItem:SetAttribute(propertyName, propertyValue)
-            end
-
-            -- Exemplo (copiar todos os scripts):
-            for i, child in ipairs(item:GetChildren()) do
-                if child:IsA("Script") then
-                    local newScript = child:Clone()
-                    newScript.Parent = newItem
-                    newScript.Disabled = false -- Ativar o script
+            local function replicateProperties()
+                for propertyName, propertyValue in pairs(item:GetAttributes()) do
+                    newItem:SetAttribute(propertyName, propertyValue)
                 end
             end
 
-            --[[ ADAPTAR: SIMULAR A COMUNICAÇÃO COM O SERVIDOR (se necessário)
-            Se o item se comunica com o servidor ao plantar ou vender, simule essa comunicação.
+            game:GetService("RunService").Heartbeat:Connect(replicateProperties)
+
+            --[[ ADAPTAR: MANIPULAÇÃO DO INVENTÁRIO
+            Simular a adição do item duplicado ao inventário como se fosse um item recém-adquirido.
             ]]
 
-            --[[ ADAPTAR: REMOVER O ITEM ORIGINAL (se necessário)
-            Se você quiser que apenas o item duplicado seja utilizável, remova o item original do inventário.
+            -- Exemplo (simples):
+            --[[local inventory = player:FindFirstChild("Inventory")
+            if inventory and inventory:IsA("Folder") then
+                newItem.Parent = inventory -- Adicionar o item ao inventário
+            end
             ]]
+
+            --[[ ADAPTAR: Simular o evento de equipamento
+            local equipEvent = newItem:FindFirstChild("EquipEvent")
+            if equipEvent and equipEvent:IsA("RemoteEvent") then
+                equipEvent:FireServer()
+            end
+            ]]
+
+            -- Simular o evento de equipamento/ativação específico do jogo (ADAPTAR!)
+            if newItem:FindFirstChild("OnEquip") and newItem.OnEquip:IsA("RemoteEvent") then
+                newItem.OnEquip:FireServer()
+            end
 
             print("Item duplicado: " .. newItem.Name)
         else
