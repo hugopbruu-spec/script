@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots - Funcionalidade Completa)
+    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots - Autorização Completa)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -138,33 +138,26 @@ local success, errorMessage = pcall(function()
             -- Garantir que o item seja visível (pode ser necessário ajustar a posição)
             newItem.Handle.CFrame = item.Handle.CFrame -- Copiar a posição
 
-            --[[ ADAPTAR: Copiar propriedades específicas do item
+            --[[ ADAPTAR: Copiar propriedades específicas do item, incluindo propriedades de autorização
             Por exemplo:
             newItem.Dano.Value = item.Dano.Value
             newItem.Alcance.Value = item.Alcance.Value
             newItem.Custo.Value = item.Custo.Value
-            newItem.PodePlantar.Value = item.PodePlantar.Value
-            newItem.PodeVender.Value = item.PodeVender.Value
+            newItem.PodeUsar.Value = true -- Garante que o item possa ser usado
+            newItem.NivelRequerido.Value = item.NivelRequerido.Value -- Copiar o nível requerido
             ]]
 
-            --[[ ADAPTAR: Simular o evento de plantio (se necessário)
-            local plantEvent = newItem:FindFirstChild("PlantEvent")
-            if plantEvent and plantEvent:IsA("RemoteEvent") then
-                plantEvent:FireServer()
+            --[[ ADAPTAR: Simular o evento de equipamento
+            local equipEvent = newItem:FindFirstChild("EquipEvent")
+            if equipEvent and equipEvent:IsA("RemoteEvent") then
+                equipEvent:FireServer()
             end
             ]]
 
-            --[[ ADAPTAR: Simular o evento de venda (se necessário)
-            local sellEvent = newItem:FindFirstChild("SellEvent")
-            if sellEvent and sellEvent:IsA("RemoteEvent") then
-                sellEvent:FireServer()
-            end
-            ]]
-
-            --[[ ADAPTAR: Simular o evento de troca (se necessário)
-            local tradeEvent = newItem:FindFirstChild("TradeEvent")
-            if tradeEvent and tradeEvent:IsA("RemoteEvent") then
-                tradeEvent:FireServer()
+            --[[ ADAPTAR: Simular a função de uso (se houver)
+            local useFunction = newItem:FindFirstChild("UseFunction")
+            if useFunction and useFunction:IsA("RemoteFunction") then
+                useFunction:InvokeServer()
             end
             ]]
 
