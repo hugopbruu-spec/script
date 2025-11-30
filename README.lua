@@ -52,19 +52,36 @@ DuplicateButton.Parent = MainFrame
 
 --// Funções //--
 
+-- Função genérica para encontrar um elemento na interface do usuário
+local function findUIElement(parent, elementName)
+    -- parent: O objeto pai onde a busca será realizada (ex: PlayerGui)
+    -- elementName: O nome do elemento que você está procurando (ex: "BuySeedButton123")
+
+    for i, v in pairs(parent:GetDescendants()) do
+        if v.Name == elementName then
+            return v -- Retorna o elemento se encontrado
+        end
+    end
+
+    return nil -- Retorna nil se o elemento não for encontrado
+end
+
 -- Função para comprar uma seed específica
 local function buySeed(seedId)
-    -- **IMPORTANTE:**
-    -- Esta é a parte mais complexa e depende da estrutura do jogo.
-    -- Você precisará inspecionar a interface da loja para encontrar os botões de compra.
-    -- Uma possível abordagem é usar `game.Workspace:GetDescendants()` para encontrar botões com nomes específicos.
-    -- Exemplo (adapte para o seu jogo):
-    for i, v in pairs(game.Workspace:GetDescendants()) do
-        if v:IsA("TextButton") and string.find(v.Name, "BuySeed" .. seedId) then
-            fireclickdetector(v) -- Simula um clique no botão
-            print("Comprando seed " .. seedId)
-            break
-        end
+    -- seedId: O ID da seed que você deseja comprar
+
+    -- **IMPORTANTE:** Descubra o nome exato do botão de compra da seed na interface do jogo
+    local buttonName = "BuySeedButton" .. seedId -- Exemplo: "BuySeedButton123"
+
+    -- Encontre o botão de compra usando a função findUIElement
+    local buyButton = findUIElement(game.Players.LocalPlayer.PlayerGui, buttonName)
+
+    if buyButton and buyButton:IsA("TextButton") then
+        -- Simule um clique no botão
+        buyButton.MouseButton1Click:Fire()
+        print("Comprando seed " .. seedId)
+    else
+        print("Botão de compra da seed " .. seedId .. " não encontrado.")
     end
 end
 
@@ -72,21 +89,33 @@ end
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
-    if not character then return end
-    local item = character:FindFirstChildOfClass("Tool") -- Pega o item equipado
+    if not character then
+        print("Personagem não encontrado.")
+        return
+    end
+
+    local item = character:FindFirstChildOfClass("Tool")
 
     if item then
-        -- Cria um clone do item
+        -- **IMPORTANTE:** Descubra como o item funciona internamente e como replicar sua funcionalidade
+        -- Se o item tem scripts, considere cloná-los também
+        -- Se o item depende de eventos, certifique-se de conectá-los corretamente
+
         local newItem = item:Clone()
-        newItem.Name = item.Name .. "Copy" -- Adiciona "Copy" ao nome para evitar conflitos
-        newItem.Parent = character -- Coloca o item duplicado no personagem
+        newItem.Name = item.Name .. "Copy"
+        newItem.Parent = character
 
-        -- Ajuste a posição para que não haja conflito (pode precisar de ajustes)
         newItem.CFrame = item.CFrame * CFrame.new(0, 1, 0)
-
-        -- Configurações adicionais para garantir que o item funcione corretamente
         newItem.CanCollide = true
         newItem.Anchored = false
+
+        -- **Exemplo de como copiar scripts (adapte para o seu item):**
+        for i, script in pairs(item:GetChildren()) do
+            if script:IsA("Script") then
+                local newScript = script:Clone()
+                newScript.Parent = newItem
+            end
+        end
 
         print("Item duplicado: " .. item.Name)
     else
@@ -109,7 +138,7 @@ end)
 --// Bind para Duplicar Item (Exemplo) //--
 
 game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
-    if input.KeyCode == Enum.KeyCode.Q then -- Define a tecla "Q" como atalho
+    if input.KeyCode == Enum.KeyCode.Q then
         duplicateItem()
     end
 end)
