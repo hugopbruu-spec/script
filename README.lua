@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots)
+    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots - REPLICAÇÃO PERFEITA)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -119,80 +119,48 @@ local success, errorMessage = pcall(function()
         local item = character:FindFirstChildOfClass("Tool")
 
         if item then
-            -- Desconectar todos os eventos do item original
+            -- Desconectar todos os eventos do item original (IMPORTANTE)
             for _, connection in pairs(item:GetDescendants()) do
                 if typeof(connection) == "RBXScriptConnection" then
                     connection:Disconnect()
                 end
             end
 
-            local newItem = Instance.new("Tool") --Cria um novo item ao invés de clonar
-            newItem.Name = item.Name -- Mantém o mesmo nome do original (se for seguro)
+            local newItem = item:Clone() -- Use clone para replicar tudo
+
+            -- Gerar um novo ID único para o item (ADAPTAR!)
+            local newItemId = tostring(math.random(1000000, 9999999)) -- Exemplo de ID aleatório
+            newItem.Name = item.Name .. "_" .. newItemId -- Adicione um sufixo ao nome para diferenciá-lo
+
+            -- Garantir que o item esteja na mão do personagem
             newItem.Parent = character
 
-            -- Copiar propriedades essenciais do item original
-            if item:FindFirstChild("Handle") then
-              newItem.Handle = item.Handle:Clone() --Copia a рукоятка (punho/cabo) do item
-              newItem.Handle.Parent = newItem
-            end
+            -- Garantir que o item seja visível (pode ser necessário ajustar a posição)
+            newItem.Handle.CFrame = item.Handle.CFrame -- Copiar a posição
 
-            -- Se for um modelo ou outra instância
-            if newItem:FindFirstChild("BasePart") then
-                newItem.CFrame = item.CFrame * CFrame.new(0, 1, 0)
-                newItem.CanCollide = true
-                newItem.Anchored = false
-            end
+            --[[ ADAPTAR: Copiar propriedades específicas do item
+            Por exemplo:
+            newItem.Dano.Value = item.Dano.Value
+            newItem.Alcance.Value = item.Alcance.Value
+            newItem.Custo.Value = item.Custo.Value
+            ]]
 
-            -- Copiar todos os filhos (incluindo scripts, ValueObjects, etc.)
-            for _, child in pairs(item:GetChildren()) do
-                local newChild = child:Clone()
-                newChild.Parent = newItem
-
-                if newChild:IsA("Script") then
-                    newChild.Disabled = false -- Ativa o script
-
-                    -- Conectar eventos específicos do script (adapte para cada script)
-                    if child.Name == "PlantingScript" then
-                        newChild.Parent.Touched:Connect(function(hit)
-                            if hit.Name == "PlantingArea" then
-                                print("Planta plantada (cópia)!")
-                                -- Lógica de plantação (adapte para o seu jogo)
-                                -- **ADAPTAR A LÓGICA DE PLANTAR AQUI**
-                            end
-                        end)
-                    end
-
-                    -- Remover o nome "Copy" dos scripts para evitar detecção
-                    if string.find(newChild.Name, "Copy") then
-                        newChild.Name = string.gsub(newChild.Name, "Copy", "")
-                    end
-
-                    -- Gerar um novo ID único para o item duplicado (se necessário)
-                    if newChild:FindFirstChild("ItemID") and newChild.ItemID:IsA("StringValue") then
-                        newChild.ItemID.Value = tostring(math.random(100000, 999999)) -- Exemplo
-                    end
-
-                -- Remova essa linha se o jogo usa o nome para validação
-                newChild.Name = newChild.Name .. math.random(1000,9999)
-                end
-            end
-
-            -- ADAPTAR: Simular o evento de equipamento/ativação específico do jogo
-            -- Exemplo:
+            -- Simular o evento de equipamento/ativação específico do jogo (ADAPTAR!)
             if newItem:FindFirstChild("OnEquip") and newItem.OnEquip:IsA("RemoteEvent") then
                 newItem.OnEquip:FireServer()
             end
-            -- Ou:
-           --ADAPTAR
-        --Simular o evento especifico de equipar o item, ativando o remote event
-        --   newItem.OnEquip:FireServer(parametros)
-
-            print("Item duplicado: " .. item.Name)
+            --Ou
+          --[[ ADAPTAR Simular o evento especifico de equipar o item
+             local equipEvent = newItem:FindFirstChild("EquipEvent")
+             if equipEvent and equipEvent:IsA("RemoteEvent") then
+                equipEvent:FireServer(newItem)
+             end
+          ]]
+            print("Item duplicado: " .. newItem.Name)
         else
             print("Nenhum item equipado para duplicar.")
         end
     end
-
     --// Loop de Auto Compra (Exemplo) //--
 
     game:GetService("RunService").Heartbeat:Connect(function()
