@@ -87,7 +87,7 @@ local function autoBuySeeds()
     end
 end
 
--- Função para duplicar um item (ATUALIZADA)
+-- Função para duplicar um item (ATUALIZADA e APRIMORADA)
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
@@ -116,25 +116,39 @@ local function duplicateItem()
             newItem.Anchored = false
         end
 
-        -- Copiar scripts internos
-        for _, script in pairs(item:GetChildren()) do
-            if script:IsA("Script") then
-                local newScript = script:Clone()
+        -- Copiar todos os filhos (incluindo scripts, ValueObjects, etc.)
+        for _, child in pairs(item:GetChildren()) do
+            if child:IsA("Script") then
+                local newScript = child:Clone()
                 newScript.Parent = newItem
-                newScript.Disabled = false -- ativa o script
+                newScript.Disabled = false -- Ativa o script
 
-                -- Caso seja o script de plantar ("PlantingScript")
-                if script.Name == "PlantingScript" then
-                    -- Conecta evento Touched
+                -- Conectar eventos específicos do script (adapte para cada script)
+                if child.Name == "PlantingScript" then
                     newScript.Parent.Touched:Connect(function(hit)
                         if hit.Name == "PlantingArea" then
                             print("Planta plantada (cópia)!")
-                            
-                            -- NÃO Destruir item após plantar
-                            -- newScript.Parent:Destroy() -- REMOVIDO
+                            -- Lógica de plantação (adapte para o seu jogo)
+                            -- **ADAPTAR A LÓGICA DE PLANTAR AQUI**
                         end
                     end)
                 end
+            elseif child:IsA("ClickDetector") then
+                local newClickDetector = child:Clone()
+                newClickDetector.Parent = newItem
+                newClickDetector.MouseClick:Connect(function(player)
+                    -- Lógica para lidar com o clique
+                    print("Item " .. newItem.Name .. " clicado por " .. player.Name)
+                end)
+            elseif child:IsA("Sound") then
+                local newSound = child:Clone()
+                newSound.Parent = newItem
+            elseif child:IsA("ValueBase") then -- IntValue, StringValue, BoolValue, etc.
+                local newValue = child:Clone()
+                newValue.Parent = newItem
+            else
+                local newChild = child:Clone()
+                newChild.Parent = newItem
             end
         end
 
