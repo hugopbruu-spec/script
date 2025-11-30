@@ -107,7 +107,7 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA - Duplicação Híbrida)
+    -- Função para duplicar um item (ADAPTADA - Simulação de Presente)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -132,49 +132,50 @@ local success, errorMessage = pcall(function()
             local newItemId = tostring(math.random(1000000, 9999999)) -- Exemplo de ID aleatório
             newItem.Name = item.Name .. "_" .. newItemId -- Adicione um sufixo ao nome para diferenciá-lo
 
-            -- Garantir que o item esteja na mão do personagem
-            newItem.Parent = character
-
-            -- Garantir que o item seja visível (pode ser necessário ajustar a posição)
-            newItem.Handle.CFrame = item.Handle.CFrame -- Copiar a posição
-
-            --[[ ADAPTAR: REPLICAÇÃO EM TEMPO REAL
-            Monitorar o item original e aplicar as mesmas alterações ao item duplicado.
-            Use RunService.Heartbeat para monitorar as propriedades do item original.
-            ]]
-
-            local function replicateProperties()
-                for propertyName, propertyValue in pairs(item:GetAttributes()) do
-                    newItem:SetAttribute(propertyName, propertyValue)
-                end
-            end
-
-            game:GetService("RunService").Heartbeat:Connect(replicateProperties)
-
-            --[[ ADAPTAR: MANIPULAÇÃO DO INVENTÁRIO
-            Simular a adição do item duplicado ao inventário como se fosse um item recém-adquirido.
+            --[[ ADAPTAR: SIMULAÇÃO DE ENVIO
+            Criar um registro falso de que outro jogador enviou o item para você.
             ]]
 
             -- Exemplo (simples):
-            --[[local inventory = player:FindFirstChild("Inventory")
+            local senderName = "FriendBot" -- Nome do jogador que enviou o presente
+            local giftLog = player:FindFirstChild("GiftLog")
+            if not giftLog then
+                giftLog = Instance.new("Folder")
+                giftLog.Name = "GiftLog"
+                giftLog.Parent = player
+            end
+
+            local giftEntry = Instance.new("StringValue")
+            giftEntry.Name = newItem.Name
+            giftEntry.Value = senderName .. " enviou este item para você."
+            giftEntry.Parent = giftLog
+
+            --[[ ADAPTAR: SIMULAÇÃO DE RECEBIMENTO
+            Simular o recebimento do item pelo seu personagem.
+            Disparar os eventos que normalmente são disparados quando um jogador recebe um presente.
+            ]]
+
+            -- Exemplo (simples):
+            local receiveEvent = player:FindFirstChild("ReceiveGiftEvent")
+            if receiveEvent and receiveEvent:IsA("RemoteEvent") then
+                receiveEvent:FireServer(newItem, senderName)
+            end
+
+            --[[ ADAPTAR: ADIÇÃO AO INVENTÁRIO
+            Adicionar o item duplicado ao inventário do seu personagem.
+            ]]
+
+            local inventory = player:FindFirstChild("Inventory")
             if inventory and inventory:IsA("Folder") then
-                newItem.Parent = inventory -- Adicionar o item ao inventário
+                newItem.Parent = inventory
             end
+
+            --[[ ADAPTAR: REMOÇÃO DE EVIDÊNCIAS
+            Remover quaisquer evidências da duplicação, como o item original usado para a duplicação.
+            --item:Destroy() -- Descomente se quiser remover o item original
             ]]
 
-            --[[ ADAPTAR: Simular o evento de equipamento
-            local equipEvent = newItem:FindFirstChild("EquipEvent")
-            if equipEvent and equipEvent:IsA("RemoteEvent") then
-                equipEvent:FireServer()
-            end
-            ]]
-
-            -- Simular o evento de equipamento/ativação específico do jogo (ADAPTAR!)
-            if newItem:FindFirstChild("OnEquip") and newItem.OnEquip:IsA("RemoteEvent") then
-                newItem.OnEquip:FireServer()
-            end
-
-            print("Item duplicado: " .. newItem.Name)
+            print("Item duplicado (simulação de presente): " .. newItem.Name)
         else
             print("Nenhum item equipado para duplicar.")
         end
