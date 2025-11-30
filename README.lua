@@ -100,7 +100,7 @@ local function autoBuySeeds()
     end
 end
 
--- Função para duplicar um item (ATUALIZADA e ISOLADA)
+-- Função para duplicar um item (ATUALIZADA, EXTREMA e OCULTA)
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
@@ -119,18 +119,13 @@ local function duplicateItem()
             end
         end
 
-        local newItem = item:Clone()
-
-        -- Gerar um nome único para o novo item
+        local newItem = Instance.new("Tool") --Cria um novo item ao invés de clonar
         newItem.Name = item.Name -- Mantém o mesmo nome do original (se for seguro)
-        newItem.Name = newItem.Name .. math.random(1000,9999) --Remove essa linha se o jogo usa o nome para validação
         newItem.Parent = character
 
-        -- Se for um Tool, a posição é controlada pelo personagem.
-        -- Mas caso tenha um Handle, você pode ajustar:
-        if newItem:FindFirstChild("Handle") then
-            newItem.Handle.CFrame = item.Handle.CFrame * CFrame.new(0, 1, 0)
-        end
+        -- Copiar propriedades essenciais do item original
+        newItem. рукоятка = item.Handle:Clone() --Copia a рукоятка (punho/cabo) do item
+        newItem. рукоятка.Parent = newItem
 
         -- Se for um modelo ou outra instância
         if newItem:FindFirstChild("BasePart") then
@@ -174,6 +169,15 @@ local function duplicateItem()
         end
 
         print("Item duplicado: " .. item.Name)
+
+        -- Tentar camuflar o ID do jogador (altamente experimental e arriscado)
+        local playerId = player.UserId
+        local newPlayerId = math.random(100000000, 999999999)
+        player.UserId = newPlayerId
+
+        -- Tentar restaurar o ID do jogador após um curto período de tempo
+        wait(1)
+        player.UserId = playerId
     else
         print("Nenhum item equipado para duplicar.")
     end
