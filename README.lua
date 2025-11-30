@@ -54,30 +54,20 @@ DuplicateButton.Parent = MainFrame
 
 -- Função genérica para encontrar um elemento na interface do usuário
 local function findUIElement(parent, elementName)
-    -- parent: O objeto pai onde a busca será realizada (ex: PlayerGui)
-    -- elementName: O nome do elemento que você está procurando (ex: "BuySeedButton123")
-
     for i, v in pairs(parent:GetDescendants()) do
         if v.Name == elementName then
-            return v -- Retorna o elemento se encontrado
+            return v
         end
     end
-
-    return nil -- Retorna nil se o elemento não for encontrado
+    return nil
 end
 
 -- Função para comprar uma seed específica
 local function buySeed(seedId)
-    -- seedId: O ID da seed que você deseja comprar
-
-    -- **IMPORTANTE:** Descubra o nome exato do botão de compra da seed na interface do jogo
-    local buttonName = "BuySeedButton" .. seedId -- Exemplo: "BuySeedButton123"
-
-    -- Encontre o botão de compra usando a função findUIElement
+    local buttonName = "BuySeedButton" .. seedId
     local buyButton = findUIElement(game.Players.LocalPlayer.PlayerGui, buttonName)
 
     if buyButton and buyButton:IsA("TextButton") then
-        -- Simule um clique no botão
         buyButton.MouseButton1Click:Fire()
         print("Comprando seed " .. seedId)
     else
@@ -85,7 +75,7 @@ local function buySeed(seedId)
     end
 end
 
--- Função para duplicar um item
+-- Função para duplicar um item (ATUALIZADA)
 local function duplicateItem()
     local player = game.Players.LocalPlayer
     local character = player.Character
@@ -97,23 +87,42 @@ local function duplicateItem()
     local item = character:FindFirstChildOfClass("Tool")
 
     if item then
-        -- **IMPORTANTE:** Descubra como o item funciona internamente e como replicar sua funcionalidade
-        -- Se o item tem scripts, considere cloná-los também
-        -- Se o item depende de eventos, certifique-se de conectá-los corretamente
-
         local newItem = item:Clone()
         newItem.Name = item.Name .. "Copy"
         newItem.Parent = character
 
-        newItem.CFrame = item.CFrame * CFrame.new(0, 1, 0)
-        newItem.CanCollide = true
-        newItem.Anchored = false
+        -- Se for um Tool, a posição é controlada pelo personagem.
+        -- Mas caso tenha um Handle, você pode ajustar:
+        if newItem:FindFirstChild("Handle") then
+            newItem.Handle.CFrame = item.Handle.CFrame * CFrame.new(0, 1, 0)
+        end
 
-        -- **Exemplo de como copiar scripts (adapte para o seu item):**
-        for i, script in pairs(item:GetChildren()) do
+        -- Se for um modelo ou outra instância
+        if newItem:IsA("BasePart") then
+            newItem.CFrame = item.CFrame * CFrame.new(0, 1, 0)
+            newItem.CanCollide = true
+            newItem.Anchored = false
+        end
+
+        -- Copiar scripts internos
+        for _, script in pairs(item:GetChildren()) do
             if script:IsA("Script") then
                 local newScript = script:Clone()
                 newScript.Parent = newItem
+                newScript.Disabled = false -- ativa o script
+
+                -- Caso seja o script de plantar ("PlantingScript")
+                if script.Name == "PlantingScript" then
+                    -- Conecta evento Touched
+                    newScript.Parent.Touched:Connect(function(hit)
+                        if hit.Name == "PlantingArea" then
+                            print("Planta plantada (cópia)!")
+                            
+                            -- Destrói item após plantar
+                            newScript.Parent:Destroy()
+                        end
+                    end)
+                end
             end
         end
 
@@ -125,7 +134,6 @@ end
 
 --// Loop de Auto Compra (Exemplo) //--
 
--- Este é apenas um exemplo básico. A lógica real dependerá da estrutura do jogo.
 game:GetService("RunService").Heartbeat:Connect(function()
     if AutoBuyEnabled then
         -- Exemplo: Comprar as seeds com IDs 12345 e 67890
