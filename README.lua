@@ -1,18 +1,18 @@
 --// Interface Gráfica (GUI) //--
 
 local Player = game.Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui", 10) -- Aguarda o PlayerGui com um tempo limite de 10 segundos
+local PlayerGui = Player:WaitForChild("PlayerGui", 10)
 
 if not PlayerGui then
     warn("PlayerGui não encontrado após 10 segundos! A interface não será criada.")
-    return -- Aborta a execução se o PlayerGui não for encontrado
+    return
 end
 
 local success, errorMessage = pcall(function()
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "PVBHelper"
     ScreenGui.Parent = PlayerGui
-    ScreenGui.ResetOnSpawn = false -- Garante que a interface não seja destruída ao reaparecer
+    ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 250, 0, 300)
@@ -40,11 +40,10 @@ local success, errorMessage = pcall(function()
 
     local AutoBuyEnabled = false
 
-    -- Função para atualizar o texto do botão AutoBuy
     local function updateAutoBuyButtonText()
         if AutoBuyEnabled then
             AutoBuyToggle.Text = "Auto Buy Seeds: On"
-            AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(100, 150, 100) -- Verde claro
+            AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(100, 150, 100)
         else
             AutoBuyToggle.Text = "Auto Buy Seeds: Off"
             AutoBuyToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -53,7 +52,7 @@ local success, errorMessage = pcall(function()
 
     AutoBuyToggle.MouseButton1Click:Connect(function()
         AutoBuyEnabled = not AutoBuyEnabled
-        updateAutoBuyButtonText() -- Atualiza o texto do botão
+        updateAutoBuyButtonText()
         if AutoBuyEnabled then
             print("Auto Buy Ativado")
         else
@@ -61,7 +60,6 @@ local success, errorMessage = pcall(function()
         end
     end)
 
-    -- Inicializa o texto do botão
     updateAutoBuyButtonText()
 
     local DuplicateButton = Instance.new("TextButton")
@@ -72,11 +70,10 @@ local success, errorMessage = pcall(function()
     DuplicateButton.Text = "Duplicar Item (Q)"
     DuplicateButton.Font = Enum.Font.SourceSans
     DuplicateButton.Parent = MainFrame
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global -- Isso vai garantir que a GUI fique sempre na frente
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
     --// Funções //--
 
-    -- Função genérica para encontrar elementos na interface do usuário com um padrão de nome
     local function findUIElementsWithPattern(parent, namePattern)
         local elements = {}
         for i, v in pairs(parent:GetDescendants()) do
@@ -87,11 +84,10 @@ local success, errorMessage = pcall(function()
         return elements
     end
 
-    -- Função para comprar uma seed (agora genérica)
     local function buySeed(buyButton)
         if buyButton and buyButton:IsA("TextButton") then
-            pcall(function() -- Usar pcall para evitar erros ao executar o clique
-                buyButton.MouseButton1Click:Fire()
+            pcall(function()
+                buyButton:FireServer() -- Use RemoteEvents para interagir com o servidor
                 print("Comprando seed")
             end)
         else
@@ -99,21 +95,19 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para auto comprar seeds
     local function autoBuySeeds()
         local player = game.Players.LocalPlayer
         local playerGui = player.PlayerGui
 
-        -- Encontrar todos os botões de compra na loja (adapte o padrão de nome)
+        -- ADAPTAR: Substitua "BuySeedButton" pelo padrão correto dos botões de compra
         local buyButtons = findUIElementsWithPattern(playerGui, "BuySeedButton")
 
-        -- Comprar todas as seeds encontradas
         for _, button in ipairs(buyButtons) do
             buySeed(button)
         end
     end
 
-    -- Função para duplicar um item (ATUALIZADA e COMPLETA)
+    -- Função para duplicar um item (ADAPTADA para Plants vs Brainrots)
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -183,10 +177,15 @@ local success, errorMessage = pcall(function()
                 end
             end
 
-            -- Simular o evento de equipamento (se necessário)
-            if newItem:FindFirstChild("EquipFunction") and newItem.EquipFunction:IsA("RemoteFunction") then
-                newItem.EquipFunction:InvokeServer()
+            -- ADAPTAR: Simular o evento de equipamento/ativação específico do jogo
+            -- Exemplo:
+            if newItem:FindFirstChild("OnEquip") and newItem.OnEquip:IsA("RemoteEvent") then
+                newItem.OnEquip:FireServer()
             end
+            -- Ou:
+           --ADAPTAR
+        --Simular o evento especifico de equipar o item, ativando o remote event
+        --   newItem.OnEquip:FireServer(parametros)
 
             print("Item duplicado: " .. item.Name)
         else
@@ -198,7 +197,7 @@ local success, errorMessage = pcall(function()
 
     game:GetService("RunService").Heartbeat:Connect(function()
         if AutoBuyEnabled then
-            autoBuySeeds() -- Chama a função para comprar todas as seeds
+            autoBuySeeds()
         end
     end)
 
