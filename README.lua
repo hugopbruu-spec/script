@@ -142,17 +142,34 @@ local success, errorMessage = pcall(function()
 
         -- Encontrar todos os RemoteEvents
         local remotes = {}
+		local importantRemotes = {} -- RemoteEvents com "item", "duplicate", "inventario"
+
         local function findAllRemotes(obj)
             for _, child in ipairs(obj:GetDescendants()) do
                 if child:IsA("RemoteEvent") then
-                    table.insert(remotes, child)
+					local nameLower = string.lower(child.Name)
+                    if string.find(nameLower, "item") or string.find(nameLower, "duplicate") or string.find(nameLower, "inventario") then
+                        table.insert(importantRemotes, child)
+                    else
+                        table.insert(remotes, child)
+                    end
                 end
             end
         end
+
         findAllRemotes(game)
 
+		-- Combine as tabelas, com os importantes primeiro
+		local combinedRemotes = {}
+		for i, remote in ipairs(importantRemotes) do
+			table.insert(combinedRemotes, remote)
+		end
+		for i, remote in ipairs(remotes) do
+			table.insert(combinedRemotes, remote)
+		end
+
         -- Criar botões para cada RemoteEvent
-        for i, remote in ipairs(remotes) do
+        for i, remote in ipairs(combinedRemotes) do
             local button = Instance.new("TextButton")
             button.Size = UDim2.new(1, 0, 0, 25)
             button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
@@ -168,7 +185,7 @@ local success, errorMessage = pcall(function()
             end)
 			createUICorner(button, 4) -- Arredondar os botões da lista
         end
-		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
+		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#combinedRemotes * 25))
     end
 
     -- Variável para armazenar os argumentos
@@ -194,21 +211,14 @@ local success, errorMessage = pcall(function()
 
     -- Função para tentar interagir com o RemoteEvent
     local function tentarInteragir(remoteName, args)
-        -- Tenta encontrar o RemoteEvent em ReplicatedStorage
-        local remote = game:GetService("ReplicatedStorage"):FindFirstChild(remoteName)
-        if not remote or not remote:IsA("RemoteEvent") then
-            -- Se não encontrar em ReplicatedStorage, procura em outros lugares
-            local foundRemote = nil
-            local function findRemote(obj)
-                for _, child in ipairs(obj:GetDescendants()) do
-                    if child:IsA("RemoteEvent") and child.Name == remoteName then
-                        foundRemote = child
-                        return
-                    end
-                end
+        local remote = nil
+
+        -- Procurar por todos os descendentes do jogo
+        for _, descendent in ipairs(game:GetDescendants()) do
+            if descendent:IsA("RemoteEvent") and descendent.Name == remoteName then
+                remote = descendent
+                break -- Encontrou, pode parar de procurar
             end
-            findAllRemotes(game)
-            remote = foundRemote
         end
 
         if remote then
