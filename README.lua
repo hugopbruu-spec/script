@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 300, 0, 450)  -- Aumentei a altura
+    MainFrame.Size = UDim2.new(0, 250, 0, 300)
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -24,87 +24,74 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Lista de Remotes"
+    TitleLabel.Text = "Plants vs Brainrots Helper"
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
 
-    local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.Size = UDim2.new(0.9, 0, 0.6, 0)  -- Reduzi a altura
-    ScrollingFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
-    ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    ScrollingFrame.Parent = MainFrame
+    local DuplicateButton = Instance.new("TextButton")
+    DuplicateButton.Size = UDim2.new(0.9, 0, 0, 30)
+    DuplicateButton.Position = UDim2.new(0.05, 0, 0.15, 0)
+    DuplicateButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    DuplicateButton.TextColor3 = Color3.new(1, 1, 1)
+    DuplicateButton.Text = "Buscar Brecha (Q)"
+    DuplicateButton.Font = Enum.Font.SourceSans
+    DuplicateButton.Parent = MainFrame
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
-    local RemoteListTextBox = Instance.new("TextBox")
-    RemoteListTextBox.Size = UDim2.new(0.9, 0, 0.15, 0) -- Altura para caber o texto
-    RemoteListTextBox.Position = UDim2.new(0.05, 0, 0.72, 0) -- Posicionado abaixo da lista
-    RemoteListTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    RemoteListTextBox.TextColor3 = Color3.new(1, 1, 1)
-    RemoteListTextBox.Font = Enum.Font.SourceSans
-    RemoteListTextBox.Text = ""  -- Começa vazio
-    RemoteListTextBox.ReadOnly = true -- Impede edição
-    RemoteListTextBox.MultiLine = true -- Permite múltiplas linhas
-    RemoteListTextBox.Parent = MainFrame
-
-
-    -- Função para listar os Remotes e preencher o textbox
-    local function listarRemotes()
-        -- Limpar a lista anterior
-        for _, child in ipairs(ScrollingFrame:GetChildren()) do
-            if child:IsA("TextButton") then
-                child:Destroy()
-            end
-        end
-
-		--Limpar o textbox
-		RemoteListTextBox.Text = ""
-
-        -- Encontrar todos os Remotes
+    -- Função para buscar brechas
+    local function buscarBrecha()
+        -- 1. Encontrar todos os Remotes no jogo
         local remotes = {}
-        local function findAllRemotes(obj)
+        local function findRemotes(obj)
             for _, child in ipairs(obj:GetDescendants()) do
                 if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
                     table.insert(remotes, child)
                 end
             end
         end
-        findAllRemotes(game)
+        findRemotes(game)
 
-		local allRemoteNames = "" -- Acumular os nomes
+        -- 2. Analisar o código dos Remotes (LADO DO SERVIDOR)
+        for _, remote in ipairs(remotes) do
+            --[[ ADAPTAR:
+            Encontre o script que lida com o evento OnServerEvent
+            ou OnServerInvoke do Remote.
+            ]]
+            local serverScript = nil -- Substitua por uma referência ao script do servidor
 
-        -- Criar botões para cada Remote
-        for i, remote in ipairs(remotes) do
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, 0, 0, 30)
-            button.Position = UDim2.new(0, 0, (i - 1) * 0.05, 0)
-            button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-            button.TextColor3 = Color3.new(1, 1, 1)
-            button.Text = remote.Name .. " (" .. remote.ClassName .. ")"
-            button.Font = Enum.Font.SourceSans
-            button.Parent = ScrollingFrame
+            if serverScript then
+                --[[ ADAPTAR:
+                Extraia o código do script do servidor e analise-o
+                para identificar vulnerabilidades.
+                ]]
+                local code = serverScript.Source
 
-			allRemoteNames = allRemoteNames .. remote.Name .. " (" .. remote.ClassName .. ")\n"
+                --[[ ADAPTAR:
+                Procure por padrões de código vulneráveis, como:
+                - Remotes que recebem um objeto como argumento sem verificar a sua validade.
+                - Remotes que adicionam um objeto diretamente ao inventário do jogador.
+                - Remotes que confiam no Parent de um objeto enviado pelo cliente.
+                ]]
+                if string.find(code, "item.Parent = player.Backpack") then
+                    print("Vulnerabilidade encontrada no Remote: " .. remote.Name)
+                    print("Possível exploração: O servidor confia no Parent do item enviado pelo cliente.")
+                end
+            end
         end
 
-		RemoteListTextBox.Text = allRemoteNames -- Preencher o textbox
-
+        print("Análise concluída. Verifique a janela de saída para resultados.")
     end
 
-	-- Botão para atualizar a lista
-	local RefreshButton = Instance.new("TextButton")
-    RefreshButton.Size = UDim2.new(0.9, 0, 0, 30)
-    RefreshButton.Position = UDim2.new(0.05, 0, 0.9, 0)
-    RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    RefreshButton.TextColor3 = Color3.new(1, 1, 1)
-    RefreshButton.Text = "Atualizar Lista"
-    RefreshButton.Font = Enum.Font.SourceSans
-    RefreshButton.Parent = MainFrame
+    --// Bind para Duplicar Item //--
 
-	RefreshButton.MouseButton1Click:Connect(listarRemotes)
+    game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
+        if input.KeyCode == Enum.KeyCode.Q then
+            buscarBrecha()
+        end
+    end)
 
-
-    -- Chamar a função para listar os Remotes
-    listarRemotes()
+    DuplicateButton.MouseButton1Click:Connect(buscarBrecha)
 end)
 
 if not success then
