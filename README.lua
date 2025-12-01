@@ -1,25 +1,26 @@
--- Roblox FPS Optimizer (Modificado para Otimização Extrema, Mantém Menu Roblox e Personagem)
+-- Roblox FPS Optimizer com Menu de Otimização
 
 -- Configurações Gerais
 local optimizationEnabled = false
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
--- Configurações de Qualidade Gráfica
+-- Funções de Otimização (mesmas do script anterior)
 local function aplicarConfiguracoesGraficas()
-    game.Lighting.GlobalShadows = false -- Desativar sombras globais
-    game.Workspace.DistributedGameTime = false -- Desativar simulação de tempo distribuída
-    game.Lighting.FogEnd = 0 -- Remover névoa
-    game.Lighting.Brightness = 0 -- Escurecer o ambiente
+    game.Lighting.GlobalShadows = false
+    game.Workspace.DistributedGameTime = false
+    game.Lighting.FogEnd = 0
+    game.Lighting.Brightness = 0
 end
 
--- Remover Texturas e Cores
 local function limparAparencia(objeto)
     if objeto and objeto:IsA("BasePart") then
         pcall(function()
-            objeto.Texture = "" -- Remove textura
-            objeto.Color = Color3.new(0.7, 0.7, 0.7) -- Define uma cor neutra
-            objeto.Material = Enum.Material.Plastic -- Material simples
-            objeto.Reflectance = 0 -- Sem reflexo
-            objeto.Transparency = 0 -- Sem transparência
+            objeto.Texture = ""
+            objeto.Color = Color3.new(0.7, 0.7, 0.7)
+            objeto.Material = Enum.Material.Plastic
+            objeto.Reflectance = 0
+            objeto.Transparency = 0
         end)
     end
     if objeto then
@@ -29,11 +30,10 @@ local function limparAparencia(objeto)
     end
 end
 
--- Remover Partículas
 local function removerParticulas(objeto)
     if objeto and objeto:IsA("ParticleEmitter") then
         pcall(function()
-            objeto:Destroy() -- Remove o emissor de partículas
+            objeto:Destroy()
         end)
     end
     if objeto then
@@ -43,7 +43,6 @@ local function removerParticulas(objeto)
     end
 end
 
--- Desabilitar Sons
 local function desabilitarSons(objeto)
     if objeto and objeto:IsA("Sound") then
         pcall(function()
@@ -59,7 +58,6 @@ local function desabilitarSons(objeto)
     end
 end
 
--- Desabilitar Scripts Desnecessários
 local function desabilitarScripts(objeto)
     if objeto and (objeto:IsA("Script") or objeto:IsA("LocalScript")) then
         pcall(function()
@@ -73,12 +71,11 @@ local function desabilitarScripts(objeto)
     end
 end
 
--- Otimizar Malhas
 local function otimizarMalhas(objeto)
     if objeto and (objeto:IsA("MeshPart") or objeto:IsA("Part")) then
         pcall(function()
-            objeto.RenderFidelity = Enum.RenderFidelity.Automatic -- Qualidade automática
-            objeto.LevelOfDetail = Enum.LevelOfDetail.Disabled -- Desativa detalhes
+            objeto.RenderFidelity = Enum.RenderFidelity.Automatic
+            objeto.LevelOfDetail = Enum.LevelOfDetail.Disabled
         end)
     end
     if objeto then
@@ -88,7 +85,6 @@ local function otimizarMalhas(objeto)
     end
 end
 
--- Remover Animações
 local function removerAnimacoes(objeto)
     if objeto and objeto:IsA("AnimationController") then
         pcall(function()
@@ -107,13 +103,12 @@ local function removerAnimacoes(objeto)
     end
 end
 
--- Remover GUI (Mantém Menu Roblox)
 local function removerGUI(player)
     if player and player:IsA("Player") then
         local playerGui = player:FindFirstChild("PlayerGui")
         if playerGui then
             for _, gui in ipairs(playerGui:GetChildren()) do
-                if gui and gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" then -- Mantém o menu do Roblox
+                if gui and gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" and gui.Name ~= "OtimizacaoMenu" then -- Mantém o menu do Roblox e o menu de otimização
                     pcall(function()
                         gui:Destroy()
                     end)
@@ -123,28 +118,6 @@ local function removerGUI(player)
     end
 end
 
--- Aplicar Otimização Extrema
-local function aplicarOtimizacaoExtrema()
-    print("Otimização extrema iniciada (Servidor).")
-    aplicarConfiguracoesGraficas()
-    limparAparencia(game.Workspace)
-    removerParticulas(game.Workspace)
-    desabilitarSons(game.Workspace)
-    desabilitarScripts(game.Workspace)
-    otimizarMalhas(game.Workspace)
-    removerAnimacoes(game.Workspace)
-
-    -- Remover Céu (opcional)
-    if game.Lighting:FindFirstChildOfClass("Sky") then
-        pcall(function()
-            game.Lighting:FindFirstChildOfClass("Sky"):Destroy()
-        end)
-    end
-
-    print("Otimização extrema aplicada (Servidor).")
-end
-
--- Manter o Personagem Visível e Conectado
 local function manterPersonagem(player)
     if player and player.CharacterAppearanceLoaded then
         player.CharacterAppearanceLoaded:Connect(function(character)
@@ -163,14 +136,59 @@ local function manterPersonagem(player)
     end
 end
 
--- Conectar a função ManterPersonagem a cada novo jogador
-game.Players.PlayerAdded:Connect(function(player)
-    manterPersonagem(player)
-    removerGUI(player) -- Remover GUI ao adicionar jogador
+-- Função para Aplicar Otimização Extrema
+local function aplicarOtimizacaoExtrema()
+    print("Otimização extrema iniciada (Cliente).")
+    aplicarConfiguracoesGraficas()
+    limparAparencia(game.Workspace)
+    removerParticulas(game.Workspace)
+    desabilitarSons(game.Workspace)
+    desabilitarScripts(game.Workspace)
+    otimizarMalhas(game.Workspace)
+    removerAnimacoes(game.Workspace)
+    removerGUI(player)
+
+    -- Remover Céu (opcional)
+    if game.Lighting:FindFirstChildOfClass("Sky") then
+        pcall(function()
+            game.Lighting:FindFirstChildOfClass("Sky"):Destroy()
+        end)
+    end
+
+    print("Otimização extrema aplicada (Cliente).")
+end
+
+-- Criar Menu de Otimização
+local function criarMenuOtimizacao()
+    local otimizacaoMenu = Instance.new("ScreenGui")
+    otimizacaoMenu.Name = "OtimizacaoMenu"
+    otimizacaoMenu.Parent = playerGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 200, 0, 100)
+    frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+    frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    frame.Parent = otimizacaoMenu
+
+    local botaoOtimizar = Instance.new("TextButton")
+    botaoOtimizar.Size = UDim2.new(1, 0, 0.5, 0)
+    botaoOtimizar.Position = UDim2.new(0, 0, 0.25, 0)
+    botaoOtimizar.Text = "Otimizar"
+    botaoOtimizar.TextColor3 = Color3.new(1, 1, 1)
+    botaoOtimizar.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    botaoOtimizar.Parent = frame
+
+    botaoOtimizar.MouseButton1Click:Connect(function()
+        aplicarOtimizacaoExtrema()
+    end)
+end
+
+-- Executar ao Adicionar Jogador
+game.Players.PlayerAdded:Connect(function(newPlayer)
+    if newPlayer == player then
+        manterPersonagem(newPlayer)
+        criarMenuOtimizacao()
+    end
 end)
 
--- Executar a Otimização ao Iniciar o Jogo (Servidor)
-game:GetService("RunService").Heartbeat:Wait()
-aplicarOtimizacaoExtrema()
-
-print("Script de otimização iniciado (Servidor).")
+print("Script de otimização iniciado (Cliente).")
