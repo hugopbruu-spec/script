@@ -145,20 +145,22 @@ local success, errorMessage = pcall(function()
 
         -- Criar botões para cada RemoteEvent
         for i, remote in ipairs(remotes) do
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, 0, 0, 25)
-            button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
-            button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-            button.TextColor3 = Color3.new(1, 1, 1)
-            button.Text = remote.Name
-            button.Font = Enum.Font.SourceSans
-			button.TextScaled = true
-            button.Parent = ScrollingFrame
-            createUICorner(button, 4)
+			if remote.Name ~= "CmdrEvent" then -- Ignorar o CmdrEvent
+				local button = Instance.new("TextButton")
+				button.Size = UDim2.new(1, 0, 0, 25)
+				button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
+				button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				button.TextColor3 = Color3.new(1, 1, 1)
+				button.Text = remote.Name
+				button.Font = Enum.Font.SourceSans
+				button.TextScaled = true
+				button.Parent = ScrollingFrame
+				createUICorner(button, 4)
 
-            button.MouseButton1Click:Connect(function()
-                --RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar - REMOVIDO
-            end)
+				button.MouseButton1Click:Connect(function()
+					--RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar - REMOVIDO
+				end)
+			end
         end
 		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
     end
@@ -191,7 +193,7 @@ local success, errorMessage = pcall(function()
 	TestAllButton.MouseButton1Click:Connect(function()
 		local arg = RemoteNameTextBox.Text
 		for _, button in ipairs(ScrollingFrame:GetChildren()) do
-			if button:IsA("TextButton") then
+			if button:IsA("TextButton") and button.Text ~= "CmdrEvent" then -- Ignorar o CmdrEvent
 				local remoteName = button.Text
 				-- Encontrar o RemoteEvent pelo nome
 				local remote = nil
