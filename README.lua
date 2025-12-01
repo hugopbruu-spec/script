@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 400, 0, 600)  -- Aumentei a largura e altura
+    MainFrame.Size = UDim2.new(0, 400, 0, 600)
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -24,7 +24,7 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Exploração de RemoteEvents"
+    TitleLabel.Text = "Exploração Indireta de Inventário"
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
@@ -34,7 +34,7 @@ local success, errorMessage = pcall(function()
     StatusLabel.Position = UDim2.new(0.05, 0, 0.9, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Equipe um item e explore os Remotes."
+    StatusLabel.Text = "Explorar Remotes para adicionar itens."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
@@ -48,75 +48,52 @@ local success, errorMessage = pcall(function()
     local ButtonHeight = 30
     local ButtonSpacing = 0.06
 
-    -- Lista de RemoteEvents para tentar (AGORA PROCURANDO DIRETAMENTE NO JOGO)
-    local remoteEventNames = {"BuyItem", "PlaceItem", "SpawnItem", "ClaimEventReward", "GiftItem"}
+    -- Nomes de RemoteEvents (mais genéricos agora)
+    local remoteEventNames = {"ClaimReward", "CompleteQuest", "BuyItem", "CraftItem", "GetDailyReward"}
 
     -- Função para tentar interagir com um RemoteEvent
     local function tentarInteragir(remoteName, argument)
-        local character = Player.Character
-        if character then
-            local tool = character:FindFirstChildOfClass("Tool")
-            if tool then
-                -- Tenta encontrar o RemoteEvent em ReplicatedStorage
-                local remote = game:GetService("ReplicatedStorage"):FindFirstChild(remoteName)
-                if remote and remote:IsA("RemoteEvent") then
-                    -- Tentar enviar o item para o RemoteEvent
-                    pcall(function()
-                        if argument then
-                            remote:FireServer(tool, argument)
-                            StatusLabel.Text = "Enviando item para " .. remoteName .. " com argumento: " .. tostring(argument)
-                        else
-                            remote:FireServer(tool)
-                            StatusLabel.Text = "Enviando item para " .. remoteName .. " sem argumento."
-                        end
-                        wait(2)
-                        StatusLabel.Text = "Equipe um item e explore os Remotes."
-
-                    end)
-                else
-                     -- Se não encontrar em ReplicatedStorage, procura em outros lugares
-                    local foundRemote = nil
-                    local function findRemote(obj)
-                        for _, child in ipairs(obj:GetDescendants()) do
-                            if child:IsA("RemoteEvent") and child.Name == remoteName then
-                                foundRemote = child
-                                return
-                            end
-                        end
-                    end
-                    findRemote(game)
-
-                    if foundRemote then
-                        pcall(function()
-                            if argument then
-                                foundRemote:FireServer(tool, argument)
-                                StatusLabel.Text = "Enviando item para " .. remoteName .. " (localizado dinamicamente) com argumento: " .. tostring(argument)
-                            else
-                                foundRemote:FireServer(tool)
-                                StatusLabel.Text = "Enviando item para " .. remoteName .. " (localizado dinamicamente) sem argumento."
-                            end
-                            wait(2)
-                            StatusLabel.Text = "Equipe um item e explore os Remotes."
-                        end)
-                    else
-                        StatusLabel.Text = "RemoteEvent '" .. remoteName .. "' não encontrado em lugar nenhum."
+        -- Tenta encontrar o RemoteEvent em ReplicatedStorage
+        local remote = game:GetService("ReplicatedStorage"):FindFirstChild(remoteName)
+        if not remote or not remote:IsA("RemoteEvent") then
+            -- Se não encontrar em ReplicatedStorage, procura em outros lugares
+            local foundRemote = nil
+            local function findRemote(obj)
+                for _, child in ipairs(obj:GetDescendants()) do
+                    if child:IsA("RemoteEvent") and child.Name == remoteName then
+                        foundRemote = child
+                        return
                     end
                 end
-            else
-                StatusLabel.Text = "Nenhum item equipado."
             end
+            findRemote(game)
+            remote = foundRemote
+        end
+
+        if remote then
+            pcall(function()
+                if argument then
+                    remote:FireServer(argument)
+                    StatusLabel.Text = "Interagindo com " .. remoteName .. " com argumento: " .. tostring(argument)
+                else
+                    remote:FireServer()
+                    StatusLabel.Text = "Interagindo com " .. remoteName .. " sem argumento."
+                end
+                wait(2)
+                StatusLabel.Text = "Explorar Remotes para adicionar itens."
+            end)
         else
-            StatusLabel.Text = "Personagem não encontrado."
+            StatusLabel.Text = "RemoteEvent '" .. remoteName .. "' não encontrado."
         end
     end
 
    -- Criar botões para cada RemoteEvent
     local buttonData = {
-        {name = "BuyItem", argument = nil},
-        {name = "PlaceItem", argument = Vector3.new(0,0,0)}, -- Tenta com uma posição
-        {name = "SpawnItem", argument = 1}, -- Tenta com quantidade 1
-        {name = "ClaimEventReward", argument = "DailyReward"}, -- Tenta com um nome de reward
-        {name = "GiftItem", argument = Player.UserId} -- Tenta com o ID do próprio jogador
+        {name = "ClaimReward", argument = "NewPlayerReward"}, -- Tenta com nome de recompensa
+        {name = "CompleteQuest", argument = "FirstQuest"}, -- Tenta com nome de quest
+        {name = "BuyItem", argument = 1234}, -- Tenta com ID de item genérico
+        {name = "CraftItem", argument = {ItemID1 = 1, ItemID2 = 2}}, -- Tenta com IDs de ingredientes
+        {name = "GetDailyReward", argument = nil} -- Sem argumento
     }
 
     for i, data in ipairs(buttonData) do
