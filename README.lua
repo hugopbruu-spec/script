@@ -1,23 +1,22 @@
--- Configurações de Qualidade Gráfica (se possível)
-game.Settings.Rendering.QualityLevel = "Level01" -- Nível de qualidade mais baixo
+-- Configurações de Qualidade Gráfica (aplicado no servidor)
+game.Lighting.GlobalShadows = false -- Desativar sombras globais
+game.Workspace.DistributedGameTime = false -- Desativar simulação de tempo distribuída
 
--- Cor Sólida para Substituir Texturas
-local corSolida = Color3.new(0.5, 0.5, 0.5) -- Cor cinza
-
--- Desativar Texturas ou Substituir por Cor Sólida
-local function tratarTexturas(objeto)
-    if objeto:IsA("TextureBase") then
-        if objeto.Texture ~= "" then
-            objeto.Color = corSolida -- Define a cor sólida
-            objeto.Texture = "" -- Remove a textura
-        end
+-- Remover Texturas e Cores (aplicado no servidor)
+local function limparAparencia(objeto)
+    if objeto:IsA("BasePart") then
+        objeto. текстура = "" -- Remove textura
+        objeto.Color = Color3.new(0.7, 0.7, 0.7) -- Define uma cor neutra
+        objeto.Material = Enum.Material.Plastic -- Material simples
+        objeto.Reflectance = 0 -- Sem reflexo
+        objeto.Transparency = 0 -- Sem transparência
     end
     for _, filho in ipairs(objeto:GetChildren()) do
-        tratarTexturas(filho)
+        limparAparencia(filho)
     end
 end
 
--- Remover Partículas
+-- Remover Partículas (aplicado no servidor)
 local function removerParticulas(objeto)
     if objeto:IsA("ParticleEmitter") then
         objeto:Destroy() -- Remove o emissor de partículas
@@ -27,7 +26,29 @@ local function removerParticulas(objeto)
     end
 end
 
--- Otimizar Malhas
+-- Desabilitar Sons (aplicado no servidor)
+local function desabilitarSons(objeto)
+    if objeto:IsA("Sound") then
+        objeto.Playing = false
+        objeto.Volume = 0
+        objeto.SoundId = ""
+    end
+    for _, filho in ipairs(objeto:GetChildren()) do
+        desabilitarSons(filho)
+    end
+end
+
+-- Desabilitar Scripts Desnecessários (aplicado no servidor)
+local function desabilitarScripts(objeto)
+    if objeto:IsA("Script") or objeto:IsA("LocalScript") then
+        objeto.Disabled = true
+    end
+    for _, filho in ipairs(objeto:GetChildren()) do
+        desabilitarScripts(filho)
+    end
+end
+
+-- Otimizar Malhas (aplicado no servidor)
 local function otimizarMalhas(objeto)
     if objeto:IsA("MeshPart") or objeto:IsA("Part") then
         objeto.RenderFidelity = Enum.RenderFidelity.Automatic -- Qualidade automática
@@ -38,36 +59,51 @@ local function otimizarMalhas(objeto)
     end
 end
 
--- Aplicar Desfoque (se necessário)
-local function aplicarDesfoque()
-    local blur = Instance.new("BlurEffect")
-    blur.Name = "DesfoqueDePerformance"
-    blur.Parent = game.Lighting
-    blur.Enabled = true
-    blur.Intensity = 5 -- Ajuste a intensidade do desfoque
-end
-
--- Função Principal para Otimização
+-- Função Principal para Otimização (aplicada no servidor)
 local function otimizarJogo()
-    -- Tratar Texturas
-    tratarTexturas(game.Workspace)
+    -- Limpar Aparência
+    limparAparencia(game.Workspace)
 
     -- Remover Partículas
     removerParticulas(game.Workspace)
 
+    -- Desabilitar Sons
+    desabilitarSons(game.Workspace)
+
+    -- Desabilitar Scripts
+    desabilitarScripts(game.Workspace)
+
     -- Otimizar Malhas
     otimizarMalhas(game.Workspace)
 
-    -- Aplicar Desfoque (opcional)
-    aplicarDesfoque()
+    -- Remover Céu (opcional)
+    if game.Lighting:FindFirstChildOfClass("Sky") then
+        game.Lighting:FindFirstChildOfClass("Sky"):Destroy()
+    end
 
-    print("Otimização de performance aplicada.")
+    print("Otimização extrema aplicada (Servidor).")
 end
 
--- Executar a Otimização ao Iniciar o Jogo
-game:GetService("Players").PlayerGui:WaitForChild("ScreenGui").Enabled = false
-game:GetService("Players").PlayerGui:WaitForChild("BillboardGui").Enabled = false
-game:GetService("Lighting").FogEnd = 0
-game:GetService("Lighting").Brightness = 0
+-- Manter o Personagem Visível e Conectado (aplicado no cliente)
+local function manterPersonagem(player)
+    player.CharacterAppearanceLoaded:Connect(function(character)
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Material = Enum.Material.Plastic
+                part. текстура = ""
+                part.Color = Color3.new(1, 1, 1)
+            end
+        end
+    end)
+end
+
+-- Executar a Otimização ao Iniciar o Jogo (Servidor)
 game:GetService("RunService").Heartbeat:Wait()
 otimizarJogo()
+
+-- Conectar a função ManterPersonagem a cada novo jogador (Servidor)
+game.Players.PlayerAdded:Connect(function(player)
+    manterPersonagem(player)
+end)
+
+print("Script de otimização iniciado (Servidor).")
