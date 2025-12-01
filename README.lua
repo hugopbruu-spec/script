@@ -15,49 +15,89 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 500, 0, 950)  -- Altura ainda maior!
+    MainFrame.Size = UDim2.new(0, 400, 0, 600)  -- Tela menor
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- Cor mais escura
+    MainFrame.BorderSizePixel = 0
     MainFrame.Parent = ScreenGui
-    MainFrame.Draggable = true -- Tornar o menu arrastável
+    MainFrame.ClipsDescendants = true -- Importante para as bordas arredondadas
+
+	-- Arrastar a janela
+	local dragging = false
+	local dragInput = nil
+	local dragStart = nil
+
+	MainFrame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			dragInput = input
+		end
+	end)
+
+	MainFrame.InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			local delta = input.Position - dragStart
+			MainFrame.Position = UDim2.new(MainFrame.Position.X.Scale, MainFrame.Position.X.Offset + delta.X,
+				MainFrame.Position.Y.Scale, MainFrame.Position.Y.Offset + delta.Y)
+			dragStart = input.Position
+		end
+	end)
+
+	MainFrame.InputEnded:Connect(function(input)
+		if input == dragInput and dragging then
+			dragging = false
+			dragInput = nil
+		end
+	end)
+
+    -- Função para criar cantos arredondados (opcional)
+    local function createUICorner(parent, radius)
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, radius)
+        corner.Parent = parent
+    end
+
+    createUICorner(MainFrame, 8) -- Arredondar o MainFrame
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Explorador Avançado de RemoteEvents"
-    TitleLabel.Font = Enum.Font.SourceSansBold
+    TitleLabel.Text = "Explorador de RemoteEvents"
+    TitleLabel.Font = Enum.Font.Oswald -- Fonte mais bonita
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
 
 	local TryButton = Instance.new("TextButton")
     TryButton.Size = UDim2.new(0.4, 0, 0, 30)
-    TryButton.Position = UDim2.new(0.05, 0, 0.05, 0) -- Topo!
+    TryButton.Position = UDim2.new(0.05, 0, 0.1, 0) -- Topo!
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
     TryButton.Text = "Tentar"
-    TryButton.Font = Enum.Font.SourceSans
+    TryButton.Font = Enum.Font.SourceSansBold -- Fonte mais visível
+	TryButton.TextScaled = true
     TryButton.Parent = MainFrame
 
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.9, 0, 0, 30)
-    StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
+    StatusLabel.Position = UDim2.new(0.05, 0, 0.75, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Explore os RemoteEvents e manipule os argumentos."
+    StatusLabel.Text = "Explore os RemoteEvents e manipule argumentos."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
 
     local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.Size = UDim2.new(0.45, 0, 0.6, 0)
-    ScrollingFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
+    ScrollingFrame.Size = UDim2.new(0.45, 0, 0.5, 0)
+    ScrollingFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ScrollingFrame.Parent = MainFrame
 
     local RemoteNameTextBox = Instance.new("TextBox")
     RemoteNameTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    RemoteNameTextBox.Position = UDim2.new(0.55, 0, 0.1, 0)
+    RemoteNameTextBox.Position = UDim2.new(0.55, 0, 0.15, 0)
     RemoteNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     RemoteNameTextBox.TextColor3 = Color3.new(1, 1, 1)
     RemoteNameTextBox.Font = Enum.Font.SourceSans
@@ -66,27 +106,29 @@ local success, errorMessage = pcall(function()
 
     -- Frame para os argumentos
     local ArgumentsFrame = Instance.new("Frame")
-    ArgumentsFrame.Size = UDim2.new(0.4, 0, 0.4, 0)
-    ArgumentsFrame.Position = UDim2.new(0.55, 0, 0.2, 0)
+    ArgumentsFrame.Size = UDim2.new(0.4, 0, 0.3, 0)
+    ArgumentsFrame.Position = UDim2.new(0.55, 0, 0.3, 0)
     ArgumentsFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ArgumentsFrame.Parent = MainFrame
 
     local AddArgumentButton = Instance.new("TextButton")
-    AddArgumentButton.Size = UDim2.new(1, 0, 0, 30)
+    AddArgumentButton.Size = UDim2.new(1, 0, 0, 25)
     AddArgumentButton.Position = UDim2.new(0, 0, 0.9, 0)
     AddArgumentButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     AddArgumentButton.TextColor3 = Color3.new(1, 1, 1)
     AddArgumentButton.Text = "Adicionar Argumento"
-    AddArgumentButton.Font = Enum.Font.SourceSans
+    AddArgumentButton.Font = Enum.Font.SourceSansBold
+    AddArgumentButton.TextScaled = true
     AddArgumentButton.Parent = ArgumentsFrame
 
     local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
-    RefreshButton.Position = UDim2.new(0.55, 0, 0.75, 0)
+    RefreshButton.Position = UDim2.new(0.05, 0, 0.85, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     RefreshButton.TextColor3 = Color3.new(1, 1, 1)
     RefreshButton.Text = "Atualizar Lista"
-    RefreshButton.Font = Enum.Font.SourceSans
+    RefreshButton.Font = Enum.Font.SourceSansBold
+    RefreshButton.TextScaled = true
     RefreshButton.Parent = MainFrame
 
     -- Função para listar todos os RemoteEvents
@@ -112,19 +154,21 @@ local success, errorMessage = pcall(function()
         -- Criar botões para cada RemoteEvent
         for i, remote in ipairs(remotes) do
             local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, 0, 0, 30)
-            button.Position = UDim2.new(0, 0, (i - 1) * 0.05, 0)
+            button.Size = UDim2.new(1, 0, 0, 25)
+            button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
             button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
             button.TextColor3 = Color3.new(1, 1, 1)
             button.Text = remote.Name
             button.Font = Enum.Font.SourceSans
+			button.TextScaled = true
             button.Parent = ScrollingFrame
 
             button.MouseButton1Click:Connect(function()
                 RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar
             end)
-
+			createUICorner(button, 4) -- Arredondar os botões da lista
         end
+		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
     end
 
     -- Variável para armazenar os argumentos
@@ -189,7 +233,7 @@ local success, errorMessage = pcall(function()
 
                 StatusLabel.Text = "Interagindo com " .. remoteName .. " com " .. #convertedArgs .. " argumentos."
                 wait(2)
-                StatusLabel.Text = "Explore os RemoteEvents e manipule os argumentos."
+                StatusLabel.Text = "Explore os RemoteEvents e manipule argumentos."
             end)
         else
             StatusLabel.Text = "RemoteEvent '" .. remoteName .. "' não encontrado."
