@@ -107,7 +107,82 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Função para duplicar um item (ADAPTADA - Simulação de Presente)
+    -- Framework de Mimetismo Avançado
+    local MimicryFramework = {}
+
+    --[[ ADAPTAR: CLONAGEM OCULTA
+    Implementar a clonagem do item de forma a minimizar rastros.
+    ]]
+    function MimicryFramework:CloneItem(item)
+        -- Exemplo: Clonar propriedades essenciais manualmente (mais difícil de detectar)
+        local newItem = Instance.new("Tool") -- Ou o tipo correto do item
+        newItem.Name = item.Name
+        --[[ ADAPTAR: Copiar propriedades essenciais do item (ex: dano, alcance, etc.)
+        newItem.Dano = item.Dano
+        newItem.Alcance = item.Alcance
+        ]]
+        --[[ ADAPTAR: Copiar scripts essenciais do item
+        for _, script in ipairs(item:GetChildren()) do
+            if script:IsA("Script") then
+                local newScript = script:Clone()
+                newScript.Parent = newItem
+            end
+        end
+        ]]
+        return newItem
+    end
+
+    --[[ ADAPTAR: GERAÇÃO DE METADADOS FALSOS
+    Criar metadados que correspondam aos de um item legítimo.
+    ]]
+    function MimicryFramework:GenerateFakeMetadata(item)
+        -- Exemplo: Gerar um ID falso
+        local fakeId = tostring(math.random(1000000, 9999999))
+        --[[ ADAPTAR: Adicionar metadados falsos ao item duplicado
+        newItem:SetAttribute("ItemId", fakeId)
+        ]]
+    end
+
+    --[[ ADAPTAR: SIMULAÇÃO COMPORTAMENTAL
+    Simular ações legítimas que um jogador realizaria ao obter o item.
+    ]]
+    function MimicryFramework:SimulateLegitimateActions(player, newItem)
+        -- Exemplo: Simular a conclusão de uma missão
+        --[[ ADAPTAR: Disparar eventos para simular a conclusão de uma missão
+        local missionCompleteEvent = player:FindFirstChild("MissionCompleteEvent")
+        if missionCompleteEvent and missionCompleteEvent:IsA("RemoteEvent") then
+            missionCompleteEvent:FireServer("Mission123")
+        end
+        ]]
+        --[[ ADAPTAR: Adicionar o item ao inventário do jogador
+        local inventory = player:FindFirstChild("Inventory")
+        if inventory and inventory:IsA("Folder") then
+            newItem.Parent = inventory
+        end
+        ]]
+    end
+
+    --[[ ADAPTAR: RESPEITAR RESTRIÇÕES
+    Garantir que o item duplicado respeite todas as restrições impostas pelo jogo.
+    ]]
+    function MimicryFramework:EnforceRestrictions(newItem)
+        -- Exemplo: Garantir que o item tenha o nível correto
+        --[[ ADAPTAR: Verificar e ajustar o nível do item
+        if newItem.Level < 1 then
+            newItem.Level = 1
+        end
+        ]]
+    end
+
+    --[[ ADAPTAR: REMOÇÃO DE EVIDÊNCIAS
+    Remover quaisquer evidências da duplicação.
+    ]]
+    function MimicryFramework:RemoveEvidence(item)
+        -- Exemplo: Destruir o item original
+        --item:Destroy() -- Descomente se quiser remover o item original
+    end
+
+    -- Função principal para duplicar o item
     local function duplicateItem()
         local player = game.Players.LocalPlayer
         local character = player.Character
@@ -119,63 +194,32 @@ local success, errorMessage = pcall(function()
         local item = character:FindFirstChildOfClass("Tool")
 
         if item then
-            -- Desconectar todos os eventos do item original (CRUCIAL)
-            for _, connection in pairs(item:GetDescendants()) do
-                if typeof(connection) == "RBXScriptConnection" then
-                    connection:Disconnect()
-                end
-            end
-
-            local newItem = item:Clone() -- Use clone para replicar tudo
-
-            -- Gerar um novo ID único para o item (ADAPTAR!)
-            local newItemId = tostring(math.random(1000000, 9999999)) -- Exemplo de ID aleatório
-            newItem.Name = item.Name .. "_" .. newItemId -- Adicione um sufixo ao nome para diferenciá-lo
-
-            --[[ ADAPTAR: SIMULAÇÃO DE ENVIO
-            Criar um registro falso de que outro jogador enviou o item para você.
+            --[[ ADAPTAR: DUPLICAÇÃO CAMUFLADA
+            Duplicar o item sem deixar rastros óbvios.
             ]]
+            local newItem = MimicryFramework:CloneItem(item)
 
-            -- Exemplo (simples):
-            local senderName = "FriendBot" -- Nome do jogador que enviou o presente
-            local giftLog = player:FindFirstChild("GiftLog")
-            if not giftLog then
-                giftLog = Instance.new("Folder")
-                giftLog.Name = "GiftLog"
-                giftLog.Parent = player
-            end
-
-            local giftEntry = Instance.new("StringValue")
-            giftEntry.Name = newItem.Name
-            giftEntry.Value = senderName .. " enviou este item para você."
-            giftEntry.Parent = giftLog
-
-            --[[ ADAPTAR: SIMULAÇÃO DE RECEBIMENTO
-            Simular o recebimento do item pelo seu personagem.
-            Disparar os eventos que normalmente são disparados quando um jogador recebe um presente.
+            --[[ ADAPTAR: GERAÇÃO DE METADADOS FALSOS
+            Criar metadados que correspondam aos de um item legítimo.
             ]]
+            MimicryFramework:GenerateFakeMetadata(newItem)
 
-            -- Exemplo (simples):
-            local receiveEvent = player:FindFirstChild("ReceiveGiftEvent")
-            if receiveEvent and receiveEvent:IsA("RemoteEvent") then
-                receiveEvent:FireServer(newItem, senderName)
-            end
-
-            --[[ ADAPTAR: ADIÇÃO AO INVENTÁRIO
-            Adicionar o item duplicado ao inventário do seu personagem.
+            --[[ ADAPTAR: SIMULAÇÃO COMPORTAMENTAL
+            Simular ações legítimas que um jogador realizaria ao obter o item.
             ]]
+            MimicryFramework:SimulateLegitimateActions(player, newItem)
 
-            local inventory = player:FindFirstChild("Inventory")
-            if inventory and inventory:IsA("Folder") then
-                newItem.Parent = inventory
-            end
+            --[[ ADAPTAR: RESPEITAR RESTRIÇÕES
+            Garantir que o item duplicado respeite todas as restrições impostas pelo jogo.
+            ]]
+            MimicryFramework:EnforceRestrictions(newItem)
 
             --[[ ADAPTAR: REMOÇÃO DE EVIDÊNCIAS
-            Remover quaisquer evidências da duplicação, como o item original usado para a duplicação.
-            --item:Destroy() -- Descomente se quiser remover o item original
+            Remover quaisquer evidências da duplicação.
             ]]
+            MimicryFramework:RemoveEvidence(item)
 
-            print("Item duplicado (simulação de presente): " .. newItem.Name)
+            print("Item duplicado com sucesso (mimetismo avançado).")
         else
             print("Nenhum item equipado para duplicar.")
         end
