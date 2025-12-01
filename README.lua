@@ -1,86 +1,56 @@
--- Variáveis Globais
-local menuAtivo = false
-local compraAutomaticaAtiva = false
+-- Configurações de Qualidade Gráfica (se possível)
+game.Settings.Rendering.QualityLevel = "Level01" -- Nível de qualidade mais baixo
 
--- Lista de sementes disponíveis (exemplo)
-local sementesDisponiveis = {
-    { nome = "Girassol", custo = 50, utilidade = "Produz sol" },
-    { nome = "Disparervilha", custo = 100, utilidade = "Ataca zumbis" },
-    { nome = "Batatamina", custo = 25, utilidade = "Explode ao contato" }
-}
-
--- Função para criar o menu (substitua com a lógica real do jogo)
-local function criarMenu()
-    print("Menu:")
-    print("1. Ativar/Desativar Compra Automática")
-    print("2. Fechar Menu")
-    menuAtivo = true
-end
-
--- Função para lidar com a entrada do usuário no menu
-local function lidarComEntradaMenu(opcao)
-    if opcao == 1 then
-        compraAutomaticaAtiva = not compraAutomaticaAtiva
-        print("Compra Automática: " .. (compraAutomaticaAtiva and "Ativada" or "Desativada"))
-    elseif opcao == 2 then
-        menuAtivo = false
-        print("Menu fechado.")
-    else
-        print("Opção inválida.")
+-- Desativar Texturas (pode não funcionar em todos os casos)
+local function desativarTexturas(objeto)
+    if objeto:IsA("TextureBase") then
+        objeto.Texture = "" -- Remove a textura
+    end
+    for _, filho in ipairs(objeto:GetChildren()) do
+        desativarTexturas(filho)
     end
 end
 
--- Função para comprar sementes automaticamente
-local function compraAutomatica()
-    if compraAutomaticaAtiva then
-        -- Lógica para encontrar a semente mais barata (exemplo)
-        local sementeParaComprar = nil
-        local menorCusto = math.huge
-
-        for i, semente in ipairs(sementesDisponiveis) do
-            if semente.custo < menorCusto then
-                menorCusto = semente.custo
-                sementeParaComprar = semente
-            end
-        end
-
-        -- Comprar a semente (substitua com a lógica real do jogo)
-        if sementeParaComprar then
-            print("Comprando: " .. sementeParaComprar.nome)
-            -- Adicione aqui a lógica para comprar a semente no jogo
-            -- Exemplo: game:comprarSemente(sementeParaComprar.nome)
-        else
-            print("Nenhuma semente disponível para comprar.")
-        end
+-- Remover Partículas
+local function removerParticulas(objeto)
+    if objeto:IsA("ParticleEmitter") then
+        objeto:Destroy() -- Remove o emissor de partículas
+    end
+    for _, filho in ipairs(objeto:GetChildren()) do
+        removerParticulas(filho)
     end
 end
 
--- Função principal (exemplo de loop do jogo)
-local function loopDoJogo()
-    while true do
-        -- Simular entrada do usuário (para teste)
-        print("Digite 'menu' para abrir o menu ou 'comprar' para compra automática:")
-        local entrada = io.read()
-
-        if entrada == "menu" then
-            criarMenu()
-        elseif entrada == "comprar" then
-            compraAutomatica()
-        elseif menuAtivo then
-            local opcao = tonumber(entrada)
-            if opcao then
-                lidarComEntradaMenu(opcao)
-            else
-                print("Entrada inválida. Digite um número para escolher uma opção do menu.")
-            end
-        else
-            print("Comando inválido.")
-        end
-
-        -- Adicione aqui a lógica principal do jogo
-        -- Exemplo: game:atualizarEstado()
+-- Otimizar Malhas (pode não funcionar em todos os casos)
+local function otimizarMalhas(objeto)
+    if objeto:IsA("MeshPart") or objeto:IsA("Part") then
+        objeto.RenderFidelity = Enum.RenderFidelity.Automatic -- Qualidade automática
+        objeto. детализация_осевого_выравнивания = 0 -- Detalhe mínimo
+    end
+    for _, filho in ipairs(objeto:GetChildren()) do
+        otimizarMalhas(filho)
     end
 end
 
--- Iniciar o loop do jogo
-loopDoJogo()
+-- Função Principal para Otimização
+local function otimizarJogo()
+    -- Desativar Texturas
+    desativarTexturas(game.Workspace)
+
+    -- Remover Partículas
+    removerParticulas(game.Workspace)
+
+    -- Otimizar Malhas
+    otimizarMalhas(game.Workspace)
+
+    print("Otimização de performance aplicada.")
+end
+
+-- Executar a Otimização ao Iniciar o Jogo
+game:GetService("Players").PlayerGui:WaitForChild("ScreenGui").Enabled = false
+game:GetService("Players").PlayerGui:WaitForChild("BillboardGui").Enabled = false
+game:GetService("Lighting").FogEnd = 0
+game:GetService("Lighting").Brightness = 0
+game:GetService("RunService").Heartbeat:Wait()
+otimizarJogo()
+
