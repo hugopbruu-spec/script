@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 300, 0, 400)
+    MainFrame.Size = UDim2.new(0, 300, 0, 450)  -- Aumentei a altura
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -30,12 +30,24 @@ local success, errorMessage = pcall(function()
     TitleLabel.Parent = MainFrame
 
     local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.Size = UDim2.new(0.9, 0, 0.8, 0)
+    ScrollingFrame.Size = UDim2.new(0.9, 0, 0.6, 0)  -- Reduzi a altura
     ScrollingFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ScrollingFrame.Parent = MainFrame
 
-    -- Função para listar os Remotes
+    local RemoteListTextBox = Instance.new("TextBox")
+    RemoteListTextBox.Size = UDim2.new(0.9, 0, 0.15, 0) -- Altura para caber o texto
+    RemoteListTextBox.Position = UDim2.new(0.05, 0, 0.72, 0) -- Posicionado abaixo da lista
+    RemoteListTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    RemoteListTextBox.TextColor3 = Color3.new(1, 1, 1)
+    RemoteListTextBox.Font = Enum.Font.SourceSans
+    RemoteListTextBox.Text = ""  -- Começa vazio
+    RemoteListTextBox.ReadOnly = true -- Impede edição
+    RemoteListTextBox.MultiLine = true -- Permite múltiplas linhas
+    RemoteListTextBox.Parent = MainFrame
+
+
+    -- Função para listar os Remotes e preencher o textbox
     local function listarRemotes()
         -- Limpar a lista anterior
         for _, child in ipairs(ScrollingFrame:GetChildren()) do
@@ -43,6 +55,9 @@ local success, errorMessage = pcall(function()
                 child:Destroy()
             end
         end
+
+		--Limpar o textbox
+		RemoteListTextBox.Text = ""
 
         -- Encontrar todos os Remotes
         local remotes = {}
@@ -55,6 +70,8 @@ local success, errorMessage = pcall(function()
         end
         findAllRemotes(game)
 
+		local allRemoteNames = "" -- Acumular os nomes
+
         -- Criar botões para cada Remote
         for i, remote in ipairs(remotes) do
             local button = Instance.new("TextButton")
@@ -66,13 +83,11 @@ local success, errorMessage = pcall(function()
             button.Font = Enum.Font.SourceSans
             button.Parent = ScrollingFrame
 
-			--[[ -- Funcionalidade de copiar para a área de transferência (não funciona no Roblox Studio)
-            button.MouseButton1Click:Connect(function()
-                -- Copiar o nome do Remote para a área de transferência
-                print("Nome do Remote copiado: " .. remote.Name)
-            end)
-			]]
+			allRemoteNames = allRemoteNames .. remote.Name .. " (" .. remote.ClassName .. ")\n"
         end
+
+		RemoteListTextBox.Text = allRemoteNames -- Preencher o textbox
+
     end
 
 	-- Botão para atualizar a lista
