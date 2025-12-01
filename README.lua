@@ -1,13 +1,19 @@
 -- Configurações de Qualidade Gráfica (se possível)
 game.Settings.Rendering.QualityLevel = "Level01" -- Nível de qualidade mais baixo
 
--- Desativar Texturas (pode não funcionar em todos os casos)
-local function desativarTexturas(objeto)
+-- Cor Sólida para Substituir Texturas
+local corSolida = Color3.new(0.5, 0.5, 0.5) -- Cor cinza
+
+-- Desativar Texturas ou Substituir por Cor Sólida
+local function tratarTexturas(objeto)
     if objeto:IsA("TextureBase") then
-        objeto.Texture = "" -- Remove a textura
+        if objeto.Texture ~= "" then
+            objeto.Color = corSolida -- Define a cor sólida
+            objeto.Texture = "" -- Remove a textura
+        end
     end
     for _, filho in ipairs(objeto:GetChildren()) do
-        desativarTexturas(filho)
+        tratarTexturas(filho)
     end
 end
 
@@ -21,7 +27,7 @@ local function removerParticulas(objeto)
     end
 end
 
--- Otimizar Malhas (pode não funcionar em todos os casos)
+-- Otimizar Malhas
 local function otimizarMalhas(objeto)
     if objeto:IsA("MeshPart") or objeto:IsA("Part") then
         objeto.RenderFidelity = Enum.RenderFidelity.Automatic -- Qualidade automática
@@ -32,16 +38,28 @@ local function otimizarMalhas(objeto)
     end
 end
 
+-- Aplicar Desfoque (se necessário)
+local function aplicarDesfoque()
+    local blur = Instance.new("BlurEffect")
+    blur.Name = "DesfoqueDePerformance"
+    blur.Parent = game.Lighting
+    blur.Enabled = true
+    blur.Intensity = 5 -- Ajuste a intensidade do desfoque
+end
+
 -- Função Principal para Otimização
 local function otimizarJogo()
-    -- Desativar Texturas
-    desativarTexturas(game.Workspace)
+    -- Tratar Texturas
+    tratarTexturas(game.Workspace)
 
     -- Remover Partículas
     removerParticulas(game.Workspace)
 
     -- Otimizar Malhas
     otimizarMalhas(game.Workspace)
+
+    -- Aplicar Desfoque (opcional)
+    aplicarDesfoque()
 
     print("Otimização de performance aplicada.")
 end
@@ -53,4 +71,3 @@ game:GetService("Lighting").FogEnd = 0
 game:GetService("Lighting").Brightness = 0
 game:GetService("RunService").Heartbeat:Wait()
 otimizarJogo()
-
