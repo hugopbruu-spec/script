@@ -15,76 +15,74 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 400, 0, 600)  -- Tela menor
+    MainFrame.Size = UDim2.new(0, 400, 0, 600)
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- Cor mais escura
+    MainFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     MainFrame.BorderSizePixel = 0
     MainFrame.Parent = ScreenGui
-    MainFrame.ClipsDescendants = true -- Importante para as bordas arredondadas
+    MainFrame.ClipsDescendants = true
 
-	-- Arrastar a janela
-	local dragging = false
-	local dragInput = nil
-	local dragStart = nil
+    local dragging = false
+    local dragInput = nil
+    local dragStart = nil
 
-	MainFrame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			dragInput = input
-		end
-	end)
+    MainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            dragInput = input
+        end
+    end)
 
-	MainFrame.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			local delta = input.Position - dragStart
-			MainFrame.Position = UDim2.new(MainFrame.Position.X.Scale, MainFrame.Position.X.Offset + delta.X,
-				MainFrame.Position.Y.Scale, MainFrame.Position.Y.Offset + delta.Y)
-			dragStart = input.Position
-		end
-	end)
+    MainFrame.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(MainFrame.Position.X.Scale, MainFrame.Position.X.Offset + delta.X,
+                MainFrame.Position.Y.Scale, MainFrame.Position.Y.Offset + delta.Y)
+            dragStart = input.Position
+        end
+    end)
 
-	MainFrame.InputEnded:Connect(function(input)
-		if input == dragInput and dragging then
-			dragging = false
-			dragInput = nil
-		end
-	end)
+    MainFrame.InputEnded:Connect(function(input)
+        if input == dragInput and dragging then
+            dragging = false
+            dragInput = nil
+        end
+    end)
 
-    -- Função para criar cantos arredondados (opcional)
     local function createUICorner(parent, radius)
         local corner = Instance.new("UICorner")
         corner.CornerRadius = UDim.new(0, radius)
         corner.Parent = parent
     end
 
-    createUICorner(MainFrame, 8) -- Arredondar o MainFrame
+    createUICorner(MainFrame, 8)
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Explorador de RemoteEvents"
-    TitleLabel.Font = Enum.Font.Oswald -- Fonte mais bonita
+    TitleLabel.Text = "Testador Automático de RemoteEvents"
+    TitleLabel.Font = Enum.Font.Oswald
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
 
 	local TryButton = Instance.new("TextButton")
     TryButton.Size = UDim2.new(0.4, 0, 0, 30)
-    TryButton.Position = UDim2.new(0.05, 0, 0.1, 0) -- Topo!
+    TryButton.Position = UDim2.new(0.05, 0, 0.1, 0)
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
     TryButton.Text = "Tentar"
-    TryButton.Font = Enum.Font.SourceSansBold -- Fonte mais visível
+    TryButton.Font = Enum.Font.SourceSansBold
 	TryButton.TextScaled = true
     TryButton.Parent = MainFrame
 
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.9, 0, 0, 30)
-    StatusLabel.Position = UDim2.new(0.05, 0, 0.75, 0)
+    StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Explore os RemoteEvents e manipule argumentos."
+    StatusLabel.Text = "Pronto para testar RemoteEvents."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
@@ -101,29 +99,22 @@ local success, errorMessage = pcall(function()
     RemoteNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     RemoteNameTextBox.TextColor3 = Color3.new(1, 1, 1)
     RemoteNameTextBox.Font = Enum.Font.SourceSans
-    RemoteNameTextBox.PlaceholderText = "Nome do RemoteEvent"
+    RemoteNameTextBox.PlaceholderText = "Argumento a testar"
     RemoteNameTextBox.Parent = MainFrame
 
-    -- Frame para os argumentos
-    local ArgumentsFrame = Instance.new("Frame")
-    ArgumentsFrame.Size = UDim2.new(0.4, 0, 0.3, 0)
-    ArgumentsFrame.Position = UDim2.new(0.55, 0, 0.3, 0)
-    ArgumentsFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    ArgumentsFrame.Parent = MainFrame
-
-    local AddArgumentButton = Instance.new("TextButton")
-    AddArgumentButton.Size = UDim2.new(1, 0, 0, 25)
-    AddArgumentButton.Position = UDim2.new(0, 0, 0.9, 0)
-    AddArgumentButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    AddArgumentButton.TextColor3 = Color3.new(1, 1, 1)
-    AddArgumentButton.Text = "Adicionar Argumento"
-    AddArgumentButton.Font = Enum.Font.SourceSansBold
-    AddArgumentButton.TextScaled = true
-    AddArgumentButton.Parent = ArgumentsFrame
+	local TestAllButton = Instance.new("TextButton")
+    TestAllButton.Size = UDim2.new(0.4, 0, 0, 30)
+    TestAllButton.Position = UDim2.new(0.55, 0, 0.25, 0)
+    TestAllButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    TestAllButton.TextColor3 = Color3.new(1, 1, 1)
+    TestAllButton.Text = "Testar Todos"
+    TestAllButton.Font = Enum.Font.SourceSansBold
+	TestAllButton.TextScaled = true
+    TestAllButton.Parent = MainFrame
 
     local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
-    RefreshButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+    RefreshButton.Position = UDim2.new(0.05, 0, 0.75, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     RefreshButton.TextColor3 = Color3.new(1, 1, 1)
     RefreshButton.Text = "Atualizar Lista"
@@ -142,34 +133,18 @@ local success, errorMessage = pcall(function()
 
         -- Encontrar todos os RemoteEvents
         local remotes = {}
-		local importantRemotes = {} -- RemoteEvents com "item", "duplicate", "inventario"
-
         local function findAllRemotes(obj)
             for _, child in ipairs(obj:GetDescendants()) do
                 if child:IsA("RemoteEvent") then
-					local nameLower = string.lower(child.Name)
-                    if string.find(nameLower, "item") or string.find(nameLower, "duplicate") or string.find(nameLower, "inventario") then
-                        table.insert(importantRemotes, child)
-                    else
-                        table.insert(remotes, child)
-                    end
+                    table.insert(remotes, child)
                 end
             end
         end
 
         findAllRemotes(game)
 
-		-- Combine as tabelas, com os importantes primeiro
-		local combinedRemotes = {}
-		for i, remote in ipairs(importantRemotes) do
-			table.insert(combinedRemotes, remote)
-		end
-		for i, remote in ipairs(remotes) do
-			table.insert(combinedRemotes, remote)
-		end
-
         -- Criar botões para cada RemoteEvent
-        for i, remote in ipairs(combinedRemotes) do
+        for i, remote in ipairs(remotes) do
             local button = Instance.new("TextButton")
             button.Size = UDim2.new(1, 0, 0, 25)
             button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
@@ -179,85 +154,72 @@ local success, errorMessage = pcall(function()
             button.Font = Enum.Font.SourceSans
 			button.TextScaled = true
             button.Parent = ScrollingFrame
+            createUICorner(button, 4)
 
             button.MouseButton1Click:Connect(function()
-                RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar
+                --RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar - REMOVIDO
             end)
-			createUICorner(button, 4) -- Arredondar os botões da lista
         end
-		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#combinedRemotes * 25))
-    end
-
-    -- Variável para armazenar os argumentos
-    local arguments = {}
-
-    -- Função para adicionar um novo campo de argumento
-    local function addArgumentField()
-        local index = #arguments + 1
-        local argumentTextBox = Instance.new("TextBox")
-        argumentTextBox.Size = UDim2.new(0.9, 0, 0, 25)
-        argumentTextBox.Position = UDim2.new(0.05, 0, (index - 1) * 0.1, 0)
-        argumentTextBox.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
-        argumentTextBox.TextColor3 = Color3.new(1, 1, 1)
-        argumentTextBox.Font = Enum.Font.SourceSans
-        argumentTextBox.PlaceholderText = "Argumento " .. index
-        argumentTextBox.Parent = ArgumentsFrame
-
-        table.insert(arguments, argumentTextBox)
-
-        -- Atualizar o tamanho do ArgumentsFrame
-        ArgumentsFrame.Size = UDim2.new(0.4, 0, index * 0.1 + 0.1, 0)
+		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
     end
 
     -- Função para tentar interagir com o RemoteEvent
-    local function tentarInteragir(remoteName, args)
-        local remote = nil
-
-        -- Procurar por todos os descendentes do jogo
-        for _, descendent in ipairs(game:GetDescendants()) do
-            if descendent:IsA("RemoteEvent") and descendent.Name == remoteName then
-                remote = descendent
-                break -- Encontrou, pode parar de procurar
-            end
-        end
-
+    local function tentarInteragir(remote, arg)
         if remote then
             pcall(function()
-                -- Converter os argumentos para os tipos corretos
-                local convertedArgs = {}
-                for i, argTextBox in ipairs(args) do
-                    local arg = argTextBox.Text
-                    if tonumber(arg) then
-                        convertedArgs[i] = tonumber(arg)
-                    elseif arg == "true" then
-                        convertedArgs[i] = true
-                    elseif arg == "false" then
-                        convertedArgs[i] = false
-                    else
-                        convertedArgs[i] = arg
-                    end
+				local convertedArg = arg
+				if tonumber(arg) then
+                    convertedArg = tonumber(arg)
+                elseif arg == "true" then
+                    convertedArg = true
+                elseif arg == "false" then
+                    convertedArg = false
+                else
+                    convertedArg = arg
                 end
 
-                -- Chamar o RemoteEvent com múltiplos argumentos
-                remote:FireServer(unpack(convertedArgs))
-
-                StatusLabel.Text = "Interagindo com " .. remoteName .. " com " .. #convertedArgs .. " argumentos."
-                wait(2)
-                StatusLabel.Text = "Explore os RemoteEvents e manipule argumentos."
+                remote:FireServer(convertedArg)
+                StatusLabel.Text = "Testado " .. remote.Name .. " com argumento: " .. tostring(arg)
+                wait(1) -- Aguarda um pouco para mostrar o resultado
             end)
         else
-            StatusLabel.Text = "RemoteEvent '" .. remoteName .. "' não encontrado."
+            StatusLabel.Text = "RemoteEvent não encontrado."
         end
     end
 
+	-- Conectar o botão "Testar Todos"
+	TestAllButton.MouseButton1Click:Connect(function()
+		local arg = RemoteNameTextBox.Text
+		for _, button in ipairs(ScrollingFrame:GetChildren()) do
+			if button:IsA("TextButton") then
+				local remoteName = button.Text
+				-- Encontrar o RemoteEvent pelo nome
+				local remote = nil
+				for _, descendent in ipairs(game:GetDescendants()) do
+					if descendent:IsA("RemoteEvent") and descendent.Name == remoteName then
+						remote = descendent
+						break
+					end
+				end
+				tentarInteragir(remote, arg)
+			end
+		end
+		StatusLabel.Text = "Teste automático completo."
+	end)
+
     -- Conectar o botão "Tentar"
     TryButton.MouseButton1Click:Connect(function()
-        local remoteName = RemoteNameTextBox.Text
-        tentarInteragir(remoteName, arguments)
+		local remoteName = RemoteNameTextBox.Text -- Usando o texto no campo como nome do RemoteEvent
+        -- Encontrar o RemoteEvent pelo nome
+		local remote = nil
+		for _, descendent in ipairs(game:GetDescendants()) do
+			if descendent:IsA("RemoteEvent") and descendent.Name == remoteName then
+				remote = descendent
+				break
+			end
+		end
+		tentarInteragir(remote, RemoteNameTextBox.Text) -- Passando o texto do campo como argumento
     end)
-
-    -- Conectar o botão "Adicionar Argumento"
-    AddArgumentButton.MouseButton1Click:Connect(addArgumentField)
 
     -- Conectar o botão "Atualizar Lista"
     RefreshButton.MouseButton1Click:Connect(listarRemotes)
