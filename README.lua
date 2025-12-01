@@ -4,6 +4,8 @@
    AVISO: Usar scripts de automação pode violar os termos de serviço do jogo. Use por sua conta e risco.
 ]]
 
+print("Script de coleta automática iniciado!") -- VERIFIQUE SE ISSO APARECE NO OUTPUT!
+
 -- Configurações
 local raioDeBusca = 10 -- Raio em studs para procurar recursos
 local intervaloDeColeta = 5 -- Intervalo em segundos entre as tentativas de coleta
@@ -11,7 +13,7 @@ local intervaloDeColeta = 5 -- Intervalo em segundos entre as tentativas de cole
 -- Serviços
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
-local StarterGui = game:GetService("StarterGui")
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
 -- Variáveis de estado
 local coletaAutomaticaAtiva = false
@@ -20,7 +22,7 @@ local coletaAutomaticaAtiva = false
 local function criarMenuGUI()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "ColetorAutomaticoGUI"
-    screenGui.Parent = StarterGui
+    screenGui.Parent = PlayerGui
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -246,23 +248,26 @@ local function coletarRecurso(recurso)
     end
 end
 
--- Loop principal
-game:GetService("Players").PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-        repeat wait() until humanoidRootPart
+-- Loop principal (executado APENAS para o jogador local)
+local function iniciarColeta()
+    local character = Player.Character or Player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-        while true do
-            if coletaAutomaticaAtiva then
-                local plantaSecreta = encontrarPlantaSecretaMaisProxima(humanoidRootPart)
-                coletarRecurso(plantaSecreta)
-                wait(intervaloDeColeta)
-            else
-                wait(1) -- Pausa quando a coleta automática está desativada
-            end
+    while true do
+        if coletaAutomaticaAtiva then
+            local plantaSecreta = encontrarPlantaSecretaMaisProxima(humanoidRootPart)
+            coletarRecurso(plantaSecreta)
+            wait(intervaloDeColeta)
+        else
+            wait(1) -- Pausa quando a coleta automática está desativada
         end
-    end)
-end)
+    end
+end
 
--- Inicialização
-criarMenuGUI()
+-- Inicialização da GUI (executado APENAS para o jogador local)
+game:GetService("Players").PlayerAdded:Connect(function(player)
+    if player == Players.LocalPlayer then
+        criarMenuGUI()
+        iniciarColeta() -- Inicia o loop principal para este jogador
+    end
+end)
