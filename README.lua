@@ -1,10 +1,18 @@
--- Configurações de Qualidade Gráfica (aplicado no servidor)
-game.Lighting.GlobalShadows = false -- Desativar sombras globais
-game.Workspace.DistributedGameTime = false -- Desativar simulação de tempo distribuída
-game.Lighting.FogEnd = 0 -- Remover névoa
-game.Lighting.Brightness = 0 -- Escurecer o ambiente
+-- Roblox FPS Optimizer (Modificado para Otimização Extrema)
 
--- Remover Texturas e Cores (aplicado no servidor)
+-- Configurações Gerais
+local optimizationEnabled = false
+local toggleKey = Enum.KeyCode.RightControl -- Tecla para ativar/desativar a otimização
+
+-- Configurações de Qualidade Gráfica
+local function aplicarConfiguracoesGraficas()
+    game.Lighting.GlobalShadows = false -- Desativar sombras globais
+    game.Workspace.DistributedGameTime = false -- Desativar simulação de tempo distribuída
+    game.Lighting.FogEnd = 0 -- Remover névoa
+    game.Lighting.Brightness = 0 -- Escurecer o ambiente
+end
+
+-- Remover Texturas e Cores
 local function limparAparencia(objeto)
     if objeto and objeto:IsA("BasePart") then
         pcall(function()
@@ -22,7 +30,7 @@ local function limparAparencia(objeto)
     end
 end
 
--- Remover Partículas (aplicado no servidor)
+-- Remover Partículas
 local function removerParticulas(objeto)
     if objeto and objeto:IsA("ParticleEmitter") then
         pcall(function()
@@ -36,7 +44,7 @@ local function removerParticulas(objeto)
     end
 end
 
--- Desabilitar Sons (aplicado no servidor)
+-- Desabilitar Sons
 local function desabilitarSons(objeto)
     if objeto and objeto:IsA("Sound") then
         pcall(function()
@@ -52,7 +60,7 @@ local function desabilitarSons(objeto)
     end
 end
 
--- Desabilitar Scripts Desnecessários (aplicado no servidor)
+-- Desabilitar Scripts Desnecessários
 local function desabilitarScripts(objeto)
     if objeto and (objeto:IsA("Script") or objeto:IsA("LocalScript")) then
         pcall(function()
@@ -66,7 +74,7 @@ local function desabilitarScripts(objeto)
     end
 end
 
--- Otimizar Malhas (aplicado no servidor)
+-- Otimizar Malhas
 local function otimizarMalhas(objeto)
     if objeto and (objeto:IsA("MeshPart") or objeto:IsA("Part")) then
         pcall(function()
@@ -81,9 +89,10 @@ local function otimizarMalhas(objeto)
     end
 end
 
--- Função Principal para Otimização (aplicada no servidor)
-local function otimizarJogo()
+-- Aplicar Otimização Extrema
+local function aplicarOtimizacaoExtrema()
     print("Otimização extrema iniciada (Servidor).")
+    aplicarConfiguracoesGraficas()
     limparAparencia(game.Workspace)
     removerParticulas(game.Workspace)
     desabilitarSons(game.Workspace)
@@ -100,7 +109,7 @@ local function otimizarJogo()
     print("Otimização extrema aplicada (Servidor).")
 end
 
--- Manter o Personagem Visível e Conectado (aplicado no cliente)
+-- Manter o Personagem Visível e Conectado
 local function manterPersonagem(player)
     if player and player.CharacterAppearanceLoaded then
         player.CharacterAppearanceLoaded:Connect(function(character)
@@ -119,13 +128,31 @@ local function manterPersonagem(player)
     end
 end
 
--- Executar a Otimização ao Iniciar o Jogo (Servidor)
-game:GetService("RunService").Heartbeat:Wait()
-otimizarJogo()
-
--- Conectar a função ManterPersonagem a cada novo jogador (Servidor)
+-- Conectar a função ManterPersonagem a cada novo jogador
 game.Players.PlayerAdded:Connect(function(player)
     manterPersonagem(player)
 end)
+
+-- Função para Ativar/Desativar a Otimização (não utilizada, otimização sempre ativa)
+local function toggleOptimization()
+    optimizationEnabled = not optimizationEnabled
+    if optimizationEnabled then
+        aplicarOtimizacaoExtrema()
+        print("Otimização ativada.")
+    else
+        print("Otimização desativada (esta opção não reverte as alterações).")
+    end
+end
+
+-- Detectar Tecla Pressionada (não utilizada, otimização sempre ativa)
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == toggleKey then
+        toggleOptimization()
+    end
+end)
+
+-- Executar a Otimização ao Iniciar o Jogo (Servidor)
+game:GetService("RunService").Heartbeat:Wait()
+aplicarOtimizacaoExtrema()
 
 print("Script de otimização iniciado (Servidor).")
