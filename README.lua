@@ -5,7 +5,7 @@
 ]]
 
 -- Configurações
-local recursoAlvo = "Madeira" -- Nome do recurso que você quer coletar (AJUSTE!)
+local recursoAlvo = "Shroombino" -- Nome do recurso que você quer coletar (AJUSTE!)
 local raioDeBusca = 10 -- Raio em studs para procurar recursos
 local intervaloDeColeta = 5 -- Intervalo em segundos entre as tentativas de coleta
 
@@ -23,6 +23,7 @@ local function criarMenuGUI()
     screenGui.Name = "ColetorAutomaticoGUI"
     screenGui.Parent = StarterGui
     screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
@@ -31,6 +32,8 @@ local function criarMenuGUI()
     mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
+    mainFrame.Active = true
+    mainFrame.Draggable = true
 
     local toggleButton = Instance.new("TextButton")
     toggleButton.Name = "ToggleButton"
@@ -70,7 +73,7 @@ local function criarMenuGUI()
         coletaAutomaticaAtiva = not coletaAutomaticaAtiva
         atualizarTextoBotao()
     end)
-    
+
     settingsButton.MouseButton1Click:Connect(function()
         criarMenuDeConfiguracoes(screenGui)
     end)
@@ -92,6 +95,8 @@ local function criarMenuDeConfiguracoes(screenGui)
     settingsGUI.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     settingsGUI.BorderSizePixel = 0
     settingsGUI.Parent = screenGui
+    settingsGUI.Active = true
+    settingsGUI.Draggable = true
 
     local resourceLabel = Instance.new("TextLabel")
     resourceLabel.Size = UDim2.new(1, 0, 0.2, 0)
@@ -105,6 +110,7 @@ local function criarMenuDeConfiguracoes(screenGui)
     resourceLabel.Parent = settingsGUI
 
     local resourceTextBox = Instance.new("TextBox")
+    resourceTextBox.Name = "ResourceTextBox"
     resourceTextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
     resourceTextBox.Position = UDim2.new(0.1, 0, 0.2, 0)
     resourceTextBox.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -126,14 +132,16 @@ local function criarMenuDeConfiguracoes(screenGui)
     radiusLabel.Parent = settingsGUI
 
     local radiusTextBox = Instance.new("TextBox")
+    radiusTextBox.Name = "RadiusTextBox"
     radiusTextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
     radiusTextBox.Position = UDim2.new(0.1, 0, 0.6, 0)
     radiusTextBox.BackgroundColor3 = Color3.new(1, 1, 1)
     radiusTextBox.BackgroundTransparency = 0.5
-    radiusTextBox.Text = raioDeBusca
+    radiusTextBox.Text = tostring(raioDeBusca)  -- Converte para string
     radiusTextBox.Font = Enum.Font.SourceSansBold
     radiusTextBox.TextSize = 14
     radiusTextBox.Parent = settingsGUI
+    radiusTextBox.KeyboardType = Enum.KeyboardType.NumberPad  -- Apenas números
 
     local intervalLabel = Instance.new("TextLabel")
     intervalLabel.Size = UDim2.new(1, 0, 0.2, 0)
@@ -147,15 +155,17 @@ local function criarMenuDeConfiguracoes(screenGui)
     intervalLabel.Parent = settingsGUI
 
     local intervalTextBox = Instance.new("TextBox")
+    intervalTextBox.Name = "IntervalTextBox"
     intervalTextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
     intervalTextBox.Position = UDim2.new(0.1, 0, 1, 0)
     intervalTextBox.BackgroundColor3 = Color3.new(1, 1, 1)
     intervalTextBox.BackgroundTransparency = 0.5
-    intervalTextBox.Text = intervaloDeColeta
+    intervalTextBox.Text = tostring(intervaloDeColeta)  -- Converte para string
     intervalTextBox.Font = Enum.Font.SourceSansBold
     intervalTextBox.TextSize = 14
     intervalTextBox.Parent = settingsGUI
-    
+    intervalTextBox.KeyboardType = Enum.KeyboardType.NumberPad  -- Apenas números
+
     local saveButton = Instance.new("TextButton")
     saveButton.Name = "SaveButton"
     saveButton.Size = UDim2.new(0.4, 0, 0.2, 0)
@@ -167,7 +177,7 @@ local function criarMenuDeConfiguracoes(screenGui)
     saveButton.TextSize = 14
     saveButton.BorderSizePixel = 0
     saveButton.Parent = settingsGUI
-    
+
     saveButton.MouseButton1Click:Connect(function()
         -- Tenta converter os valores dos campos de texto
         local newResourceAlvo = resourceTextBox.Text
@@ -198,10 +208,10 @@ local function criarMenuDeConfiguracoes(screenGui)
             Font = Enum.Font.SourceSansBold,
             TextSize = Enum.FontSize.Size14
         })
-        
+
         settingsGUI:Destroy()
     end)
-    
+
     screenGui.SettingsGUI = settingsGUI
 end
 
@@ -216,20 +226,18 @@ local function debugPrint(message)
 end
 
 -- Função para encontrar o recurso mais próximo
-local function encontrarRecursoMaisProximo()
+local function encontrarRecursoMaisProximo(humanoidRootPart)
     local recursoMaisProximo = nil
     local distanciaMinima = math.huge
 
-    if not Player or not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then
-        return nil -- Sai da função se o personagem não estiver pronto
+    if not humanoidRootPart then
+        return nil -- Sai da função se o HumanoidRootPart não estiver pronto
     end
-
-    local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
 
     for _, recurso in ipairs(game.Workspace:GetDescendants()) do
         if recurso:IsA("Model") and string.find(recurso.Name, recursoAlvo) then
             if recurso.PrimaryPart then
-                local distancia = (recurso.PrimaryPart.Position - HumanoidRootPart.Position).Magnitude
+                local distancia = (recurso.PrimaryPart.Position - humanoidRootPart.Position).Magnitude
                 if distancia < distanciaMinima and distancia <= raioDeBusca then
                     distanciaMinima = distancia
                     recursoMaisProximo = recurso
@@ -266,30 +274,20 @@ end
 -- Loop principal
 game:GetService("Players").PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
-        local HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
-        repeat wait() until HumanoidRootPart
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        repeat wait() until humanoidRootPart
+
         while true do
             if coletaAutomaticaAtiva then
-                if not Player or not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then
-                    --debugPrint("Esperando o personagem carregar...")
-                    wait(2) -- Espera um pouco mais para o personagem carregar completamente
-                    Player = Players.LocalPlayer
-                    Character = Player.Character
-                    if Character then
-                        HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-                    end
-                else
-                    local recurso = encontrarRecursoMaisProximo()
-                    coletarRecurso(recurso)
-                    wait(intervaloDeColeta)
-                end
+                local recurso = encontrarRecursoMaisProximo(humanoidRootPart)
+                coletarRecurso(recurso)
+                wait(intervaloDeColeta)
             else
                 wait(1) -- Pausa quando a coleta automática está desativada
             end
         end
     end)
 end)
-
 
 -- Inicialização
 criarMenuGUI()
