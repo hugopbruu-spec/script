@@ -73,41 +73,58 @@ local success, errorMessage = pcall(function()
 
 	-- Funções --
 
-	-- Função para obter o item na mão do personagem (ADAPTAR!)
+    -- Função para obter o item na mão do personagem (ADAPTAR!)
     local function getItemInHand()
-        -- *** IMPORTANTE: ADAPTAR ESTA FUNÇÃO PARA O JOGO ***
-        -- Este é apenas um exemplo. Você precisará encontrar a maneira
-        -- correta de obter o item que o jogador está segurando.
-        -- Pode envolver acessar a ferramenta equipada, o objeto na mão, etc.
-		local character = Player.Character or Player.CharacterAdded:Wait()
-		local humanoid = character:FindFirstChild("Humanoid")
+        -- Tentar encontrar a Tool equipada pelo Humanoid
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChild("Humanoid")
 
-		if humanoid then
-			local tool = humanoid. руках:FindFirstChild("Ferramenta")
-			if tool then
-				return tool
-			else
-				StatusLabel.Text = "Nenhuma ferramenta na mão."
-				return nil
-			end
-		else
-			StatusLabel.Text = "Humanoide não encontrado."
-			return nil
-		end
+        if humanoid then
+            local tool = humanoid. руках:FindFirstChildOfClass("Tool")
+            if tool then
+                return tool
+            else
+                StatusLabel.Text = "Nenhuma ferramenta (planta/semente) na mão."
+                return nil
+            end
+        else
+            StatusLabel.Text = "Humanoide não encontrado."
+            return nil
+        end
     end
 
-    -- Função para duplicar um item e adicioná-lo ao inventário (ADAPTAR!)
+	-- Função para duplicar um item e adicioná-lo ao inventário (ADAPTAR!)
     local function duplicateItem(item)
-        -- *** IMPORTANTE: ADAPTAR ESTA FUNÇÃO PARA O JOGO ***
-        -- Esta função precisa lidar com a duplicação do item e adicioná-lo
-        -- ao inventário do jogador de forma que ele não seja automaticamente selecionado.
-        -- Pode envolver o uso de RemoteEvents, manipulação de objetos, etc.
-
         if item then
-            local newItem = item:Clone() -- Cria uma cópia do item
-            newItem.Parent = Player.Backpack -- Adiciona ao inventário
+            -- 1. Clonar o item
+            local newItem = item:Clone()
+            newItem.Name = "Duplicado_" .. item.Name -- Evitar conflitos de nome
 
-            StatusLabel.Text = "Item duplicado e adicionado ao inventário: " .. item.Name
+            -- 2. Encontrar o RemoteEvent de inventário (ADAPTAR!!!)
+            local inventoryEvent = game.ReplicatedStorage:FindFirstChild("AdicionarItemInventario")
+			if not inventoryEvent then
+				inventoryEvent = game:GetService("ReplicatedStorage"):WaitForChild("AdicionarItemInventario")
+			end
+
+            if inventoryEvent and inventoryEvent:IsA("RemoteEvent") then
+                -- 3. Enviar o item duplicado para o servidor (ADAPTAR!!!)
+                inventoryEvent:FireServer(newItem) -- Envie o item clonado
+
+                StatusLabel.Text = "Item duplicado e enviado para o inventário: " .. item.Name
+            else
+                StatusLabel.Text = "RemoteEvent 'AdicionarItemInventario' não encontrado. Impossível adicionar ao inventário."
+            end
+
+			--[[
+            -- 4. (Opcional) Tentar adicionar o item diretamente ao inventário (se possível)
+			local backpack = Player:FindFirstChild("Backpack")
+			if backpack then
+				newItem.Parent = backpack
+				StatusLabel.Text = "Item duplicado e adicionado diretamente ao inventário (se funcionar!): " .. item.Name
+			else
+				StatusLabel.Text = "Backpack não encontrado. Impossível adicionar diretamente."
+			end
+			]]
         else
             StatusLabel.Text = "Nenhum item para duplicar."
         end
