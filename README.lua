@@ -1,4 +1,4 @@
--- Roblox FPS Optimizer (Modificado para Otimização Extrema com Remoção de Animações e GUI)
+-- Roblox FPS Optimizer (Modificado para Otimização Extrema, Mantém Menu Roblox e Personagem)
 
 -- Configurações Gerais
 local optimizationEnabled = false
@@ -107,13 +107,13 @@ local function removerAnimacoes(objeto)
     end
 end
 
--- Remover GUI (Interface do Usuário)
+-- Remover GUI (Mantém Menu Roblox)
 local function removerGUI(player)
     if player and player:IsA("Player") then
         local playerGui = player:FindFirstChild("PlayerGui")
         if playerGui then
             for _, gui in ipairs(playerGui:GetChildren()) do
-                if gui and gui:IsA("GuiBase") then
+                if gui and gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" then -- Mantém o menu do Roblox
                     pcall(function()
                         gui:Destroy()
                     end)
