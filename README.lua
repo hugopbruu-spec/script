@@ -1,8 +1,7 @@
--- Roblox FPS Optimizer (Modificado para Otimização Extrema)
+-- Roblox FPS Optimizer (Modificado para Otimização Extrema com Remoção de Animações e GUI)
 
 -- Configurações Gerais
 local optimizationEnabled = false
-local toggleKey = Enum.KeyCode.RightControl -- Tecla para ativar/desativar a otimização
 
 -- Configurações de Qualidade Gráfica
 local function aplicarConfiguracoesGraficas()
@@ -89,6 +88,41 @@ local function otimizarMalhas(objeto)
     end
 end
 
+-- Remover Animações
+local function removerAnimacoes(objeto)
+    if objeto and objeto:IsA("AnimationController") then
+        pcall(function()
+            objeto:Destroy()
+        end)
+    end
+    if objeto and objeto:IsA("Animation") then
+        pcall(function()
+            objeto:Destroy()
+        end)
+    end
+    if objeto then
+        for _, filho in ipairs(objeto:GetChildren()) do
+            removerAnimacoes(filho)
+        end
+    end
+end
+
+-- Remover GUI (Interface do Usuário)
+local function removerGUI(player)
+    if player and player:IsA("Player") then
+        local playerGui = player:FindFirstChild("PlayerGui")
+        if playerGui then
+            for _, gui in ipairs(playerGui:GetChildren()) do
+                if gui and gui:IsA("GuiBase") then
+                    pcall(function()
+                        gui:Destroy()
+                    end)
+                end
+            end
+        end
+    end
+end
+
 -- Aplicar Otimização Extrema
 local function aplicarOtimizacaoExtrema()
     print("Otimização extrema iniciada (Servidor).")
@@ -98,6 +132,7 @@ local function aplicarOtimizacaoExtrema()
     desabilitarSons(game.Workspace)
     desabilitarScripts(game.Workspace)
     otimizarMalhas(game.Workspace)
+    removerAnimacoes(game.Workspace)
 
     -- Remover Céu (opcional)
     if game.Lighting:FindFirstChildOfClass("Sky") then
@@ -131,24 +166,7 @@ end
 -- Conectar a função ManterPersonagem a cada novo jogador
 game.Players.PlayerAdded:Connect(function(player)
     manterPersonagem(player)
-end)
-
--- Função para Ativar/Desativar a Otimização (não utilizada, otimização sempre ativa)
-local function toggleOptimization()
-    optimizationEnabled = not optimizationEnabled
-    if optimizationEnabled then
-        aplicarOtimizacaoExtrema()
-        print("Otimização ativada.")
-    else
-        print("Otimização desativada (esta opção não reverte as alterações).")
-    end
-end
-
--- Detectar Tecla Pressionada (não utilizada, otimização sempre ativa)
-game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.KeyCode == toggleKey then
-        toggleOptimization()
-    end
+    removerGUI(player) -- Remover GUI ao adicionar jogador
 end)
 
 -- Executar a Otimização ao Iniciar o Jogo (Servidor)
