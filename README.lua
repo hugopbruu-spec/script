@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 500, 0, 900)  -- Aumentei a altura!
+    MainFrame.Size = UDim2.new(0, 500, 0, 950)  -- Altura ainda maior!
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -30,9 +30,18 @@ local success, errorMessage = pcall(function()
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
 
+	local TryButton = Instance.new("TextButton")
+    TryButton.Size = UDim2.new(0.4, 0, 0, 30)
+    TryButton.Position = UDim2.new(0.05, 0, 0.05, 0) -- Topo!
+    TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    TryButton.TextColor3 = Color3.new(1, 1, 1)
+    TryButton.Text = "Tentar"
+    TryButton.Font = Enum.Font.SourceSans
+    TryButton.Parent = MainFrame
+
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.9, 0, 0, 30)
-    StatusLabel.Position = UDim2.new(0.05, 0, 0.95, 0)
+    StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
     StatusLabel.Text = "Explore os RemoteEvents e manipule os argumentos."
@@ -41,8 +50,8 @@ local success, errorMessage = pcall(function()
     StatusLabel.Parent = MainFrame
 
     local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.Size = UDim2.new(0.45, 0, 0.65, 0)
-    ScrollingFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+    ScrollingFrame.Size = UDim2.new(0.45, 0, 0.6, 0)
+    ScrollingFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ScrollingFrame.Parent = MainFrame
 
@@ -71,18 +80,9 @@ local success, errorMessage = pcall(function()
     AddArgumentButton.Font = Enum.Font.SourceSans
     AddArgumentButton.Parent = ArgumentsFrame
 
-    local TryButton = Instance.new("TextButton")
-    TryButton.Size = UDim2.new(0.4, 0, 0, 30)
-    TryButton.Position = UDim2.new(0.55, 0, 0.65) -- Movido para baixo
-    TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    TryButton.TextColor3 = Color3.new(1, 1, 1)
-    TryButton.Text = "Tentar"
-    TryButton.Font = Enum.Font.SourceSans
-    TryButton.Parent = MainFrame
-
     local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
-    RefreshButton.Position = UDim2.new(0.55, 0, 0.75) -- Ajustado para baixo
+    RefreshButton.Position = UDim2.new(0.55, 0, 0.75, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     RefreshButton.TextColor3 = Color3.new(1, 1, 1)
     RefreshButton.Text = "Atualizar Lista"
