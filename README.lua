@@ -19,7 +19,7 @@ local success, errorMessage = pcall(function()
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
-	MainFrame.Draggable = true -- Tornar o menu arrastável
+    MainFrame.Draggable = true -- Tornar o menu arrastável
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
@@ -55,14 +55,14 @@ local success, errorMessage = pcall(function()
     RemoteNameTextBox.PlaceholderText = "Nome do RemoteEvent"
     RemoteNameTextBox.Parent = MainFrame
 
-	-- Frame para os argumentos
-	local ArgumentsFrame = Instance.new("Frame")
+    -- Frame para os argumentos
+    local ArgumentsFrame = Instance.new("Frame")
     ArgumentsFrame.Size = UDim2.new(0.4, 0, 0.4, 0)
     ArgumentsFrame.Position = UDim2.new(0.55, 0, 0.2, 0)
     ArgumentsFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ArgumentsFrame.Parent = MainFrame
 
-	local AddArgumentButton = Instance.new("TextButton")
+    local AddArgumentButton = Instance.new("TextButton")
     AddArgumentButton.Size = UDim2.new(1, 0, 0, 30)
     AddArgumentButton.Position = UDim2.new(0, 0, 0.9, 0)
     AddArgumentButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
@@ -80,7 +80,7 @@ local success, errorMessage = pcall(function()
     TryButton.Font = Enum.Font.SourceSans
     TryButton.Parent = MainFrame
 
-	local RefreshButton = Instance.new("TextButton")
+    local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
     RefreshButton.Position = UDim2.new(0.55, 0, 0.8, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -88,7 +88,6 @@ local success, errorMessage = pcall(function()
     RefreshButton.Text = "Atualizar Lista"
     RefreshButton.Font = Enum.Font.SourceSans
     RefreshButton.Parent = MainFrame
-
 
     -- Função para listar todos os RemoteEvents
     local function listarRemotes()
@@ -121,34 +120,33 @@ local success, errorMessage = pcall(function()
             button.Font = Enum.Font.SourceSans
             button.Parent = ScrollingFrame
 
-			button.MouseButton1Click:Connect(function()
-				RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar
-			end)
+            button.MouseButton1Click:Connect(function()
+                RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar
+            end)
 
         end
     end
 
-	-- Variável para armazenar os argumentos
-	local arguments = {}
+    -- Variável para armazenar os argumentos
+    local arguments = {}
 
-	-- Função para adicionar um novo campo de argumento
-	local function addArgumentField()
-		local index = #arguments + 1
-		local argumentTextBox = Instance.new("TextBox")
-		argumentTextBox.Size = UDim2.new(0.9, 0, 0, 25)
-		argumentTextBox.Position = UDim2.new(0.05, 0, (index - 1) * 0.1, 0)
-		argumentTextBox.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
-		argumentTextBox.TextColor3 = Color3.new(1, 1, 1)
-		argumentTextBox.Font = Enum.Font.SourceSans
-		argumentTextBox.PlaceholderText = "Argumento " .. index
-		argumentTextBox.Parent = ArgumentsFrame
+    -- Função para adicionar um novo campo de argumento
+    local function addArgumentField()
+        local index = #arguments + 1
+        local argumentTextBox = Instance.new("TextBox")
+        argumentTextBox.Size = UDim2.new(0.9, 0, 0, 25)
+        argumentTextBox.Position = UDim2.new(0.05, 0, (index - 1) * 0.1, 0)
+        argumentTextBox.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+        argumentTextBox.TextColor3 = Color3.new(1, 1, 1)
+        argumentTextBox.Font = Enum.Font.SourceSans
+        argumentTextBox.PlaceholderText = "Argumento " .. index
+        argumentTextBox.Parent = ArgumentsFrame
 
-		table.insert(arguments, argumentTextBox)
+        table.insert(arguments, argumentTextBox)
 
-		-- Atualizar o tamanho do ArgumentsFrame
-		ArgumentsFrame.Size = UDim2.new(0.4, 0, index * 0.1 + 0.1, 0)
-	end
-
+        -- Atualizar o tamanho do ArgumentsFrame
+        ArgumentsFrame.Size = UDim2.new(0.4, 0, index * 0.1 + 0.1, 0)
+    end
 
     -- Função para tentar interagir com o RemoteEvent
     local function tentarInteragir(remoteName, args)
@@ -165,28 +163,28 @@ local success, errorMessage = pcall(function()
                     end
                 end
             end
-            findRemote(game)
+            findAllRemotes(game)
             remote = foundRemote
         end
 
-		if remote then
+        if remote then
             pcall(function()
-				-- Converter os argumentos para os tipos corretos
-				local convertedArgs = {}
-				for i, argTextBox in ipairs(args) do
-					local arg = argTextBox.Text
-					if tonumber(arg) then
-						convertedArgs[i] = tonumber(arg)
-					elseif arg == "true" then
-						convertedArgs[i] = true
-					elseif arg == "false" then
-						convertedArgs[i] = false
-					else
-						convertedArgs[i] = arg
-					end
-				end
+                -- Converter os argumentos para os tipos corretos
+                local convertedArgs = {}
+                for i, argTextBox in ipairs(args) do
+                    local arg = argTextBox.Text
+                    if tonumber(arg) then
+                        convertedArgs[i] = tonumber(arg)
+                    elseif arg == "true" then
+                        convertedArgs[i] = true
+                    elseif arg == "false" then
+                        convertedArgs[i] = false
+                    else
+                        convertedArgs[i] = arg
+                    end
+                end
 
-				-- Chamar o RemoteEvent com múltiplos argumentos
+                -- Chamar o RemoteEvent com múltiplos argumentos
                 remote:FireServer(unpack(convertedArgs))
 
                 StatusLabel.Text = "Interagindo com " .. remoteName .. " com " .. #convertedArgs .. " argumentos."
@@ -204,11 +202,11 @@ local success, errorMessage = pcall(function()
         tentarInteragir(remoteName, arguments)
     end)
 
-	-- Conectar o botão "Adicionar Argumento"
-	AddArgumentButton.MouseButton1Click:Connect(addArgumentField)
+    -- Conectar o botão "Adicionar Argumento"
+    AddArgumentButton.MouseButton1Click:Connect(addArgumentField)
 
-	--Conectar o botão "Atualizar Lista"
-	RefreshButton.MouseButton1Click:Connect(listarRemotes)
+    -- Conectar o botão "Atualizar Lista"
+    RefreshButton.MouseButton1Click:Connect(listarRemotes)
 
     -- Chamar a função para listar os RemoteEvents
     listarRemotes()
