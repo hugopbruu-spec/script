@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 500, 0, 800)  -- Aumentei a largura e altura
+    MainFrame.Size = UDim2.new(0, 500, 0, 900)  -- Aumentei a altura!
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -73,7 +73,7 @@ local success, errorMessage = pcall(function()
 
     local TryButton = Instance.new("TextButton")
     TryButton.Size = UDim2.new(0.4, 0, 0, 30)
-    TryButton.Position = UDim2.new(0.55, 0, 0.7, 0)
+    TryButton.Position = UDim2.new(0.55, 0, 0.65) -- Movido para baixo
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
     TryButton.Text = "Tentar"
@@ -82,7 +82,7 @@ local success, errorMessage = pcall(function()
 
     local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
-    RefreshButton.Position = UDim2.new(0.55, 0, 0.8, 0)
+    RefreshButton.Position = UDim2.new(0.55, 0, 0.75) -- Ajustado para baixo
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     RefreshButton.TextColor3 = Color3.new(1, 1, 1)
     RefreshButton.Text = "Atualizar Lista"
