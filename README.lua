@@ -23,6 +23,7 @@ local success, errorMessage = pcall(function()
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+    TitleLabel.TextColor3 = Color3.new(1, 1, 1)
     TitleLabel.Text = "Plants vs Brainrots Helper"
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextScaled = true
@@ -48,6 +49,9 @@ local success, errorMessage = pcall(function()
                 local newTool = tool:Clone()
                 newTool.Name = tool.Name .. "_Duplicated"
 
+				--[[Modificação IMPORTANTE: Remover o pai original para evitar problemas]]
+				newTool.Parent = nil
+
                 -- 2. Encontrar o RemoteEvent "Replicontroler"
                 local remote = game:GetService("ReplicatedStorage"):FindFirstChild("Replicontroler")
 
@@ -55,6 +59,9 @@ local success, errorMessage = pcall(function()
                 if remote and remote:IsA("RemoteEvent") then
                     remote:FireServer(newTool)
                     print("RemoteEvent 'Replicontroler' encontrado e chamado com o item duplicado.")
+
+					--[[Importante: Não adicionar o item diretamente ao character.  Deixar o SERVER fazer isso]]
+                    --newTool.Parent = character  --<-- REMOVIDO
                 else
                     print("RemoteEvent 'Replicontroler' não encontrado em ReplicatedStorage.")
 
