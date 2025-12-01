@@ -1,6 +1,8 @@
 --// Interface Gráfica (GUI) //--
 
 local Player = game.Players.LocalPlayer
+
+-- Aguardar o PlayerGui estar disponível
 local PlayerGui = Player:WaitForChild("PlayerGui", 10)
 
 if not PlayerGui then
@@ -24,8 +26,10 @@ local success, errorMessage = pcall(function()
 
     local function createUICorner(parent, radius)
         local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, radius)
-        corner.Parent = parent
+        local cornerInstance = Instance.new("UICorner") -- Criar uma nova instância
+        cornerInstance.CornerRadius = UDim.new(0, radius)
+        cornerInstance.Parent = parent
+        return cornerInstance
     end
 
     createUICorner(MainFrame, 8)
@@ -89,4 +93,10 @@ end)
 
 if not success then
     warn("Erro ao criar a interface: " .. errorMessage)
+end
+
+-- Imprimir erros no console
+if errorMessage then
+    print("Erro ao executar o script:")
+    print(errorMessage)
 end
