@@ -1,4 +1,4 @@
--- Roblox FPS Optimizer com Menu de Otimização Aprimorado e Limpeza de Mensagens e Output
+-- Roblox FPS Optimizer com Menu de Otimização Aprimorado e Limpeza de Mensagens
 
 -- Configurações Gerais
 local player = game.Players.LocalPlayer
@@ -156,12 +156,6 @@ local function limparHistoricoMensagens()
     end
 end
 
--- Função para Limpar o Output (Histórico de Erros)
-local function limparOutput()
-    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-    print("Output limpo.")
-end
-
 -- Função para Aplicar Otimização Extrema
 local function aplicarOtimizacaoExtrema()
     print("Otimização extrema iniciada (Cliente).")
@@ -174,7 +168,6 @@ local function aplicarOtimizacaoExtrema()
     removerAnimacoes(game.Workspace)
     removerGUI(player)
     limparHistoricoMensagens() -- Limpa o histórico de mensagens
-    limparOutput()             -- Limpa o Output (Histórico de Erros)
 
     -- Remover Céu (opcional)
     if game.Lighting:FindFirstChildOfClass("Sky") then
