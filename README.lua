@@ -27,7 +27,7 @@ local success, errorMessage = pcall(function()
     local dragStart = nil
 
     MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             dragInput = input
@@ -173,16 +173,21 @@ local success, errorMessage = pcall(function()
         local price = 10
         local quantity = 1
 
+		-- Defina os argumentos a serem testados. Adapte para a lógica do jogo.
         local arguments = {
-            -- Argumentos comuns
+            -- Argumentos comuns com nome aleatório
             "{player = '" .. randomName .. "', item = '" .. seedName .. "', quantity = " .. quantity .. "}",
             "{player = '" .. randomName .. "', itemID = '" .. itemID .. "', price = " .. price .. "}",
             "{item = '" .. seedName .. "', quantity = " .. quantity .. ", target = '" .. randomName .. "'}",
             "{from = '" .. randomName .. "', to = '" .. randomName .. "', item = '" .. seedName .. "'}",
 
-            -- Argumentos com valores negativos
+            -- Argumentos com valores negativos (possível exploração)
             "{player = '" .. randomName .. "', item = '" .. seedName .. "', quantity = " .. -quantity .. "}",
             "{player = '" .. randomName .. "', itemID = '" .. itemID .. "', price = " .. -price .. "}",
+
+			-- Argumentos usando o nome REAL do jogador (necessário em alguns casos)
+			"{player = '" .. Player.Name .. "', item = '" .. seedName .. "', quantity = " .. quantity .. "}",
+			"{player = '" .. Player.Name .. "', itemID = '" .. itemID .. "', price = " .. price .. "}",
         }
 
         for _, arg in ipairs(arguments) do
@@ -194,7 +199,8 @@ local success, errorMessage = pcall(function()
         end
     end
 
-	-- Função para testar funções
+	--[[
+	-- Função para testar funções (Exemplo: Se souber de funções relevantes)
 	local function testFunction(func, seedName)
 		local randomName = generateRandomName()
 		local itemID = "seed_test" -- Substitua pelo ID real da semente
@@ -216,6 +222,7 @@ local success, errorMessage = pcall(function()
 			end)
 		end
 	end
+	]]
 
     -- Conectar o botão "Iniciar Varredura"
     TryButton.MouseButton1Click:Connect(function()
@@ -238,7 +245,7 @@ local success, errorMessage = pcall(function()
             end
         end
 
-		-- 2. Testar funções (Exemplo: Se souber de funções relevantes)
+		-- 2. Testar funções (Exemplo: Se souber de funções relevantes - DESABILITADO POR SEGURANÇA)
 		--StatusLabel.Text = "Iniciando varredura de funções..."
 		--testFunction(game.ServerScriptService.Inventory.AddItem, seedName)
 
