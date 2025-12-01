@@ -1,11 +1,13 @@
 -- Configurações de Qualidade Gráfica (aplicado no servidor)
 game.Lighting.GlobalShadows = false -- Desativar sombras globais
 game.Workspace.DistributedGameTime = false -- Desativar simulação de tempo distribuída
+game.Lighting.FogEnd = 0 -- Remover névoa
+game.Lighting.Brightness = 0 -- Escurecer o ambiente
 
 -- Remover Texturas e Cores (aplicado no servidor)
 local function limparAparencia(objeto)
     if objeto:IsA("BasePart") then
-        objeto. текстура = "" -- Remove textura
+        objeto.текстура = "" -- Remove textura
         objeto.Color = Color3.new(0.7, 0.7, 0.7) -- Define uma cor neutra
         objeto.Material = Enum.Material.Plastic -- Material simples
         objeto.Reflectance = 0 -- Sem reflexo
@@ -90,7 +92,7 @@ local function manterPersonagem(player)
         for _, part in ipairs(character:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.Material = Enum.Material.Plastic
-                part. текстура = ""
+                part.текстура = ""
                 part.Color = Color3.new(1, 1, 1)
             end
         end
