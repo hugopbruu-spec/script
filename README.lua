@@ -27,7 +27,7 @@ local success, errorMessage = pcall(function()
     local dragStart = nil
 
     MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             dragInput = input
@@ -62,7 +62,7 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Simulador de Compra de Sementes (EXPERIMENTAL)"
+    TitleLabel.Text = "Simulador de Compra Automática (MUITO ARRISCADO)"
     TitleLabel.Font = Enum.Font.Oswald
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
@@ -72,7 +72,7 @@ local success, errorMessage = pcall(function()
     TryButton.Position = UDim2.new(0.05, 0, 0.1, 0)
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
-    TryButton.Text = "Comprar Semente"
+    TryButton.Text = "Comprar Semente (Automático)"
     TryButton.Font = Enum.Font.SourceSansBold
 	TryButton.TextScaled = true
     TryButton.Parent = MainFrame
@@ -82,7 +82,7 @@ local success, errorMessage = pcall(function()
     StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Pronto para simular a compra de sementes (USE COM CAUTELA)."
+    StatusLabel.Text = "Pronto para simular compras automaticamente (MUITO CUIDADO!)."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
@@ -93,37 +93,18 @@ local success, errorMessage = pcall(function()
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ScrollingFrame.Parent = MainFrame
 
-    local RemoteNameTextBox = Instance.new("TextBox")
-    RemoteNameTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    RemoteNameTextBox.Position = UDim2.new(0.55, 0, 0.15, 0)
-    RemoteNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    RemoteNameTextBox.TextColor3 = Color3.new(1, 1, 1)
-    RemoteNameTextBox.Font = Enum.Font.SourceSans
-    RemoteNameTextBox.PlaceholderText = "RemoteEvent de compra"
-    RemoteNameTextBox.Parent = MainFrame
-
     local SeedNameTextBox = Instance.new("TextBox")
     SeedNameTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    SeedNameTextBox.Position = UDim2.new(0.55, 0, 0.25, 0)
+    SeedNameTextBox.Position = UDim2.new(0.55, 0, 0.15, 0)
     SeedNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     SeedNameTextBox.TextColor3 = Color3.new(1, 1, 1)
     SeedNameTextBox.Font = Enum.Font.SourceSans
     SeedNameTextBox.PlaceholderText = "Nome da Semente"
     SeedNameTextBox.Parent = MainFrame
 
-    local SeedIDTextBox = Instance.new("TextBox")
-    SeedIDTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    SeedIDTextBox.Position = UDim2.new(0.55, 0, 0.35, 0)
-    SeedIDTextBox.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-    SeedIDTextBox.TextColor3 = Color3.new(0.5, 0.5, 0.5)
-    SeedIDTextBox.Font = Enum.Font.SourceSans
-    SeedIDTextBox.Text = "ID da Semente (Automático)"
-    SeedIDTextBox.ReadOnly = true -- Impede o usuário de editar o ID
-    SeedIDTextBox.Parent = MainFrame
-
     local SeedPriceTextBox = Instance.new("TextBox")
     SeedPriceTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    SeedPriceTextBox.Position = UDim2.new(0.55, 0, 0.45, 0)
+    SeedPriceTextBox.Position = UDim2.new(0.55, 0, 0.25, 0)
     SeedPriceTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     SeedPriceTextBox.TextColor3 = Color3.new(1, 1, 1)
     SeedPriceTextBox.Font = Enum.Font.SourceSans
@@ -148,6 +129,17 @@ local success, errorMessage = pcall(function()
         -- Adicione mais sementes e IDs aqui
     }
 
+	-- Função para gerar um nome aleatório
+	local function generateRandomName()
+		local length = math.random(5, 10)
+		local chars = "abcdefghijklmnopqrstuvwxyz"
+		local result = ""
+		for i = 1, length do
+			result = result .. string.sub(chars, math.random(1, string.len(chars)), math.random(1, string.len(chars)))
+		end
+		return result
+	end
+
     -- Função para listar todos os RemoteEvents
     local function listarRemotes()
         -- Limpar a lista anterior
@@ -171,7 +163,7 @@ local success, errorMessage = pcall(function()
 
         -- Criar botões para cada RemoteEvent
         for i, remote in ipairs(remotes) do
-			if remote.Name ~= "CmdrEvent" then -- Ignorar o CmdrEvent
+            if remote.Name ~= "CmdrEvent" then -- Ignorar o CmdrEvent
 				local button = Instance.new("TextButton")
 				button.Size = UDim2.new(1, 0, 0, 25)
 				button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
@@ -184,7 +176,7 @@ local success, errorMessage = pcall(function()
 				createUICorner(button, 4)
 
 				button.MouseButton1Click:Connect(function()
-					RemoteNameTextBox.Text = remote.Name
+					--RemoteNameTextBox.Text = remote.Name
 				end)
 			end
         end
@@ -201,6 +193,9 @@ local success, errorMessage = pcall(function()
 				break
 			end
 		end
+		if not remote then
+			return -- Sai da função se o RemoteEvent não for encontrado
+		end
 
         -- Encontrar o ID da semente na lista
         local seedID = seedList[seedName]
@@ -209,10 +204,13 @@ local success, errorMessage = pcall(function()
             return
         end
 
+		-- Gerar nome aleatório
+		local randomName = generateRandomName()
+
         if remote then
             pcall(function()
-				-- Argumentos padronizados
-				local arg = "{player = '" .. Player.Name .. "', itemID = '" .. seedID .. "', price = " .. seedPrice .. ", quantity = 1}"
+				-- Argumentos padronizados (com nome aleatório)
+				local arg = "{player = '" .. randomName .. "', itemID = '" .. seedID .. "', price = " .. seedPrice .. ", quantity = 1}"
 
                 remote:FireServer(arg)
                 StatusLabel.Text = "Tentando comprar semente " .. seedName .. " usando " .. remoteName
@@ -224,33 +222,34 @@ local success, errorMessage = pcall(function()
         end
     end
 
-    -- Conectar o botão "Comprar Semente"
+    -- Conectar o botão "Comprar Semente (Automático)"
     TryButton.MouseButton1Click:Connect(function()
-		local remoteName = RemoteNameTextBox.Text
-		local seedName = SeedNameTextBox.Text
-		local seedPrice = SeedPriceTextBox.Text
-
-        -- Atualizar o ID da Semente no campo de texto
-        local seedID = seedList[seedName]
-        if seedID then
-            SeedIDTextBox.Text = seedID
-        else
-            SeedIDTextBox.Text = "Semente não encontrada"
-        end
-
-        tentarComprarSemente(remoteName, seedName, seedPrice)
-    end)
-
-    -- Conectar o campo de nome da semente
-    SeedNameTextBox:GetPropertyChangedSignal("Text"):Connect(function()
         local seedName = SeedNameTextBox.Text
-        -- Atualizar o ID da Semente no campo de texto
-        local seedID = seedList[seedName]
-        if seedID then
-            SeedIDTextBox.Text = seedID
-        else
-            SeedIDTextBox.Text = "Semente não encontrada"
+        local seedPrice = SeedPriceTextBox.Text
+
+        -- Filtrar RemoteEvents por nomes relevantes
+        local keywords = {"compra", "loja", "shop", "seed", "semente", "buy"}
+        local filteredRemotes = {}
+        for _, descendent in ipairs(game:GetDescendants()) do
+            if descendent:IsA("RemoteEvent") then
+                local name = descendent.Name:lower()
+                for _, keyword in ipairs(keywords) do
+                    if string.find(name, keyword) then
+                        table.insert(filteredRemotes, descendent)
+                        break
+                    end
+                end
+            end
         end
+
+        -- Tentar comprar a semente usando cada RemoteEvent filtrado
+        for _, remote in ipairs(filteredRemotes) do
+            StatusLabel.Text = "Testando RemoteEvent: " .. remote.Name
+            tentarComprarSemente(remote.Name, seedName, seedPrice)
+            wait(5) -- Aumentar o delay para 5 segundos
+        end
+
+        StatusLabel.Text = "Teste automático completo."
     end)
 
     -- Conectar o botão "Atualizar Lista"
