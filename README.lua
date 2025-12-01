@@ -34,7 +34,7 @@ local success, errorMessage = pcall(function()
     DuplicateButton.Position = UDim2.new(0.05, 0, 0.15, 0)
     DuplicateButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     DuplicateButton.TextColor3 = Color3.new(1, 1, 1)
-    DuplicateButton.Text = "Duplicar (Q)"
+    DuplicateButton.Text = "Tentar Duplicar (Q)"
     DuplicateButton.Font = Enum.Font.SourceSans
     DuplicateButton.Parent = MainFrame
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
@@ -48,27 +48,35 @@ local success, errorMessage = pcall(function()
                 -- 1. Clonar o Item
                 local newTool = tool:Clone()
                 newTool.Name = tool.Name .. "_Duplicated"
+                newTool.Parent = nil -- Remover o pai original
 
-				--[[Modificação IMPORTANTE: Remover o pai original para evitar problemas]]
-				newTool.Parent = nil
+                -- 2. Encontrar TODOS os Remotes (Events E Functions)
+                local remotes = {}
+                local function findAllRemotes(obj)
+                    for _, child in ipairs(obj:GetDescendants()) do
+                        if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
+                            table.insert(remotes, child)
+                        end
+                    end
+                end
+                findAllRemotes(game)
 
-                -- 2. Encontrar o RemoteEvent "Replicontroler"
-                local remote = game:GetService("ReplicatedStorage"):FindFirstChild("Replicontroler")
-
-                -- 3. Chamar o RemoteEvent (Se Encontrado)
-                if remote and remote:IsA("RemoteEvent") then
-                    remote:FireServer(newTool)
-                    print("RemoteEvent 'Replicontroler' encontrado e chamado com o item duplicado.")
-
-					--[[Importante: Não adicionar o item diretamente ao character.  Deixar o SERVER fazer isso]]
-                    --newTool.Parent = character  --<-- REMOVIDO
+                -- 3. Tentar enviar o item duplicado para cada Remote
+                if #remotes > 0 then
+                    print("Encontrados " .. #remotes .. " Remotes. Tentando enviar o item para cada um...")
+                    for i, remote in ipairs(remotes) do
+                        pcall(function() -- Usar pcall para evitar erros que interrompam o loop
+                            if remote:IsA("RemoteEvent") then
+                                remote:FireServer(newTool)
+                                print("Enviando item para RemoteEvent: " .. remote.Name)
+                            elseif remote:IsA("RemoteFunction") then
+                                remote:InvokeServer(newTool)
+                                print("Enviando item para RemoteFunction: " .. remote.Name)
+                            end
+                        end)
+                    end
                 else
-                    print("RemoteEvent 'Replicontroler' não encontrado em ReplicatedStorage.")
-
-                    --[[ ADAPTAR:
-                    Se o RemoteEvent não estiver em ReplicatedStorage,
-                    procure em outros locais (Workspace, ServerScriptService, etc.).
-                    ]]
+                    print("Nenhum RemoteEvent ou RemoteFunction encontrado no jogo.")
                 end
             else
                 print("Nenhum item equipado para duplicar.")
