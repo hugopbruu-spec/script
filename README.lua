@@ -27,7 +27,7 @@ local success, errorMessage = pcall(function()
     local dragStart = nil
 
     MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             dragInput = input
@@ -62,7 +62,7 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Duplicador de Itens (EXPERIMENTAL)"
+    TitleLabel.Text = "Simulador de Compra de Sementes (EXPERIMENTAL)"
     TitleLabel.Font = Enum.Font.Oswald
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
@@ -72,7 +72,7 @@ local success, errorMessage = pcall(function()
     TryButton.Position = UDim2.new(0.05, 0, 0.1, 0)
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
-    TryButton.Text = "Duplicar"
+    TryButton.Text = "Comprar Semente"
     TryButton.Font = Enum.Font.SourceSansBold
 	TryButton.TextScaled = true
     TryButton.Parent = MainFrame
@@ -82,7 +82,7 @@ local success, errorMessage = pcall(function()
     StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Pronto para duplicar itens (USE COM CAUTELA)."
+    StatusLabel.Text = "Pronto para simular a compra de sementes (USE COM CAUTELA)."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
@@ -99,17 +99,36 @@ local success, errorMessage = pcall(function()
     RemoteNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     RemoteNameTextBox.TextColor3 = Color3.new(1, 1, 1)
     RemoteNameTextBox.Font = Enum.Font.SourceSans
-    RemoteNameTextBox.PlaceholderText = "RemoteEvent para duplicar"
+    RemoteNameTextBox.PlaceholderText = "RemoteEvent de compra"
     RemoteNameTextBox.Parent = MainFrame
 
-    local ItemNameTextBox = Instance.new("TextBox")
-    ItemNameTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    ItemNameTextBox.Position = UDim2.new(0.55, 0, 0.25, 0)
-    ItemNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    ItemNameTextBox.TextColor3 = Color3.new(1, 1, 1)
-    ItemNameTextBox.Font = Enum.Font.SourceSans
-    ItemNameTextBox.PlaceholderText = "Nome do Item a Duplicar"
-    ItemNameTextBox.Parent = MainFrame
+    local SeedNameTextBox = Instance.new("TextBox")
+    SeedNameTextBox.Size = UDim2.new(0.4, 0, 0, 30)
+    SeedNameTextBox.Position = UDim2.new(0.55, 0, 0.25, 0)
+    SeedNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    SeedNameTextBox.TextColor3 = Color3.new(1, 1, 1)
+    SeedNameTextBox.Font = Enum.Font.SourceSans
+    SeedNameTextBox.PlaceholderText = "Nome da Semente"
+    SeedNameTextBox.Parent = MainFrame
+
+    local SeedIDTextBox = Instance.new("TextBox")
+    SeedIDTextBox.Size = UDim2.new(0.4, 0, 0, 30)
+    SeedIDTextBox.Position = UDim2.new(0.55, 0, 0.35, 0)
+    SeedIDTextBox.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+    SeedIDTextBox.TextColor3 = Color3.new(0.5, 0.5, 0.5)
+    SeedIDTextBox.Font = Enum.Font.SourceSans
+    SeedIDTextBox.Text = "ID da Semente (Automático)"
+    SeedIDTextBox.ReadOnly = true -- Impede o usuário de editar o ID
+    SeedIDTextBox.Parent = MainFrame
+
+    local SeedPriceTextBox = Instance.new("TextBox")
+    SeedPriceTextBox.Size = UDim2.new(0.4, 0, 0, 30)
+    SeedPriceTextBox.Position = UDim2.new(0.55, 0, 0.45, 0)
+    SeedPriceTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    SeedPriceTextBox.TextColor3 = Color3.new(1, 1, 1)
+    SeedPriceTextBox.Font = Enum.Font.SourceSans
+    SeedPriceTextBox.PlaceholderText = "Preço da Semente"
+    SeedPriceTextBox.Parent = MainFrame
 
     local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
@@ -120,6 +139,14 @@ local success, errorMessage = pcall(function()
     RefreshButton.Font = Enum.Font.SourceSansBold
     RefreshButton.TextScaled = true
     RefreshButton.Parent = MainFrame
+
+    -- Lista de sementes e seus IDs (SUBSTITUA COM OS VALORES DO JOGO)
+    local seedList = {
+        ["Semente de Cacto"] = "cacto_seed_123",
+        ["Semente de Girassol"] = "girassol_seed_456",
+        ["Semente de Rosa"] = "rosa_seed_789"
+        -- Adicione mais sementes e IDs aqui
+    }
 
     -- Função para listar todos os RemoteEvents
     local function listarRemotes()
@@ -164,8 +191,8 @@ local success, errorMessage = pcall(function()
 		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
     end
 
-    -- Função para tentar interagir com o RemoteEvent
-    local function tentarDuplicar(remoteName, itemName)
+    -- Função para tentar simular a compra
+    local function tentarComprarSemente(remoteName, seedName, seedPrice)
         -- Encontrar o RemoteEvent pelo nome
 		local remote = nil
 		for _, descendent in ipairs(game:GetDescendants()) do
@@ -175,26 +202,55 @@ local success, errorMessage = pcall(function()
 			end
 		end
 
+        -- Encontrar o ID da semente na lista
+        local seedID = seedList[seedName]
+        if not seedID then
+            StatusLabel.Text = "Semente não encontrada na lista."
+            return
+        end
+
         if remote then
             pcall(function()
 				-- Argumentos padronizados
-				local arg = "{player = '" .. Player.Name .. "', item = '" .. itemName .. "', quantity = 1}"
+				local arg = "{player = '" .. Player.Name .. "', itemID = '" .. seedID .. "', price = " .. seedPrice .. ", quantity = 1}"
 
                 remote:FireServer(arg)
-                StatusLabel.Text = "Tentando duplicar " .. itemName .. " usando " .. remoteName
+                StatusLabel.Text = "Tentando comprar semente " .. seedName .. " usando " .. remoteName
                 wait(2) -- Aguarda um pouco para mostrar o resultado
-				StatusLabel.Text = "Pronto para duplicar itens (USE COM CAUTELA)."
+				StatusLabel.Text = "Pronto para simular a compra de sementes (USE COM CAUTELA)."
             end)
         else
             StatusLabel.Text = "RemoteEvent não encontrado."
         end
     end
 
-    -- Conectar o botão "Duplicar"
+    -- Conectar o botão "Comprar Semente"
     TryButton.MouseButton1Click:Connect(function()
 		local remoteName = RemoteNameTextBox.Text
-		local itemName = ItemNameTextBox.Text
-        tentarDuplicar(remoteName, itemName)
+		local seedName = SeedNameTextBox.Text
+		local seedPrice = SeedPriceTextBox.Text
+
+        -- Atualizar o ID da Semente no campo de texto
+        local seedID = seedList[seedName]
+        if seedID then
+            SeedIDTextBox.Text = seedID
+        else
+            SeedIDTextBox.Text = "Semente não encontrada"
+        end
+
+        tentarComprarSemente(remoteName, seedName, seedPrice)
+    end)
+
+    -- Conectar o campo de nome da semente
+    SeedNameTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local seedName = SeedNameTextBox.Text
+        -- Atualizar o ID da Semente no campo de texto
+        local seedID = seedList[seedName]
+        if seedID then
+            SeedIDTextBox.Text = seedID
+        else
+            SeedIDTextBox.Text = "Semente não encontrada"
+        end
     end)
 
     -- Conectar o botão "Atualizar Lista"
