@@ -1,7 +1,6 @@
--- Roblox FPS Optimizer com Menu de Otimização (Layout Inicial)
+-- Roblox FPS Optimizer com Menu de Otimização (Layout Inicial Corrigido)
 
 -- Configurações Gerais
-local optimizationEnabled = false
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
@@ -184,7 +183,18 @@ local function criarMenuOtimizacao()
 end
 
 -- Executar ao Entrar no Jogo
-manterPersonagem(player)
-criarMenuOtimizacao()
+local function onPlayerAdded(player)
+    if player == game.Players.LocalPlayer then
+        manterPersonagem(player) -- Garante que o personagem seja mantido
+        criarMenuOtimizacao()       -- Cria o menu
+    end
+end
+
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+
+-- Verificar se o jogador já está no jogo ao adicionar o script
+if game.Players.LocalPlayer then
+    onPlayerAdded(game.Players.LocalPlayer)
+end
 
 print("Script de otimização iniciado (Cliente).")
