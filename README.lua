@@ -27,7 +27,7 @@ local success, errorMessage = pcall(function()
     local dragStart = nil
 
     MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             dragInput = input
@@ -62,7 +62,7 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Simulador de Compra Automática (MUITO ARRISCADO)"
+    TitleLabel.Text = "Varredura de Duplicação (ALTAMENTE EXPERIMENTAL)"
     TitleLabel.Font = Enum.Font.Oswald
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
@@ -72,7 +72,7 @@ local success, errorMessage = pcall(function()
     TryButton.Position = UDim2.new(0.05, 0, 0.1, 0)
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
-    TryButton.Text = "Comprar Semente (Automático)"
+    TryButton.Text = "Iniciar Varredura"
     TryButton.Font = Enum.Font.SourceSansBold
 	TryButton.TextScaled = true
     TryButton.Parent = MainFrame
@@ -82,7 +82,7 @@ local success, errorMessage = pcall(function()
     StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Pronto para simular compras automaticamente (MUITO CUIDADO!)."
+    StatusLabel.Text = "Pronto para iniciar a varredura (EXTREMO CUIDADO!)."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
@@ -99,17 +99,8 @@ local success, errorMessage = pcall(function()
     SeedNameTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     SeedNameTextBox.TextColor3 = Color3.new(1, 1, 1)
     SeedNameTextBox.Font = Enum.Font.SourceSans
-    SeedNameTextBox.PlaceholderText = "Nome da Semente"
+    SeedNameTextBox.PlaceholderText = "Nome da Semente a Testar"
     SeedNameTextBox.Parent = MainFrame
-
-    local SeedPriceTextBox = Instance.new("TextBox")
-    SeedPriceTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    SeedPriceTextBox.Position = UDim2.new(0.55, 0, 0.25, 0)
-    SeedPriceTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    SeedPriceTextBox.TextColor3 = Color3.new(1, 1, 1)
-    SeedPriceTextBox.Font = Enum.Font.SourceSans
-    SeedPriceTextBox.PlaceholderText = "Preço da Semente"
-    SeedPriceTextBox.Parent = MainFrame
 
     local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
@@ -121,15 +112,7 @@ local success, errorMessage = pcall(function()
     RefreshButton.TextScaled = true
     RefreshButton.Parent = MainFrame
 
-    -- Lista de sementes e seus IDs (SUBSTITUA COM OS VALORES DO JOGO)
-    local seedList = {
-        ["Semente de Cacto"] = "cacto_seed_123",
-        ["Semente de Girassol"] = "girassol_seed_456",
-        ["Semente de Rosa"] = "rosa_seed_789"
-        -- Adicione mais sementes e IDs aqui
-    }
-
-	-- Função para gerar um nome aleatório
+    -- Função para gerar um nome aleatório
 	local function generateRandomName()
 		local length = math.random(5, 10)
 		local chars = "abcdefghijklmnopqrstuvwxyz"
@@ -183,73 +166,83 @@ local success, errorMessage = pcall(function()
 		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
     end
 
-    -- Função para tentar simular a compra
-    local function tentarComprarSemente(remoteName, seedName, seedPrice)
-        -- Encontrar o RemoteEvent pelo nome
-		local remote = nil
-		for _, descendent in ipairs(game:GetDescendants()) do
-			if descendent:IsA("RemoteEvent") and descendent.Name == remoteName then
-				remote = descendent
-				break
-			end
-		end
-		if not remote then
-			return -- Sai da função se o RemoteEvent não for encontrado
-		end
+    -- Função para testar RemoteEvents
+    local function testRemoteEvent(remote, seedName)
+        local randomName = generateRandomName()
+        local itemID = "seed_test" -- Substitua pelo ID real da semente
+        local price = 10
+        local quantity = 1
 
-        -- Encontrar o ID da semente na lista
-        local seedID = seedList[seedName]
-        if not seedID then
-            StatusLabel.Text = "Semente não encontrada na lista."
-            return
-        end
+        local arguments = {
+            -- Argumentos comuns
+            "{player = '" .. randomName .. "', item = '" .. seedName .. "', quantity = " .. quantity .. "}",
+            "{player = '" .. randomName .. "', itemID = '" .. itemID .. "', price = " .. price .. "}",
+            "{item = '" .. seedName .. "', quantity = " .. quantity .. ", target = '" .. randomName .. "'}",
+            "{from = '" .. randomName .. "', to = '" .. randomName .. "', item = '" .. seedName .. "'}",
 
-		-- Gerar nome aleatório
-		local randomName = generateRandomName()
+            -- Argumentos com valores negativos
+            "{player = '" .. randomName .. "', item = '" .. seedName .. "', quantity = " .. -quantity .. "}",
+            "{player = '" .. randomName .. "', itemID = '" .. itemID .. "', price = " .. -price .. "}",
+        }
 
-        if remote then
+        for _, arg in ipairs(arguments) do
             pcall(function()
-				-- Argumentos padronizados (com nome aleatório)
-				local arg = "{player = '" .. randomName .. "', itemID = '" .. seedID .. "', price = " .. seedPrice .. ", quantity = 1}"
-
+                StatusLabel.Text = "Testando " .. remote.Name .. " com argumento: " .. arg
                 remote:FireServer(arg)
-                StatusLabel.Text = "Tentando comprar semente " .. seedName .. " usando " .. remoteName
-                wait(2) -- Aguarda um pouco para mostrar o resultado
-				StatusLabel.Text = "Pronto para simular a compra de sementes (USE COM CAUTELA)."
+                wait(2)
             end)
-        else
-            StatusLabel.Text = "RemoteEvent não encontrado."
         end
     end
 
-    -- Conectar o botão "Comprar Semente (Automático)"
+	-- Função para testar funções
+	local function testFunction(func, seedName)
+		local randomName = generateRandomName()
+		local itemID = "seed_test" -- Substitua pelo ID real da semente
+		local quantity = 1
+
+		local arguments = {
+			randomName,
+			seedName,
+			itemID,
+			quantity,
+			-quantity
+		}
+
+		for _, arg in ipairs(arguments) do
+			pcall(function()
+				StatusLabel.Text = "Testando " .. tostring(func) .. " com argumento: " .. tostring(arg)
+				func(arg)
+				wait(2)
+			end)
+		end
+	end
+
+    -- Conectar o botão "Iniciar Varredura"
     TryButton.MouseButton1Click:Connect(function()
         local seedName = SeedNameTextBox.Text
-        local seedPrice = SeedPriceTextBox.Text
 
-        -- Filtrar RemoteEvents por nomes relevantes
-        local keywords = {"compra", "loja", "shop", "seed", "semente", "buy"}
-        local filteredRemotes = {}
+        -- 1. Testar RemoteEvents
+        StatusLabel.Text = "Iniciando varredura de RemoteEvents..."
+        local keywords = {"compra", "loja", "shop", "seed", "semente", "buy", "trade", "troca", "recompensa", "reward", "inventario", "inventory"}
         for _, descendent in ipairs(game:GetDescendants()) do
             if descendent:IsA("RemoteEvent") then
                 local name = descendent.Name:lower()
                 for _, keyword in ipairs(keywords) do
                     if string.find(name, keyword) then
-                        table.insert(filteredRemotes, descendent)
+                        StatusLabel.Text = "Encontrado RemoteEvent relevante: " .. descendent.Name
+                        testRemoteEvent(descendent, seedName)
+                        wait(5)
                         break
                     end
                 end
             end
         end
 
-        -- Tentar comprar a semente usando cada RemoteEvent filtrado
-        for _, remote in ipairs(filteredRemotes) do
-            StatusLabel.Text = "Testando RemoteEvent: " .. remote.Name
-            tentarComprarSemente(remote.Name, seedName, seedPrice)
-            wait(5) -- Aumentar o delay para 5 segundos
-        end
+		-- 2. Testar funções (Exemplo: Se souber de funções relevantes)
+		--StatusLabel.Text = "Iniciando varredura de funções..."
+		--testFunction(game.ServerScriptService.Inventory.AddItem, seedName)
 
-        StatusLabel.Text = "Teste automático completo."
+        StatusLabel.Text = "Varredura completa."
     end)
 
     -- Conectar o botão "Atualizar Lista"
