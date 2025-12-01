@@ -19,6 +19,7 @@ local success, errorMessage = pcall(function()
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
+	MainFrame.Draggable = true -- Tornar o menu arrastável
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
@@ -72,6 +73,16 @@ local success, errorMessage = pcall(function()
     TryButton.Font = Enum.Font.SourceSans
     TryButton.Parent = MainFrame
 
+	local RefreshButton = Instance.new("TextButton")
+    RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
+    RefreshButton.Position = UDim2.new(0.55, 0, 0.4, 0)
+    RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    RefreshButton.TextColor3 = Color3.new(1, 1, 1)
+    RefreshButton.Text = "Atualizar Lista"
+    RefreshButton.Font = Enum.Font.SourceSans
+    RefreshButton.Parent = MainFrame
+
+
     -- Função para listar todos os RemoteEvents
     local function listarRemotes()
         -- Limpar a lista anterior
@@ -105,6 +116,15 @@ local success, errorMessage = pcall(function()
 
 			button.MouseButton1Click:Connect(function()
 				RemoteNameTextBox.Text = remote.Name -- Preenche o nome ao clicar
+
+				-- Tenta preencher o campo de argumento com o item na mão
+				local character = Player.Character
+				if character then
+					local tool = character:FindFirstChildOfClass("Tool")
+					if tool then
+						ArgumentTextBox.Text = tool.Name -- Sugere o nome do item
+					end
+				end
 			end)
 
         end
@@ -162,6 +182,10 @@ local success, errorMessage = pcall(function()
         local argument = ArgumentTextBox.Text
         tentarInteragir(remoteName, argument)
     end)
+
+	--Conectar o botão "Atualizar Lista"
+	RefreshButton.MouseButton1Click:Connect(listarRemotes)
+
 
     -- Chamar a função para listar os RemoteEvents
     listarRemotes()
