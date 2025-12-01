@@ -1,180 +1,78 @@
--- LocalScript (StarterPlayerScripts)
+-- Variáveis Globais
+local menuAtivo = false
+local compraAutomaticaAtiva = false
 
-print("Script de coleta automática iniciado!")
+-- Lista de sementes disponíveis (exemplo)
+local sementesDisponiveis = {
+  { nome = "Girassol", custo = 50, utilidade = "Produz sol" },
+  { nome = "Disparervilha", custo = 100, utilidade = "Ataca zumbis" },
+  { nome = "Batatamina", custo = 25, utilidade = "Explode ao contato" }
+}
 
--- Configurações
-local raioDeBusca = 10 -- Ajuste conforme necessário
-local intervaloDeColeta = 5  -- Este não é mais usado diretamente, mas pode ser útil para implementar um cooldown.
-local animationId = "rbxassetid://14493329472" -- SUBSTITUA - Id da animação de pedir esmola Plants vs Brainrots
-local itemValue = 100 -- Valor padrão de um item coletado. Ajuste com o valor correto
--- Services
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- RemoteEvent (Coloque em ReplicatedStorage)
-local tradeEvent = ReplicatedStorage:WaitForChild("TradeEvent") -- Crie este RemoteEvent
-
--- Variáveis de estado
-local coletaAutomaticaAtiva = false
-local ultimoTempoColeta = 0 -- Para controlar o intervalo (cooldown)
-local isCooldown = false
-
--- Função para encontrar o jogador mais próximo
-local function encontrarJogadorMaisProximo()
-    local jogadorMaisProximo = nil
-    local distanciaMinima = math.huge
-    local playerPosition = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.HumanoidRootPart.Position
-    if not playerPosition then return nil end
-
-    for _, jogador in ipairs(Players:GetPlayers()) do
-        if jogador ~= Player and jogador.Character and jogador.Character:FindFirstChild("HumanoidRootPart") then
-            local distancia = (jogador.Character.HumanoidRootPart.Position - playerPosition).Magnitude
-            if distancia < distanciaMinima then
-                distanciaMinima = distancia
-                jogadorMaisProximo = jogador
-            end
-        end
-    end
-
-    return jogadorMaisProximo
+-- Função para criar o menu (substitua com a lógica real do jogo)
+local function criarMenu()
+  print("Menu:")
+  print("1. Ativar/Desativar Compra Automática")
+  print("2. Fechar Menu")
+  menuAtivo = true
 end
 
-
--- Função para simular a troca (agora pede esmola)
-local function iniciarColeta()
-    if isCooldown then return end
-
-    local jogadorAlvo = encontrarJogadorMaisProximo()
-
-    if jogadorAlvo then
-        -- Carrega a animação
-        local character = Player.Character
-        local humanoid = character:WaitForChild("Humanoid")
-        local animation = Instance.new("Animation")
-        animation.AnimationId = animationId
-        local animationTrack = humanoid:LoadAnimation(animation)
-
-        -- Toca a animação (se houver)
-        if animationTrack then
-            animationTrack:Play()
-            --wait(animationTrack.Length) -- Espera a animação terminar (opcional)
-        end
-
-        -- Chama o RemoteEvent para iniciar a troca no servidor (envia o valor do item)
-        tradeEvent:FireServer(jogadorAlvo, itemValue)
-
-        if animationTrack then
-            animationTrack:Stop()
-        end
-
-        -- Inicia o cooldown
-        isCooldown = true
-        wait(intervaloDeColeta)
-        isCooldown = false
-        
-    else
-        print("Nenhum jogador próximo encontrado.")
-    end
-end
-
--- GUI
-local function criarMenuGUI()
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "ColetorAutomaticoGUI"
-    screenGui.Parent = PlayerGui
-    screenGui.ResetOnSpawn = false
-
-    local toggleButton = Instance.new("TextButton")
-    toggleButton.Size = UDim2.new(0, 200, 0, 50)
-    toggleButton.Position = UDim2.new(0, 10, 0, 10)
-    toggleButton.Text = "Ativar Coleta Automática"
-    toggleButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)  -- Verde para indicar ativado
-    toggleButton.TextColor3 = Color3.new(1, 1, 1) -- Texto branco
-
-    toggleButton.MouseButton1Click:Connect(function()
-        coletaAutomaticaAtiva = not coletaAutomaticaAtiva
-        if coletaAutomaticaAtiva then
-            toggleButton.Text = "Desativar Coleta Automática"
-            toggleButton.BackgroundColor3 = Color3.fromRGB(200, 100, 100)  -- Vermelho para indicar desativado
-            
-            while coletaAutomaticaAtiva do  --Loop while
-              iniciarColeta()
-              game:GetService("RunService").Heartbeat:Wait() --Evita travar o game
-            end
-
-            toggleButton.Text = "Ativar Coleta Automática"
-            toggleButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100) -- Volta ao verde
-        else
-            toggleButton.Text = "Ativar Coleta Automática"
-            toggleButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
-        end
-    end)
-end
-
-
--- Inicialização
-criarMenuGUI()
-
-
--- ServerScript (colocar em ServerScriptService)
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local tradeEvent = ReplicatedStorage:WaitForChild("TradeEvent")
-
-local function giveBones(player, amount)
-  -- Caminho para o valor de "Bones"
-  local bonesValue = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Bones")
-
-  if bonesValue then
-      bonesValue.Value = bonesValue.Value + amount
+-- Função para lidar com a entrada do usuário no menu
+local function lidarComEntradaMenu(opcao)
+  if opcao == 1 then
+    compraAutomaticaAtiva = not compraAutomaticaAtiva
+    print("Compra Automática: " .. (compraAutomaticaAtiva and "Ativada" or "Desativada"))
+  elseif opcao == 2 then
+    menuAtivo = false
+    print("Menu fechado.")
   else
-      -- Se o leaderstats ou o valor "Bones" não existirem, cria-os
-      local leaderstats = Instance.new("Folder")
-      leaderstats.Name = "leaderstats"
-      leaderstats.Parent = player
-
-      bonesValue = Instance.new("IntValue")
-      bonesValue.Name = "Bones"
-      bonesValue.Value = amount
-      bonesValue.Parent = leaderstats
+    print("Opção inválida.")
   end
 end
 
+-- Função para comprar sementes automaticamente
+local function compraAutomatica()
+  if compraAutomaticaAtiva then
+    -- Lógica para encontrar a semente mais barata (exemplo)
+    local sementeParaComprar = nil
+    local menorCusto = math.huge
 
-tradeEvent.OnServerEvent:Connect(function(player, jogadorAlvo, valorItem)
-    if not jogadorAlvo or not player then return end
-
-    -- Verifica se o jogadorAlvo está próximo o suficiente (ajuste o raio)
-    local distancia = (player.Character.HumanoidRootPart.Position - jogadorAlvo.Character.HumanoidRootPart.Position).Magnitude
-    if distancia > raioDeBusca then
-        print(player.Name .. " está muito longe de " .. jogadorAlvo.Name .. " para coletar.")
-        return
+    for i, semente in ipairs(sementesDisponiveis) do
+      if semente.custo < menorCusto then
+        menorCusto = semente.custo
+        sementeParaComprar = semente
+      end
     end
 
-    --[[
-        Lógica para transferir itens do jogadorAlvo para o player:
-        1. Verificar se o jogadorAlvo está próximo o suficiente (já feito acima).
-        2. Verificar se o jogadorAlvo tem itens para doar. (Precisa implementar lógica específica do jogo).
-        3. Transferir os itens (código específico do jogo).
-    ]]
-    print("Coleta solicitada por " .. player.Name .. " de " .. jogadorAlvo.Name)
+    -- Comprar a semente (substitua com a lógica real do jogo)
+    if sementeParaComprar then
+      print("Comprando: " .. sementeParaComprar.nome)
+      -- Adicione aqui a lógica para comprar a semente no jogo
+      -- Exemplo: game:comprarSemente(sementeParaComprar.nome)
+    else
+      print("Nenhuma semente disponível para comprar.")
+    end
+  end
+end
 
-    -- ADICIONE A LÓGICA DE TROCA AQUI - Adaptado para Plants vs Brainrots
-    -- Supondo que você quer dar "Bones" ao jogador:
-    giveBones(player, valorItem) --Ajustar  o valor do item recebido
+-- Função principal (exemplo de loop do jogo)
+local function loopDoJogo()
+  while true do
+    -- Simular entrada do usuário (para teste)
+    local entrada = io.read()
 
-    -- DEDUÇÃO DE BONES DO DOADOR (adaptar)
-    local donorBones = jogadorAlvo:FindFirstChild("leaderstats") and jogadorAlvo.leaderstats:FindFirstChild("Bones")
-    if donorBones then
-      donorBones.Value = math.max(0, donorBones.Value - valorItem) -- Impede que o valor seja negativo
+    if entrada == "menu" then
+      criarMenu()
+    elseif menuAtivo then
+      lidarComEntradaMenu(tonumber(entrada))
+    elseif compraAutomaticaAtiva then
+      compraAutomatica()
     end
 
-    --[[  Código de exemplo (adaptado do original):
-        for i = 1, 10 do
-            local item = Instance.new("Part")
-            item.Parent = player.Backpack
-        end
-    ]]
-end)
+    -- Adicione aqui a lógica principal do jogo
+    -- Exemplo: game:atualizarEstado()
+  end
+end
+
+-- Iniciar o loop do jogo
+loopDoJogo()
