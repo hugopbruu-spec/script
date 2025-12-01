@@ -56,8 +56,8 @@ local success, errorMessage = pcall(function()
             end
         end
 
-		--Limpar o textbox
-		RemoteListTextBox.Text = ""
+        --Limpar o textbox
+        RemoteListTextBox.Text = ""
 
         -- Encontrar todos os Remotes
         local remotes = {}
@@ -70,7 +70,7 @@ local success, errorMessage = pcall(function()
         end
         findAllRemotes(game)
 
-		local allRemoteNames = "" -- Acumular os nomes
+        local allRemoteNames = "" -- Acumular os nomes
 
         -- Criar botões para cada Remote
         for i, remote in ipairs(remotes) do
@@ -83,15 +83,15 @@ local success, errorMessage = pcall(function()
             button.Font = Enum.Font.SourceSans
             button.Parent = ScrollingFrame
 
-			allRemoteNames = allRemoteNames .. remote.Name .. " (" .. remote.ClassName .. ")\n"
+            allRemoteNames = allRemoteNames .. remote.Name .. " (" .. remote.ClassName .. ")\n"
         end
 
-		RemoteListTextBox.Text = allRemoteNames -- Preencher o textbox
+        RemoteListTextBox.Text = allRemoteNames -- Preencher o textbox
 
     end
 
-	-- Botão para atualizar a lista
-	local RefreshButton = Instance.new("TextButton")
+    -- Botão para atualizar a lista
+    local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.9, 0, 0, 30)
     RefreshButton.Position = UDim2.new(0.05, 0, 0.9, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -100,11 +100,27 @@ local success, errorMessage = pcall(function()
     RefreshButton.Font = Enum.Font.SourceSans
     RefreshButton.Parent = MainFrame
 
-	RefreshButton.MouseButton1Click:Connect(listarRemotes)
+    RefreshButton.MouseButton1Click:Connect(listarRemotes)
 
 
     -- Chamar a função para listar os Remotes
     listarRemotes()
+
+    -- Botão para copiar o texto para a área de transferência (somente no Roblox Studio)
+    local CopyButton = Instance.new("TextButton")
+    CopyButton.Size = UDim2.new(0.9, 0, 0, 30)
+    CopyButton.Position = UDim2.new(0.05, 0, 0.8, 0)
+    CopyButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    CopyButton.TextColor3 = Color3.new(1, 1, 1)
+    CopyButton.Text = "Copiar para Área de Transferência"
+    CopyButton.Font = Enum.Font.SourceSans
+    CopyButton.Parent = MainFrame
+
+    CopyButton.MouseButton1Click:Connect(function()
+        -- Copiar o texto para a área de transferência (somente no Roblox Studio)
+        setclipboard(RemoteListTextBox.Text)
+        print("Texto copiado para a área de transferência!")
+    end)
 end)
 
 if not success then
