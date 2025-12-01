@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 450, 0, 750)  -- Aumentei a altura
+    MainFrame.Size = UDim2.new(0, 500, 0, 800)  -- Aumentei a largura e altura
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -25,7 +25,7 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Enganando a Criação de Itens"
+    TitleLabel.Text = "Explorador Avançado de RemoteEvents"
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
@@ -35,13 +35,13 @@ local success, errorMessage = pcall(function()
     StatusLabel.Position = UDim2.new(0.05, 0, 0.95, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Tentar criar o cacto como outro item."
+    StatusLabel.Text = "Explore os RemoteEvents e manipule os argumentos."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
 
     local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.Size = UDim2.new(0.45, 0, 0.7, 0)
+    ScrollingFrame.Size = UDim2.new(0.45, 0, 0.65, 0)
     ScrollingFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ScrollingFrame.Parent = MainFrame
@@ -55,36 +55,34 @@ local success, errorMessage = pcall(function()
     RemoteNameTextBox.PlaceholderText = "Nome do RemoteEvent"
     RemoteNameTextBox.Parent = MainFrame
 
-    local ArgumentTextBox = Instance.new("TextBox")
-    ArgumentTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    ArgumentTextBox.Position = UDim2.new(0.55, 0, 0.2, 0)
-    ArgumentTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    ArgumentTextBox.TextColor3 = Color3.new(1, 1, 1)
-    ArgumentTextBox.Font = Enum.Font.SourceSans
-    ArgumentTextBox.PlaceholderText = "Argumento (Item Fácil)"
-    ArgumentTextBox.Parent = MainFrame
+	-- Frame para os argumentos
+	local ArgumentsFrame = Instance.new("Frame")
+    ArgumentsFrame.Size = UDim2.new(0.4, 0, 0.4, 0)
+    ArgumentsFrame.Position = UDim2.new(0.55, 0, 0.2, 0)
+    ArgumentsFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    ArgumentsFrame.Parent = MainFrame
 
-	local CactoArgumentTextBox = Instance.new("TextBox")
-    CactoArgumentTextBox.Size = UDim2.new(0.4, 0, 0, 30)
-    CactoArgumentTextBox.Position = UDim2.new(0.55, 0, 0.3, 0)
-    CactoArgumentTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    CactoArgumentTextBox.TextColor3 = Color3.new(1, 1, 1)
-    CactoArgumentTextBox.Font = Enum.Font.SourceSans
-    CactoArgumentTextBox.PlaceholderText = "Argumento (Cacto)"
-    CactoArgumentTextBox.Parent = MainFrame
+	local AddArgumentButton = Instance.new("TextButton")
+    AddArgumentButton.Size = UDim2.new(1, 0, 0, 30)
+    AddArgumentButton.Position = UDim2.new(0, 0, 0.9, 0)
+    AddArgumentButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    AddArgumentButton.TextColor3 = Color3.new(1, 1, 1)
+    AddArgumentButton.Text = "Adicionar Argumento"
+    AddArgumentButton.Font = Enum.Font.SourceSans
+    AddArgumentButton.Parent = ArgumentsFrame
 
     local TryButton = Instance.new("TextButton")
     TryButton.Size = UDim2.new(0.4, 0, 0, 30)
-    TryButton.Position = UDim2.new(0.55, 0, 0.4, 0)
+    TryButton.Position = UDim2.new(0.55, 0, 0.7, 0)
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
-    TryButton.Text = "Tentar Criar Cacto"
+    TryButton.Text = "Tentar"
     TryButton.Font = Enum.Font.SourceSans
     TryButton.Parent = MainFrame
 
 	local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.4, 0, 0, 30)
-    RefreshButton.Position = UDim2.new(0.55, 0, 0.5, 0)
+    RefreshButton.Position = UDim2.new(0.55, 0, 0.8, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     RefreshButton.TextColor3 = Color3.new(1, 1, 1)
     RefreshButton.Text = "Atualizar Lista"
@@ -130,8 +128,30 @@ local success, errorMessage = pcall(function()
         end
     end
 
+	-- Variável para armazenar os argumentos
+	local arguments = {}
+
+	-- Função para adicionar um novo campo de argumento
+	local function addArgumentField()
+		local index = #arguments + 1
+		local argumentTextBox = Instance.new("TextBox")
+		argumentTextBox.Size = UDim2.new(0.9, 0, 0, 25)
+		argumentTextBox.Position = UDim2.new(0.05, 0, (index - 1) * 0.1, 0)
+		argumentTextBox.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+		argumentTextBox.TextColor3 = Color3.new(1, 1, 1)
+		argumentTextBox.Font = Enum.Font.SourceSans
+		argumentTextBox.PlaceholderText = "Argumento " .. index
+		argumentTextBox.Parent = ArgumentsFrame
+
+		table.insert(arguments, argumentTextBox)
+
+		-- Atualizar o tamanho do ArgumentsFrame
+		ArgumentsFrame.Size = UDim2.new(0.4, 0, index * 0.1 + 0.1, 0)
+	end
+
+
     -- Função para tentar interagir com o RemoteEvent
-    local function tentarInteragir(remoteName, itemFacilArgument, cactoArgument)
+    local function tentarInteragir(remoteName, args)
         -- Tenta encontrar o RemoteEvent em ReplicatedStorage
         local remote = game:GetService("ReplicatedStorage"):FindFirstChild(remoteName)
         if not remote or not remote:IsA("RemoteEvent") then
@@ -149,36 +169,29 @@ local success, errorMessage = pcall(function()
             remote = foundRemote
         end
 
-        if remote then
+		if remote then
             pcall(function()
-				-- Tentar converter o argumento para diferentes tipos
-				local convertedItemFacilArgument = itemFacilArgument
-				if tonumber(itemFacilArgument) then
-					convertedItemFacilArgument = tonumber(itemFacilArgument)
-				elseif itemFacilArgument == "true" then
-					convertedItemFacilArgument = true
-				elseif itemFacilArgument == "false" then
-					convertedItemFacilArgument = false
+				-- Converter os argumentos para os tipos corretos
+				local convertedArgs = {}
+				for i, argTextBox in ipairs(args) do
+					local arg = argTextBox.Text
+					if tonumber(arg) then
+						convertedArgs[i] = tonumber(arg)
+					elseif arg == "true" then
+						convertedArgs[i] = true
+					elseif arg == "false" then
+						convertedArgs[i] = false
+					else
+						convertedArgs[i] = arg
+					end
 				end
 
-				local convertedCactoArgument = cactoArgument
-				if tonumber(cactoArgument) then
-					convertedCactoArgument = tonumber(cactoArgument)
-				elseif cactoArgument == "true" then
-					convertedCactoArgument = true
-				elseif cactoArgument == "false" then
-					convertedCactoArgument = false
-				end
+				-- Chamar o RemoteEvent com múltiplos argumentos
+                remote:FireServer(unpack(convertedArgs))
 
-
-                if itemFacilArgument and itemFacilArgument ~= "" and cactoArgument and cactoArgument ~= "" then
-                    remote:FireServer(convertedCactoArgument)
-                    StatusLabel.Text = "Tentando criar cacto com " .. remoteName .. " e argumento: " .. tostring(convertedCactoArgument)
-                else
-                    StatusLabel.Text = "Por favor, preencha ambos os argumentos."
-                end
+                StatusLabel.Text = "Interagindo com " .. remoteName .. " com " .. #convertedArgs .. " argumentos."
                 wait(2)
-                StatusLabel.Text = "Tentar criar o cacto como outro item."
+                StatusLabel.Text = "Explore os RemoteEvents e manipule os argumentos."
             end)
         else
             StatusLabel.Text = "RemoteEvent '" .. remoteName .. "' não encontrado."
@@ -188,14 +201,14 @@ local success, errorMessage = pcall(function()
     -- Conectar o botão "Tentar"
     TryButton.MouseButton1Click:Connect(function()
         local remoteName = RemoteNameTextBox.Text
-        local itemFacilArgument = ArgumentTextBox.Text
-		local cactoArgument = CactoArgumentTextBox.Text
-        tentarInteragir(remoteName, itemFacilArgument, cactoArgument)
+        tentarInteragir(remoteName, arguments)
     end)
+
+	-- Conectar o botão "Adicionar Argumento"
+	AddArgumentButton.MouseButton1Click:Connect(addArgumentField)
 
 	--Conectar o botão "Atualizar Lista"
 	RefreshButton.MouseButton1Click:Connect(listarRemotes)
-
 
     -- Chamar a função para listar os RemoteEvents
     listarRemotes()
