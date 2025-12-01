@@ -1,11 +1,10 @@
 --[[
-   Script para coleta automática de recursos em Plants vs Brainrots.
+   Script para coleta automática de plantas secretas em Plants vs Brainrots.
    Possui um menu de interface do usuário (GUI) para ativar e desativar o script.
    AVISO: Usar scripts de automação pode violar os termos de serviço do jogo. Use por sua conta e risco.
 ]]
 
 -- Configurações
-local recursoAlvo = "Shroombino" -- Nome do recurso que você quer coletar (AJUSTE!)
 local raioDeBusca = 10 -- Raio em studs para procurar recursos
 local intervaloDeColeta = 5 -- Intervalo em segundos entre as tentativas de coleta
 
@@ -90,7 +89,7 @@ local function criarMenuDeConfiguracoes(screenGui)
 
     local settingsGUI = Instance.new("Frame")
     settingsGUI.Name = "SettingsGUI"
-    settingsGUI.Size = UDim2.new(0, 300, 0, 200)
+    settingsGUI.Size = UDim2.new(0, 300, 0, 150)
     settingsGUI.Position = UDim2.new(0.1, 0, 0.1, 0)
     settingsGUI.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     settingsGUI.BorderSizePixel = 0
@@ -98,31 +97,9 @@ local function criarMenuDeConfiguracoes(screenGui)
     settingsGUI.Active = true
     settingsGUI.Draggable = true
 
-    local resourceLabel = Instance.new("TextLabel")
-    resourceLabel.Size = UDim2.new(1, 0, 0.2, 0)
-    resourceLabel.Position = UDim2.new(0, 0, 0, 0)
-    resourceLabel.BackgroundColor3 = Color3.new(1, 1, 1)
-    resourceLabel.BackgroundTransparency = 1
-    resourceLabel.TextColor3 = Color3.new(1, 1, 1)
-    resourceLabel.Text = "Recurso Alvo:"
-    resourceLabel.Font = Enum.Font.SourceSansBold
-    resourceLabel.TextSize = 14
-    resourceLabel.Parent = settingsGUI
-
-    local resourceTextBox = Instance.new("TextBox")
-    resourceTextBox.Name = "ResourceTextBox"
-    resourceTextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
-    resourceTextBox.Position = UDim2.new(0.1, 0, 0.2, 0)
-    resourceTextBox.BackgroundColor3 = Color3.new(1, 1, 1)
-    resourceTextBox.BackgroundTransparency = 0.5
-    resourceTextBox.Text = recursoAlvo
-    resourceTextBox.Font = Enum.Font.SourceSansBold
-    resourceTextBox.TextSize = 14
-    resourceTextBox.Parent = settingsGUI
-
     local radiusLabel = Instance.new("TextLabel")
-    radiusLabel.Size = UDim2.new(1, 0, 0.2, 0)
-    radiusLabel.Position = UDim2.new(0, 0, 0.4, 0)
+    radiusLabel.Size = UDim2.new(1, 0, 0.3, 0)
+    radiusLabel.Position = UDim2.new(0, 0, 0, 0)
     radiusLabel.BackgroundColor3 = Color3.new(1, 1, 1)
     radiusLabel.BackgroundTransparency = 1
     radiusLabel.TextColor3 = Color3.new(1, 1, 1)
@@ -133,8 +110,8 @@ local function criarMenuDeConfiguracoes(screenGui)
 
     local radiusTextBox = Instance.new("TextBox")
     radiusTextBox.Name = "RadiusTextBox"
-    radiusTextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
-    radiusTextBox.Position = UDim2.new(0.1, 0, 0.6, 0)
+    radiusTextBox.Size = UDim2.new(0.8, 0, 0.3, 0)
+    radiusTextBox.Position = UDim2.new(0.1, 0, 0.3, 0)
     radiusTextBox.BackgroundColor3 = Color3.new(1, 1, 1)
     radiusTextBox.BackgroundTransparency = 0.5
     radiusTextBox.Text = tostring(raioDeBusca)  -- Converte para string
@@ -144,8 +121,8 @@ local function criarMenuDeConfiguracoes(screenGui)
     radiusTextBox.KeyboardType = Enum.KeyboardType.NumberPad  -- Apenas números
 
     local intervalLabel = Instance.new("TextLabel")
-    intervalLabel.Size = UDim2.new(1, 0, 0.2, 0)
-    intervalLabel.Position = UDim2.new(0, 0, 0.8, 0)
+    intervalLabel.Size = UDim2.new(1, 0, 0.3, 0)
+    intervalLabel.Position = UDim2.new(0, 0, 0.6, 0)
     intervalLabel.BackgroundColor3 = Color3.new(1, 1, 1)
     intervalLabel.BackgroundTransparency = 1
     intervalLabel.TextColor3 = Color3.new(1, 1, 1)
@@ -156,8 +133,8 @@ local function criarMenuDeConfiguracoes(screenGui)
 
     local intervalTextBox = Instance.new("TextBox")
     intervalTextBox.Name = "IntervalTextBox"
-    intervalTextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
-    intervalTextBox.Position = UDim2.new(0.1, 0, 1, 0)
+    intervalTextBox.Size = UDim2.new(0.8, 0, 0.3, 0)
+    intervalTextBox.Position = UDim2.new(0.1, 0, 0.9, 0)
     intervalTextBox.BackgroundColor3 = Color3.new(1, 1, 1)
     intervalTextBox.BackgroundTransparency = 0.5
     intervalTextBox.Text = tostring(intervaloDeColeta)  -- Converte para string
@@ -168,7 +145,7 @@ local function criarMenuDeConfiguracoes(screenGui)
 
     local saveButton = Instance.new("TextButton")
     saveButton.Name = "SaveButton"
-    saveButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+    saveButton.Size = UDim2.new(0.4, 0, 0.3, 0)
     saveButton.Position = UDim2.new(0.3, 0, 1.2, 0)
     saveButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -180,7 +157,6 @@ local function criarMenuDeConfiguracoes(screenGui)
 
     saveButton.MouseButton1Click:Connect(function()
         -- Tenta converter os valores dos campos de texto
-        local newResourceAlvo = resourceTextBox.Text
         local newRaioDeBusca = tonumber(radiusTextBox.Text)
         local newIntervaloDeColeta = tonumber(intervalTextBox.Text)
 
@@ -197,7 +173,6 @@ local function criarMenuDeConfiguracoes(screenGui)
         end
 
         -- Atualiza as variáveis globais com os novos valores
-        recursoAlvo = newResourceAlvo
         raioDeBusca = newRaioDeBusca
         intervaloDeColeta = newIntervaloDeColeta
 
@@ -225,8 +200,8 @@ local function debugPrint(message)
     })
 end
 
--- Função para encontrar o recurso mais próximo
-local function encontrarRecursoMaisProximo(humanoidRootPart)
+-- Função para encontrar o recurso mais próximo (qualquer planta secreta)
+local function encontrarPlantaSecretaMaisProxima(humanoidRootPart)
     local recursoMaisProximo = nil
     local distanciaMinima = math.huge
 
@@ -235,7 +210,7 @@ local function encontrarRecursoMaisProximo(humanoidRootPart)
     end
 
     for _, recurso in ipairs(game.Workspace:GetDescendants()) do
-        if recurso:IsA("Model") and string.find(recurso.Name, recursoAlvo) then
+        if recurso:IsA("Model") and string.find(string.lower(recurso.Name), "planta secreta") then  -- Busca por "planta secreta" (case-insensitive)
             if recurso.PrimaryPart then
                 local distancia = (recurso.PrimaryPart.Position - humanoidRootPart.Position).Magnitude
                 if distancia < distanciaMinima and distancia <= raioDeBusca then
@@ -262,12 +237,12 @@ local function coletarRecurso(recurso)
             mouse.TargetFilter = Player.Character  -- Evita que o personagem bloqueie o clique
             mouse.Button1Click:Fire()  -- Simula o clique do botão esquerdo
 
-            --debugPrint("Coletando " .. recursoAlvo)
+            --debugPrint("Coletando planta secreta")
         else
             --debugPrint("Recurso '" .. recurso.Name .. "' sem ClickDetector.")
         end
     else
-        --debugPrint("Nenhum recurso '" .. recursoAlvo .. "' encontrado no raio de busca.")
+        --debugPrint("Nenhuma planta secreta encontrada no raio de busca.")
     end
 end
 
@@ -279,8 +254,8 @@ game:GetService("Players").PlayerAdded:Connect(function(player)
 
         while true do
             if coletaAutomaticaAtiva then
-                local recurso = encontrarRecursoMaisProximo(humanoidRootPart)
-                coletarRecurso(recurso)
+                local plantaSecreta = encontrarPlantaSecretaMaisProxima(humanoidRootPart)
+                coletarRecurso(plantaSecreta)
                 wait(intervaloDeColeta)
             else
                 wait(1) -- Pausa quando a coleta automática está desativada
