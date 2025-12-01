@@ -27,7 +27,7 @@ local success, errorMessage = pcall(function()
     local dragStart = nil
 
     MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             dragInput = input
@@ -62,7 +62,7 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Varredura de Duplicação (ALTAMENTE EXPERIMENTAL)"
+    TitleLabel.Text = "Varredura Avançada (EXTREMO PERIGO!!)"
     TitleLabel.Font = Enum.Font.Oswald
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
@@ -72,7 +72,7 @@ local success, errorMessage = pcall(function()
     TryButton.Position = UDim2.new(0.05, 0, 0.1, 0)
     TryButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     TryButton.TextColor3 = Color3.new(1, 1, 1)
-    TryButton.Text = "Iniciar Varredura"
+    TryButton.Text = "Iniciar Varredura Avançada"
     TryButton.Font = Enum.Font.SourceSansBold
 	TryButton.TextScaled = true
     TryButton.Parent = MainFrame
@@ -82,7 +82,7 @@ local success, errorMessage = pcall(function()
     StatusLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
     StatusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     StatusLabel.TextColor3 = Color3.new(1, 1, 0)
-    StatusLabel.Text = "Pronto para iniciar a varredura (EXTREMO CUIDADO!)."
+    StatusLabel.Text = "Pronto para varredura avançada (BANIMENTO CERTO!)."
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.TextScaled = true
     StatusLabel.Parent = MainFrame
@@ -112,144 +112,93 @@ local success, errorMessage = pcall(function()
     RefreshButton.TextScaled = true
     RefreshButton.Parent = MainFrame
 
-    -- Função para gerar um nome aleatório
-	local function generateRandomName()
-		local length = math.random(5, 10)
-		local chars = "abcdefghijklmnopqrstuvwxyz"
-		local result = ""
-		for i = 1, length do
-			result = result .. string.sub(chars, math.random(1, string.len(chars)), math.random(1, string.len(chars)))
-		end
-		return result
-	end
-
-    -- Função para listar todos os RemoteEvents
-    local function listarRemotes()
-        -- Limpar a lista anterior
-        for _, child in ipairs(ScrollingFrame:GetChildren()) do
-            if child:IsA("TextButton") then
-                child:Destroy()
-            end
-        end
-
-        -- Encontrar todos os RemoteEvents
-        local remotes = {}
-        local function findAllRemotes(obj)
-            for _, child in ipairs(obj:GetDescendants()) do
-                if child:IsA("RemoteEvent") then
-                    table.insert(remotes, child)
-                end
-            end
-        end
-
-        findAllRemotes(game)
-
-        -- Criar botões para cada RemoteEvent
-        for i, remote in ipairs(remotes) do
-            if remote.Name ~= "CmdrEvent" then -- Ignorar o CmdrEvent
-				local button = Instance.new("TextButton")
-				button.Size = UDim2.new(1, 0, 0, 25)
-				button.Position = UDim2.new(0, 0, (i - 1) * 0.04, 0)
-				button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-				button.TextColor3 = Color3.new(1, 1, 1)
-				button.Text = remote.Name
-				button.Font = Enum.Font.SourceSans
-				button.TextScaled = true
-				button.Parent = ScrollingFrame
-				createUICorner(button, 4)
-
-				button.MouseButton1Click:Connect(function()
-					--RemoteNameTextBox.Text = remote.Name
-				end)
-			end
-        end
-		ScrollingFrame.CanvasSize = UDim2.new(0,0,0,(#remotes * 25))
-    end
-
-    -- Função para testar RemoteEvents
-    local function testRemoteEvent(remote, seedName)
-        local randomName = generateRandomName()
-        local itemID = "seed_test" -- Substitua pelo ID real da semente
-        local price = 10
-        local quantity = 1
-
-		-- Defina os argumentos a serem testados. Adapte para a lógica do jogo.
-        local arguments = {
-            -- Argumentos comuns com nome aleatório
-            "{player = '" .. randomName .. "', item = '" .. seedName .. "', quantity = " .. quantity .. "}",
-            "{player = '" .. randomName .. "', itemID = '" .. itemID .. "', price = " .. price .. "}",
-            "{item = '" .. seedName .. "', quantity = " .. quantity .. ", target = '" .. randomName .. "'}",
-            "{from = '" .. randomName .. "', to = '" .. randomName .. "', item = '" .. seedName .. "'}",
-
-            -- Argumentos com valores negativos (possível exploração)
-            "{player = '" .. randomName .. "', item = '" .. seedName .. "', quantity = " .. -quantity .. "}",
-            "{player = '" .. randomName .. "', itemID = '" .. itemID .. "', price = " .. -price .. "}",
-
-			-- Argumentos usando o nome REAL do jogador (necessário em alguns casos)
-			"{player = '" .. Player.Name .. "', item = '" .. seedName .. "', quantity = " .. quantity .. "}",
-			"{player = '" .. Player.Name .. "', itemID = '" .. itemID .. "', price = " .. price .. "}",
-        }
-
-        for _, arg in ipairs(arguments) do
-            pcall(function()
-                StatusLabel.Text = "Testando " .. remote.Name .. " com argumento: " .. arg
-                remote:FireServer(arg)
-                wait(2)
-            end)
-        end
-    end
-
 	--[[
-	-- Função para testar funções (Exemplo: Se souber de funções relevantes)
-	local function testFunction(func, seedName)
-		local randomName = generateRandomName()
-		local itemID = "seed_test" -- Substitua pelo ID real da semente
-		local quantity = 1
+    -- 1. Análise de Memória (CONCEITUAL - Requer conhecimento avançado)
+    local function scanMemoryForItems(seedName)
+        -- Este código é apenas um exemplo conceitual.
+        -- A implementação real dependeria da estrutura de memória do jogo.
 
-		local arguments = {
-			randomName,
-			seedName,
-			itemID,
-			quantity,
-			-quantity
-		}
+        local memoryAddress = 0x12345678 -- Substitua pelo endereço de memória real
+        local itemData = readMemory(memoryAddress)
 
-		for _, arg in ipairs(arguments) do
-			pcall(function()
-				StatusLabel.Text = "Testando " .. tostring(func) .. " com argumento: " .. tostring(arg)
-				func(arg)
-				wait(2)
-			end)
-		end
-	end
+        if itemData.name == seedName then
+            -- Encontrou o item na memória!
+            -- Tentar modificar a quantidade ou criar uma cópia.
+            itemData.quantity = itemData.quantity + 1
+            writeMemory(memoryAddress, itemData)
+        end
+    end
 	]]
 
-    -- Conectar o botão "Iniciar Varredura"
+	--[[
+    -- 2. Manipulação de Objetos Locais (CONCEITUAL)
+    local function findAndDuplicateLocalItems(seedName)
+        -- Este código é apenas um exemplo conceitual.
+        -- A implementação real dependeria da estrutura de objetos do jogo.
+
+        for _, obj in pairs(game:GetDescendants()) do
+            if obj:IsA("Part") and obj.Name == seedName then
+                -- Encontrou um objeto local que representa a semente!
+                local newItem = obj:Clone()
+                newItem.Parent = Player.Backpack -- Ou outro local apropriado
+            end
+        end
+    end
+	]]
+
+	--[[
+    -- 3. Interceptação de Chamadas de Função (CONCEITUAL - Requer hooking)
+    local function hookAddItemFunction(seedName)
+        -- Este código é apenas um exemplo conceitual.
+        -- A implementação real exigiria técnicas de hooking.
+
+        local originalAddItem = game.ServerScriptService.Inventory.AddItem
+
+        local hookedAddItem = function(player, itemID, quantity)
+            if itemID == "seed_test" then -- Substitua pelo ID real da semente
+                -- Duplicar a quantidade
+                quantity = quantity * 2
+            end
+
+            originalAddItem(player, itemID, quantity)
+        end
+
+        -- Substituir a função original pela função modificada (hooking)
+        game.ServerScriptService.Inventory.AddItem = hookedAddItem
+    end
+	]]
+
+	--[[
+    -- 4. Fuzzing (CONCEITUAL - Envio de dados aleatórios)
+    local function performFuzzing(seedName)
+        -- Este código é apenas um exemplo conceitual.
+        -- A implementação real exigiria conhecimento dos protocolos de comunicação do jogo.
+
+        local randomData = generateRandomData() -- Função para gerar dados aleatórios
+
+        -- Enviar dados aleatórios para o servidor
+        game.ReplicatedStorage.SomeRemoteEvent:FireServer(randomData)
+
+        -- Observar o comportamento do jogo
+        -- Se algo estranho acontecer, pode ter encontrado uma vulnerabilidade!
+    end
+	]]
+
+    -- Conectar o botão "Iniciar Varredura Avançada"
     TryButton.MouseButton1Click:Connect(function()
         local seedName = SeedNameTextBox.Text
 
-        -- 1. Testar RemoteEvents
-        StatusLabel.Text = "Iniciando varredura de RemoteEvents..."
-        local keywords = {"compra", "loja", "shop", "seed", "semente", "buy", "trade", "troca", "recompensa", "reward", "inventario", "inventory"}
-        for _, descendent in ipairs(game:GetDescendants()) do
-            if descendent:IsA("RemoteEvent") then
-                local name = descendent.Name:lower()
-                for _, keyword in ipairs(keywords) do
-                    if string.find(name, keyword) then
-                        StatusLabel.Text = "Encontrado RemoteEvent relevante: " .. descendent.Name
-                        testRemoteEvent(descendent, seedName)
-                        wait(5)
-                        break
-                    end
-                end
-            end
-        end
+        StatusLabel.Text = "Iniciando varredura avançada (PREPARE-SE PARA O BANIMENTO!)."
 
-		-- 2. Testar funções (Exemplo: Se souber de funções relevantes - DESABILITADO POR SEGURANÇA)
-		--StatusLabel.Text = "Iniciando varredura de funções..."
-		--testFunction(game.ServerScriptService.Inventory.AddItem, seedName)
+		--[[
+        -- Executar as diferentes estratégias de varredura (DESABILITADAS POR PADRÃO)
+        scanMemoryForItems(seedName)
+        findAndDuplicateLocalItems(seedName)
+        hookAddItemFunction(seedName)
+        performFuzzing(seedName)
+		]]
 
-        StatusLabel.Text = "Varredura completa."
+        StatusLabel.Text = "Varredura avançada completa (se você ainda não foi banido)."
     end)
 
     -- Conectar o botão "Atualizar Lista"
