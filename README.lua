@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 250, 0, 300)
+    MainFrame.Size = UDim2.new(0, 300, 0, 400)
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -24,77 +24,72 @@ local success, errorMessage = pcall(function()
     TitleLabel.Size = UDim2.new(1, 0, 0, 30)
     TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.Text = "Plants vs Brainrots Helper"
+    TitleLabel.Text = "Lista de Remotes"
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextScaled = true
     TitleLabel.Parent = MainFrame
 
-    local DuplicateButton = Instance.new("TextButton")
-    DuplicateButton.Size = UDim2.new(0.9, 0, 0, 30)
-    DuplicateButton.Position = UDim2.new(0.05, 0, 0.15, 0)
-    DuplicateButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    DuplicateButton.TextColor3 = Color3.new(1, 1, 1)
-    DuplicateButton.Text = "Tentar Duplicar (Q)"
-    DuplicateButton.Font = Enum.Font.SourceSans
-    DuplicateButton.Parent = MainFrame
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    local ScrollingFrame = Instance.new("ScrollingFrame")
+    ScrollingFrame.Size = UDim2.new(0.9, 0, 0.8, 0)
+    ScrollingFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+    ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    ScrollingFrame.Parent = MainFrame
 
-    -- Função para tentar duplicar o item
-    local function tentarDuplicar()
-        local character = Player.Character
-        if character then
-            local tool = character:FindFirstChildOfClass("Tool")
-            if tool then
-                -- 1. Clonar o Item
-                local newTool = tool:Clone()
-                newTool.Name = tool.Name .. "_Duplicated"
-                newTool.Parent = nil -- Remover o pai original
-
-                -- 2. Encontrar TODOS os Remotes (Events E Functions)
-                local remotes = {}
-                local function findAllRemotes(obj)
-                    for _, child in ipairs(obj:GetDescendants()) do
-                        if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
-                            table.insert(remotes, child)
-                        end
-                    end
-                end
-                findAllRemotes(game)
-
-                -- 3. Tentar enviar o item duplicado para cada Remote
-                if #remotes > 0 then
-                    print("Encontrados " .. #remotes .. " Remotes. Tentando enviar o item para cada um...")
-                    for i, remote in ipairs(remotes) do
-                        pcall(function() -- Usar pcall para evitar erros que interrompam o loop
-                            if remote:IsA("RemoteEvent") then
-                                remote:FireServer(newTool)
-                                print("Enviando item para RemoteEvent: " .. remote.Name)
-                            elseif remote:IsA("RemoteFunction") then
-                                remote:InvokeServer(newTool)
-                                print("Enviando item para RemoteFunction: " .. remote.Name)
-                            end
-                        end)
-                    end
-                else
-                    print("Nenhum RemoteEvent ou RemoteFunction encontrado no jogo.")
-                end
-            else
-                print("Nenhum item equipado para duplicar.")
+    -- Função para listar os Remotes
+    local function listarRemotes()
+        -- Limpar a lista anterior
+        for _, child in ipairs(ScrollingFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
             end
-        else
-            print("Personagem não encontrado.")
+        end
+
+        -- Encontrar todos os Remotes
+        local remotes = {}
+        local function findAllRemotes(obj)
+            for _, child in ipairs(obj:GetDescendants()) do
+                if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
+                    table.insert(remotes, child)
+                end
+            end
+        end
+        findAllRemotes(game)
+
+        -- Criar botões para cada Remote
+        for i, remote in ipairs(remotes) do
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, 0, 0, 30)
+            button.Position = UDim2.new(0, 0, (i - 1) * 0.05, 0)
+            button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            button.TextColor3 = Color3.new(1, 1, 1)
+            button.Text = remote.Name .. " (" .. remote.ClassName .. ")"
+            button.Font = Enum.Font.SourceSans
+            button.Parent = ScrollingFrame
+
+			--[[ -- Funcionalidade de copiar para a área de transferência (não funciona no Roblox Studio)
+            button.MouseButton1Click:Connect(function()
+                -- Copiar o nome do Remote para a área de transferência
+                print("Nome do Remote copiado: " .. remote.Name)
+            end)
+			]]
         end
     end
 
-    --// Bind para Duplicar Item //--
+	-- Botão para atualizar a lista
+	local RefreshButton = Instance.new("TextButton")
+    RefreshButton.Size = UDim2.new(0.9, 0, 0, 30)
+    RefreshButton.Position = UDim2.new(0.05, 0, 0.9, 0)
+    RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    RefreshButton.TextColor3 = Color3.new(1, 1, 1)
+    RefreshButton.Text = "Atualizar Lista"
+    RefreshButton.Font = Enum.Font.SourceSans
+    RefreshButton.Parent = MainFrame
 
-    game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
-        if input.KeyCode == Enum.KeyCode.Q then
-            tentarDuplicar()
-        end
-    end)
+	RefreshButton.MouseButton1Click:Connect(listarRemotes)
 
-    DuplicateButton.MouseButton1Click:Connect(tentarDuplicar)
+
+    -- Chamar a função para listar os Remotes
+    listarRemotes()
 end)
 
 if not success then
