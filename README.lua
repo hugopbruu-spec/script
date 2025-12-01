@@ -15,7 +15,7 @@ local success, errorMessage = pcall(function()
     ScreenGui.ResetOnSpawn = false
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 300, 0, 500)  -- Aumentei a altura
+    MainFrame.Size = UDim2.new(0, 300, 0, 450)  -- Aumentei a altura
     MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
     MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MainFrame.Parent = ScreenGui
@@ -30,14 +30,14 @@ local success, errorMessage = pcall(function()
     TitleLabel.Parent = MainFrame
 
     local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.Size = UDim2.new(0.9, 0, 0.4, 0)  -- Reduzi a altura
+    ScrollingFrame.Size = UDim2.new(0.9, 0, 0.6, 0)  -- Reduzi a altura
     ScrollingFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     ScrollingFrame.Parent = MainFrame
 
     local RemoteListTextBox = Instance.new("TextBox")
-    RemoteListTextBox.Size = UDim2.new(0.9, 0, 0.2, 0) -- Altura para caber o texto
-    RemoteListTextBox.Position = UDim2.new(0.05, 0, 0.52, 0) -- Posicionado abaixo da lista
+    RemoteListTextBox.Size = UDim2.new(0.9, 0, 0.15, 0) -- Altura para caber o texto
+    RemoteListTextBox.Position = UDim2.new(0.05, 0, 0.72, 0) -- Posicionado abaixo da lista
     RemoteListTextBox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     RemoteListTextBox.TextColor3 = Color3.new(1, 1, 1)
     RemoteListTextBox.Font = Enum.Font.SourceSans
@@ -46,19 +46,8 @@ local success, errorMessage = pcall(function()
     RemoteListTextBox.MultiLine = true -- Permite múltiplas linhas
     RemoteListTextBox.Parent = MainFrame
 
-	local CopyReadyTextBox = Instance.new("TextBox")
-    CopyReadyTextBox.Size = UDim2.new(0.9, 0, 0.2, 0) -- Altura para caber o texto
-    CopyReadyTextBox.Position = UDim2.new(0.05, 0, 0.75, 0) -- Posicionado abaixo da lista
-    CopyReadyTextBox.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
-    CopyReadyTextBox.TextColor3 = Color3.new(1, 1, 1)
-    CopyReadyTextBox.Font = Enum.Font.SourceSans
-    CopyReadyTextBox.Text = ""  -- Começa vazio
-    CopyReadyTextBox.ReadOnly = true -- Impede edição
-    CopyReadyTextBox.MultiLine = true -- Permite múltiplas linhas
-    CopyReadyTextBox.Parent = MainFrame
 
-
-    -- Função para listar os Remotes e preencher os textboxes
+    -- Função para listar os Remotes e preencher o textbox
     local function listarRemotes()
         -- Limpar a lista anterior
         for _, child in ipairs(ScrollingFrame:GetChildren()) do
@@ -67,9 +56,8 @@ local success, errorMessage = pcall(function()
             end
         end
 
-        --Limpar os textboxes
-        RemoteListTextBox.Text = ""
-		CopyReadyTextBox.Text = ""
+		--Limpar o textbox
+		RemoteListTextBox.Text = ""
 
         -- Encontrar todos os Remotes
         local remotes = {}
@@ -82,8 +70,7 @@ local success, errorMessage = pcall(function()
         end
         findAllRemotes(game)
 
-        local allRemoteNames = "" -- Acumular os nomes
-		local copyReadyText = "" --Texto formatado para copiar
+		local allRemoteNames = "" -- Acumular os nomes
 
         -- Criar botões para cada Remote
         for i, remote in ipairs(remotes) do
@@ -96,17 +83,15 @@ local success, errorMessage = pcall(function()
             button.Font = Enum.Font.SourceSans
             button.Parent = ScrollingFrame
 
-            allRemoteNames = allRemoteNames .. remote.Name .. " (" .. remote.ClassName .. ")\n"
-			copyReadyText = copyReadyText .. remote.Name .. "\n" --Apenas o nome para facilitar
+			allRemoteNames = allRemoteNames .. remote.Name .. " (" .. remote.ClassName .. ")\n"
         end
 
-        RemoteListTextBox.Text = allRemoteNames -- Preencher o textbox
-		CopyReadyTextBox.Text = copyReadyText --Preencher o textbox para copiar
+		RemoteListTextBox.Text = allRemoteNames -- Preencher o textbox
 
     end
 
-    -- Botão para atualizar a lista
-    local RefreshButton = Instance.new("TextButton")
+	-- Botão para atualizar a lista
+	local RefreshButton = Instance.new("TextButton")
     RefreshButton.Size = UDim2.new(0.9, 0, 0, 30)
     RefreshButton.Position = UDim2.new(0.05, 0, 0.9, 0)
     RefreshButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -115,7 +100,8 @@ local success, errorMessage = pcall(function()
     RefreshButton.Font = Enum.Font.SourceSans
     RefreshButton.Parent = MainFrame
 
-    RefreshButton.MouseButton1Click:Connect(listarRemotes)
+	RefreshButton.MouseButton1Click:Connect(listarRemotes)
+
 
     -- Chamar a função para listar os Remotes
     listarRemotes()
