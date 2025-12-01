@@ -39,44 +39,36 @@ local success, errorMessage = pcall(function()
     DuplicateButton.Parent = MainFrame
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
-    -- Função para duplicar o item com ID falso
+    -- Função para duplicar o item
     local function duplicateItem()
         local character = Player.Character
         if character then
             local tool = character:FindFirstChildOfClass("Tool")
             if tool then
-                -- 1. Clonar o Item
+                -- 1. Clonagem Local
                 local newTool = tool:Clone()
                 newTool.Name = tool.Name .. "_Duplicated"
 
-                --[[ 2. Gerar um ID Falso
-                ADAPTAR: Descobrir o formato correto dos IDs do jogo
-                e gerar um ID falso que siga esse formato.
+                -- 2. Replicação de Atributos
+                --[[ ADAPTAR: Substitua "ItemID" pelo nome correto do atributo
+                e gere um ID válido para o jogo.
                 ]]
-                local fakeItemId = tostring(math.random(10000, 99999)) -- Exemplo: ID numérico
+                newTool:SetAttribute("ItemID", tostring(math.random(1000, 9999)))
 
-                --[[ 3. Substituir o ID Original
-                ADAPTAR: Descobrir onde o ID do item é armazenado
-                (ex: atributo, valor de um objeto, etc.) e substituir
-                o ID original pelo ID falso.
+                --[[ 3. Exploração de Remote (Se Aplicável)
+                ADAPTAR: Se você encontrar um Remote mal protegido,
+                use-o para "legitimar" o item duplicado.
                 ]]
-                newTool:SetAttribute("ItemID", fakeItemId) -- Exemplo: Atributo "ItemID"
-
-                --[[ 4. Simular a Aquisição (Se Necessário)
-                ADAPTAR: Se o jogo requer que o servidor seja notificado
-                sobre a aquisição do item, simular essa notificação.
-                ]]
-                -- Exemplo: Disparar um evento remoto
                 --[[
-                local itemAcquiredEvent = Player:FindFirstChild("ItemAcquiredEvent")
-                if itemAcquiredEvent and itemAcquiredEvent:IsA("RemoteEvent") then
-                    itemAcquiredEvent:FireServer(fakeItemId)
+                local remote = game:GetService("ReplicatedStorage"):FindFirstChild("AdicionarItemAoInventario")
+                if remote and remote:IsA("RemoteEvent") then
+                    remote:FireServer(newTool)
                 end
                 ]]
 
                 newTool.Parent = character
 
-                print("Item duplicado com ID falso!")
+                print("Item duplicado!")
             else
                 print("Nenhum item equipado para duplicar.")
             end
