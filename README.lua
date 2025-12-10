@@ -1,261 +1,154 @@
--- Roblox FPS Optimizer com Menu Estilo Speed Hub (Corrigido e Completo)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UserInterfaceService = game:GetService("UserInputService")
 
--- Configurações Gerais
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Cores e Fontes
-local primaryColor = Color3.fromRGB(30, 144, 255)   -- Azul
-local secondaryColor = Color3.fromRGB(255, 255, 255) -- Branco
-local backgroundColor = Color3.fromRGB(40, 40, 40)   -- Cinza escuro
-local font = Enum.Font.SourceSansBold
-
--- Funções de Otimização (mesmas do script anterior)
-local function aplicarConfiguracoesGraficas()
-    game.Lighting.GlobalShadows = false
-    game.Workspace.DistributedGameTime = false
-    game.Lighting.FogEnd = 0
-    game.Lighting.Brightness = 0
-end
-
-local function limparAparencia(objeto)
-    if objeto and objeto:IsA("BasePart") then
-        pcall(function()
-            objeto.Texture = ""
-            objeto.Color = Color3.new(0.7, 0.7, 0.7)
-            objeto.Material = Enum.Material.Plastic
-            objeto.Reflectance = 0
-            objeto.Transparency = 0
-        end)
-    end
-    if objeto then
-        for _, filho in ipairs(objeto:GetChildren()) do
-            limparAparencia(filho)
-        end
-    end
-end
-
-local function removerParticulas(objeto)
-    if objeto and objeto:IsA("ParticleEmitter") then
-        pcall(function()
-            objeto:Destroy()
-        end)
-    end
-    if objeto then
-        for _, filho in ipairs(objeto:GetChildren()) do
-            removerParticulas(filho)
-        end
-    end
-end
-
-local function desabilitarSons(objeto)
-    if objeto and objeto:IsA("Sound") then
-        pcall(function()
-            objeto.Playing = false
-            objeto.Volume = 0
-            objeto.SoundId = ""
-        end)
-    end
-    if objeto then
-        for _, filho in ipairs(objeto:GetChildren()) do
-            desabilitarSons(filho)
-        end
-    end
-end
-
-local function desabilitarScripts(objeto)
-    if objeto and (objeto:IsA("Script") or objeto:IsA("LocalScript")) then
-        pcall(function()
-            objeto.Disabled = true
-        end)
-    end
-    if objeto then
-        for _, filho in ipairs(objeto:GetChildren()) do
-            desabilitarScripts(filho)
-        end
-    end
-end
-
-local function otimizarMalhas(objeto)
-    if objeto and (objeto:IsA("MeshPart") or objeto:IsA("Part")) then
-        pcall(function()
-            objeto.RenderFidelity = Enum.RenderFidelity.Automatic
-            objeto.LevelOfDetail = Enum.LevelOfDetail.Disabled
-        end)
-    end
-    if objeto then
-        for _, filho in ipairs(objeto:GetChildren()) do
-            otimizarMalhas(filho)
-        end
-    end
-end
-
-local function removerAnimacoes(objeto)
-    if objeto and objeto:IsA("AnimationController") then
-        pcall(function()
-            objeto:Destroy()
-        end)
-    end
-    if objeto and objeto:IsA("Animation") then
-        pcall(function()
-            objeto:Destroy()
-        end)
-    end
-    if objeto then
-        for _, filho in ipairs(objeto:GetChildren()) do
-            removerAnimacoes(filho)
-        end
-    end
-end
-
-local function removerGUI(player)
-    if player and player:IsA("Player") then
-        local playerGui = player:FindFirstChild("PlayerGui")
-        if playerGui then
-            for _, gui in ipairs(playerGui:GetChildren()) do
-                if gui and gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" and gui.Name ~= "SpeedHubMenu" then -- Mantém o menu do Roblox e o menu Speed Hub
-                    pcall(function()
-                        gui:Destroy()
-                    end)
-                end
+-- Função para obter o item (adapte para sua necessidade)
+local function getItemDuplicado()
+    -- Exemplo: tenta pegar o primeiro item da mochila (backpack)
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        for _, item in ipairs(backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                return item
             end
         end
     end
+    return nil
 end
 
-local function manterPersonagem(player)
-    if player and player.CharacterAppearanceLoaded then
-        player.CharacterAppearanceLoaded:Connect(function(character)
-            if character then
-                for _, part in ipairs(character:GetDescendants()) do
-                    if part and part:IsA("BasePart") then
-                        pcall(function()
-                            part.Material = Enum.Material.Plastic
-                            part.Texture = ""
-                            part.Color = Color3.new(1, 1, 1)
-                        end)
-                    end
-                end
-            end
-        end)
+local item = getItemDuplicado()
+
+if item then
+    local itemName = item.Name
+    print("Analisando item: " .. itemName)
+
+    -- Criar interface para exibir resultados e botão de cópia
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "ItemAnalyzerUI"
+    screenGui.Parent = LocalPlayer.PlayerGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.8, 0, 0.8, 0)
+    frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+    frame.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
+    frame.Parent = screenGui
+    frame.Active = true
+    frame.Draggable = true
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.9, 0, 0.8, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.05, 0)
+    textBox.BackgroundColor3 = Color3.new(1, 1, 1)
+    textBox.Font = Enum.Font.SourceSans
+    textBox.TextSize = 14
+    textBox.Text = "Analisando o item..."
+    textBox.Parent = frame
+    textBox.MultiLine = true
+    textBox.ReadOnly = true
+
+    local copyButton = Instance.new("TextButton")
+    copyButton.Size = UDim2.new(0.2, 0, 0.1, 0)
+    copyButton.Position = UDim2.new(0.4, 0.9, 0, 0)
+    copyButton.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
+    copyButton.Text = "Copiar"
+    copyButton.Font = Enum.Font.SourceSansBold
+    copyButton.TextSize = 16
+    copyButton.Parent = frame
+
+    local reportText = ""
+
+    -- Imprime as propriedades do item
+    reportText = reportText .. "Propriedades do item:\n"
+    for key, value in pairs(item:GetProperties()) do
+        reportText = reportText .. key .. ": " .. tostring(value) .. "\n"
     end
-end
+    reportText = reportText .. "\n"
 
--- Função para Limpar o Histórico de Mensagens
-local function limparHistoricoMensagens()
-    local chatService = game:GetService("Chat")
-    local localPlayer = game.Players.LocalPlayer
-
-    if chatService and localPlayer then
-        local chatHistory = chatService:GetCurrentChannelHistory()
-        if chatHistory then
-            for _, message in ipairs(chatHistory:GetMessages()) do
-                chatHistory:RemoveMessage(message)
-            end
+    -- Verifica se há propriedades duplicadas
+    local propertiesCount = {}
+    for key, _ in pairs(item:GetProperties()) do
+        if propertiesCount[key] then
+            propertiesCount[key] = propertiesCount[key] + 1
+        else
+            propertiesCount[key] = 1
         end
     end
-end
 
--- Função para Limpar o Output (Histórico de Erros)
-local function limparOutput()
-    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-    print("Output limpo.")
-end
+    reportText = reportText .. "Verificando propriedades duplicadas:\n"
+    local hasDuplicatedProperties = false
+    for key, count in pairs(propertiesCount) do
+        if count > 1 then
+            reportText = reportText .. "Propriedade duplicada encontrada: " .. key .. "\n"
+            hasDuplicatedProperties = true
+        end
+    end
+    if not hasDuplicatedProperties then
+        reportText = reportText .. "Nenhuma propriedade duplicada encontrada.\n"
+    end
+    reportText = reportText .. "\n"
 
--- Função para Aplicar Otimização Extrema
-local function aplicarOtimizacaoExtrema()
-    print("Otimização extrema iniciada (Cliente).")
-    aplicarConfiguracoesGraficas()
-    limparAparencia(game.Workspace)
-    removerParticulas(game.Workspace)
-    desabilitarSons(game.Workspace)
-    desabilitarScripts(game.Workspace)
-    otimizarMalhas(game.Workspace)
-    removerAnimacoes(game.Workspace)
-    removerGUI(player)
-    limparHistoricoMensagens() -- Limpa o histórico de mensagens
-    limparOutput()             -- Limpa o Output (Histórico de Erros)
+    -- Verificações adicionais (adapte conforme necessário)
+    reportText = reportText .. "Verificações adicionais:\n"
 
-    -- Remover Céu (opcional)
-    if game.Lighting:FindFirstChildOfClass("Sky") then
-        pcall(function()
-            game.Lighting:FindFirstChildOfClass("Sky"):Destroy()
-        end)
+    -- Exemplo: verificar se tem scripts dentro do item (pode ser suspeito)
+    local hasScripts = false
+    for _, child in ipairs(item:GetDescendants()) do
+        if child:IsA("Script") or child:IsA("LocalScript") then
+            reportText = reportText .. "Script encontrado dentro do item: " .. child:GetFullName() .. "\n"
+            hasScripts = true
+        end
+    end
+    if not hasScripts then
+        reportText = reportText .. "Nenhum script encontrado dentro do item.\n"
     end
 
-    print("Otimização extrema aplicada (Cliente).")
-end
+    -- Exemplo: verificar se a Parent é diferente do esperado
+    local expectedParent = LocalPlayer.Backpack -- ou outro lugar esperado
+    if item.Parent ~= expectedParent then
+        reportText = reportText .. "Parent do item é inesperado: " .. (item.Parent and item.Parent:GetFullName() or "nil") .. ". Esperado: " .. (expectedParent and expectedParent:GetFullName() or "nil") .. "\n"
+    end
 
--- Criar Menu Estilo Speed Hub
-local function criarSpeedHubMenu()
-    local speedHubMenu = Instance.new("ScreenGui")
-    speedHubMenu.Name = "SpeedHubMenu"
-    speedHubMenu.Parent = playerGui
-    speedHubMenu.ResetOnSpawn = false
+    -- Exemplo: verificar se o item está Locked (se for Tool)
+    if item:IsA("Tool") and item.Locked then
+        reportText = reportText .. "O item está 'Locked'.\n"
+    end
 
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 250, 0, 300)
-    mainFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
-    mainFrame.BackgroundColor3 = backgroundColor
-    mainFrame.BorderSizePixel = 0
-    mainFrame.Parent = speedHubMenu
+    -- Exemplo: verificar propriedades específicas (adapte para o seu jogo)
+    if item:FindFirstChild("ValorFalso") then
+        reportText = reportText .. "ValorFalso encontrado dentro do item.\n"
+    end
 
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0, 50)
-    titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.BackgroundColor3 = primaryColor
-    titleLabel.TextColor3 = secondaryColor
-    titleLabel.Font = font
-    titleLabel.TextSize = 24
-    titleLabel.Text = "Speed Hub Optimizer"
-    titleLabel.BorderSizePixel = 0
-    titleLabel.Parent = mainFrame
+    -- Exemplo: verificar Metadata (pode indicar alteração)
+    if item:GetAttribute("Metadata") then
+        reportText = reportText .. "Metadata encontrada no item: " .. tostring(item:GetAttribute("Metadata")) .. "\n"
+    end
 
-    local optimizeButton = Instance.new("TextButton")
-    optimizeButton.Size = UDim2.new(0.9, 0, 0, 40)
-    optimizeButton.Position = UDim2.new(0.05, 0, 0.2, 0)
-    optimizeButton.BackgroundColor3 = primaryColor
-    optimizeButton.TextColor3 = secondaryColor
-    optimizeButton.Font = font
-    optimizeButton.TextSize = 18
-    optimizeButton.Text = "Otimizar FPS"
-    optimizeButton.BorderSizePixel = 0
-    optimizeButton.Parent = mainFrame
+    -- Finalizar o relatório
+    textBox.Text = reportText
 
-    optimizeButton.MouseButton1Click:Connect(function()
-        aplicarOtimizacaoExtrema()
+    -- Função para copiar o texto
+    copyButton.MouseButton1Click:Connect(function()
+        UserInterfaceService.Clipboard = reportText
     end)
 
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0.3, 0, 0, 30)
-    closeButton.Position = UDim2.new(0.35, 0, 0.85, 0)
-    closeButton.BackgroundColor3 = backgroundColor
-    closeButton.TextColor3 = secondaryColor
-    closeButton.Font = font
-    closeButton.TextSize = 16
-    closeButton.Text = "Fechar"
-    closeButton.BorderSizePixel = 0
-    closeButton.Parent = mainFrame
+else
+    print("Item não encontrado.")
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "ItemAnalyzerUI"
+    screenGui.Parent = LocalPlayer.PlayerGui
 
-    closeButton.MouseButton1Click:Connect(function()
-        speedHubMenu:Destroy()
-    end)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.5, 0, 0.2, 0)
+    frame.Position = UDim2.new(0.25, 0, 0.4, 0)
+    frame.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
+    frame.Parent = screenGui
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.9, 0, 0.8, 0)
+    label.Position = UDim2.new(0.05, 0, 0.1, 0)
+    label.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
+    label.Font = Enum.Font.SourceSans
+    label.TextSize = 16
+    label.Text = "Item não encontrado. Certifique-se de ter o item duplicado na sua mochila."
+    label.Parent = frame
 end
-
--- Executar ao Entrar no Jogo
-local function onPlayerAdded(player)
-    if player == game.Players.LocalPlayer then
-        manterPersonagem(player) -- Garante que o personagem seja mantido
-        criarSpeedHubMenu()       -- Cria o menu
-    end
-end
-
-game.Players.PlayerAdded:Connect(onPlayerAdded)
-
--- Verificar se o jogador já está no jogo ao adicionar o script
-if game.Players.LocalPlayer then
-    onPlayerAdded(game.Players.LocalPlayer)
-end
-
--- Inicialização
-print("Script de otimização iniciado (Cliente).")
