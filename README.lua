@@ -2,56 +2,69 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 
--- Criar interface para exibir resultados e botão de cópia
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ItemAnalyzerUI"
-screenGui.Parent = LocalPlayer.PlayerGui
+-- Função para criar a interface do usuário
+local function createUI()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "ItemAnalyzerUI"
+    screenGui.Parent = LocalPlayer.PlayerGui
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0.8, 0, 0.8, 0)
-frame.Position = UDim2.new(0.1, 0, 0.1, 0)
-frame.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
-frame.Parent = screenGui
-frame.Active = true
-frame.Draggable = true
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.8, 0, 0.8, 0)
+    frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+    frame.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
+    frame.Parent = screenGui
+    frame.Active = true
+    frame.Draggable = true
 
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(0.9, 0, 0.7, 0)
-textBox.Position = UDim2.new(0.05, 0, 0.05, 0)
-textBox.BackgroundColor3 = Color3.new(1, 1, 1)
-textBox.Font = Enum.Font.SourceSans
-textBox.TextSize = 14
-textBox.Text = "Aperte 'Analisar Item' para começar..."
-textBox.Parent = frame
-textBox.MultiLine = true
-textBox.ReadOnly = true
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.9, 0, 0.7, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.05, 0)
+    textBox.BackgroundColor3 = Color3.new(1, 1, 1)
+    textBox.Font = Enum.Font.SourceSans
+    textBox.TextSize = 14
+    textBox.Text = "Aperte 'Analisar Item' para começar..."
+    textBox.Parent = frame
+    textBox.MultiLine = true
+    textBox.ReadOnly = true
 
-local copyButton = Instance.new("TextButton")
-copyButton.Size = UDim2.new(0.2, 0, 0.1, 0)
-copyButton.Position = UDim2.new(0.4, 0, 0.8, 0)
-copyButton.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
-copyButton.Text = "Copiar"
-copyButton.Font = Enum.Font.SourceSansBold
-copyButton.TextSize = 16
-copyButton.Parent = frame
-copyButton.Visible = false -- Inicialmente invisível
+    local copyButton = Instance.new("TextButton")
+    copyButton.Size = UDim2.new(0.2, 0, 0.1, 0)
+    copyButton.Position = UDim2.new(0.4, 0, 0.8, 0)
+    copyButton.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
+    copyButton.Text = "Copiar"
+    copyButton.Font = Enum.Font.SourceSansBold
+    copyButton.TextSize = 16
+    copyButton.Parent = frame
+    copyButton.Visible = false
 
-local analyzeButton = Instance.new("TextButton")
-analyzeButton.Size = UDim2.new(0.3, 0, 0.1, 0)
-analyzeButton.Position = UDim2.new(0.35, 0, 0.9, 0)
-analyzeButton.BackgroundColor3 = Color3.new(0.6, 0.6, 0.6)
-analyzeButton.Text = "Analisar Item"
-analyzeButton.Font = Enum.Font.SourceSansBold
-analyzeButton.TextSize = 16
-analyzeButton.Parent = frame
+    local analyzeButton = Instance.new("TextButton")
+    analyzeButton.Size = UDim2.new(0.3, 0, 0.1, 0)
+    analyzeButton.Position = UDim2.new(0.35, 0, 0.9, 0)
+    analyzeButton.BackgroundColor3 = Color3.new(0.6, 0.6, 0.6)
+    analyzeButton.Text = "Analisar Item"
+    analyzeButton.Font = Enum.Font.SourceSansBold
+    analyzeButton.TextSize = 16
+    analyzeButton.Parent = frame
 
--- Função para obter o item equipado (segurado na mão)
+    return screenGui, frame, textBox, copyButton, analyzeButton
+end
+
+-- Criar a interface
+local screenGui, frame, textBox, copyButton, analyzeButton = createUI()
+
+-- Função para obter o item equipado (segurado na mão), esperando o Character carregar
 local function getEquippedItem()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChild("Humanoid")
-    if humanoid then
-        return humanoid.Tool
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            return humanoid.Tool
+        else
+            warn("Humanoid não encontrado no Character")
+            return nil
+        end
     else
+        warn("Character não encontrado para o Player")
         return nil
     end
 end
@@ -134,7 +147,7 @@ local function analyzeItem()
 
         -- Finalizar o relatório
         textBox.Text = reportText
-        copyButton.Visible = true -- Torna o botão de cópia visível
+        copyButton.Visible = true
 
     else
         textBox.Text = "Nenhum item equipado. Segure um item na mão e clique em 'Analisar Item'."
