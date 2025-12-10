@@ -65,6 +65,7 @@ local screenGui, frame, textBox, copyButton, analyzeButton = createUI()
 
 -- Verifica se a interface foi criada com sucesso
 if not screenGui then
+    warn("A interface não foi criada. Abortando a execução.")
     return -- Aborta a execução se a interface não foi criada
 end
 
@@ -105,6 +106,12 @@ end
 
 -- Função para analisar o item
 local function analyzeItem()
+    -- Verifica se os elementos da interface existem
+    if not textBox or not copyButton then
+        warn("Elementos da interface não encontrados. A análise não pode ser executada.")
+        return
+    end
+
     local item = getEquippedItem()
 
     if item then
@@ -192,6 +199,8 @@ end
 -- Conectar o botão de análise à função analyzeItem
 if analyzeButton then
     analyzeButton.MouseButton1Click:Connect(analyzeItem)
+else
+    warn("Botão 'Analisar Item' não encontrado. A conexão não pode ser feita.")
 end
 
 -- Função para copiar o texto (protegido contra exploits)
@@ -201,4 +210,6 @@ if copyButton then
         local textToCopy = string.sub(textBox.Text, 1, 1024) -- Limita a 1024 caracteres
         UserInputService.Clipboard = textToCopy
     end)
+else
+    warn("Botão 'Copiar' não encontrado. A conexão não pode ser feita.")
 end
