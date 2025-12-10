@@ -22,59 +22,63 @@ local function createUI()
     -- Verifica se o PlayerGui existe
     if not LocalPlayer.PlayerGui then
         warn("PlayerGui não encontrado! A interface não será criada.")
-        return nil, nil, nil, nil, nil
+        return nil, nil, nil, nil, nil, nil
     end
 
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.4, 0, 0.5, 0)
-    frame.Position = UDim2.new(0.05, 0, 0.1, 0)
-    frame.BackgroundColor3 = backgroundColor
-    frame.Parent = screenGui
-    frame.Active = true
-    frame.Draggable = true
+    -- Frame principal
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0.5, 0, 0.6, 0) -- Aumenta o tamanho
+    mainFrame.Position = UDim2.new(0.05, 0, 0.1, 0) -- Ajusta a posição
+    mainFrame.BackgroundColor3 = backgroundColor
+    mainFrame.Parent = screenGui
+    mainFrame.Active = true
+    mainFrame.Draggable = true
 
+    -- Botão "Iniciar" (na parte inferior)
+    local startButton = Instance.new("TextButton")
+    startButton.Name = "StartButton"
+    startButton.Size = UDim2.new(0.4, 0, 0.1, 0)
+    startButton.Position = UDim2.new(0.05, 0, 0.85, 0) -- Posição inferior
+    startButton.BackgroundColor3 = buttonColor
+    startButton.TextColor3 = buttonTextColor
+    startButton.Text = "Iniciar"
+    startButton.Font = Enum.Font.SourceSansBold
+    startButton.TextSize = 14
+    startButton.Parent = mainFrame
+    startButton.ZIndex = 2
+
+    -- Área de texto (parte superior)
     local textBox = Instance.new("TextBox")
-    textBox.Size = UDim2.new(0.9, 0, 0.6, 0)
+    textBox.Size = UDim2.new(0.9, 0, 0.7, 0)
     textBox.Position = UDim2.new(0.05, 0, 0.05, 0)
     textBox.BackgroundColor3 = backgroundColor
     textBox.TextColor3 = textColor
     textBox.Font = Enum.Font.SourceSans
     textBox.TextSize = 12
     textBox.Text = "Aperte 'Iniciar' para analisar o item..."
-    textBox.Parent = frame
+    textBox.Parent = mainFrame
     textBox.MultiLine = true
     textBox.ReadOnly = true
 
-    local startButton = Instance.new("TextButton")
-    startButton.Name = "StartButton"
-    startButton.Size = UDim2.new(0.9, 0, 0.15, 0)
-    startButton.Position = UDim2.new(0.05, 0, 0.7, 0)
-    startButton.BackgroundColor3 = buttonColor
-    startButton.TextColor3 = buttonTextColor
-    startButton.Text = "Iniciar"
-    startButton.Font = Enum.Font.SourceSansBold
-    startButton.TextSize = 14
-    startButton.Parent = frame
-    startButton.ZIndex = 2
-
+    -- Botão "Copiar" (abaixo da área de texto)
     local copyButton = Instance.new("TextButton")
     copyButton.Name = "CopyButton"
-    copyButton.Size = UDim2.new(0.9, 0, 0.15, 0)
-    copyButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+    copyButton.Size = UDim2.new(0.4, 0, 0.1, 0)
+    copyButton.Position = UDim2.new(0.55, 0, 0.85, 0) -- Abaixo da área de texto e à direita
     copyButton.BackgroundColor3 = buttonColor
     copyButton.TextColor3 = buttonTextColor
     copyButton.Text = "Copiar"
     copyButton.Font = Enum.Font.SourceSansBold
     copyButton.TextSize = 14
-    copyButton.Parent = frame
+    copyButton.Parent = mainFrame
     copyButton.Visible = false
     copyButton.ZIndex = 2
 
-    return screenGui, frame, textBox, startButton, copyButton
+    return screenGui, mainFrame, textBox, startButton, copyButton
 end
 
 -- Criar a interface
-local screenGui, frame, textBox, startButton, copyButton = createUI()
+local screenGui, mainFrame, textBox, startButton, copyButton = createUI()
 
 -- Verifica se a interface foi criada com sucesso
 if not screenGui then
