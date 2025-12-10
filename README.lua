@@ -1,16 +1,27 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- Adiciona um pequeno atraso para garantir que o PlayerGui esteja pronto
+wait(2)
 
 -- Função para criar a interface do usuário
 local function createUI()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "ItemAnalyzerUI"
     screenGui.Parent = LocalPlayer.PlayerGui
+    screenGui.ResetOnSpawn = false -- Mantém a GUI após o respawn
+
+    -- Verifica se o PlayerGui existe
+    if not LocalPlayer.PlayerGui then
+        warn("PlayerGui não encontrado! A interface não será criada.")
+        return nil, nil, nil, nil, nil
+    end
 
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.8, 0, 0.8, 0)
-    frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+    frame.Size = UDim2.new(0.4, 0, 0.5, 0) -- Reduz o tamanho da interface
+    frame.Position = UDim2.new(0.05, 0, 0.1, 0)
     frame.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
     frame.Parent = screenGui
     frame.Active = true
@@ -21,29 +32,29 @@ local function createUI()
     textBox.Position = UDim2.new(0.05, 0, 0.05, 0)
     textBox.BackgroundColor3 = Color3.new(1, 1, 1)
     textBox.Font = Enum.Font.SourceSans
-    textBox.TextSize = 14
+    textBox.TextSize = 12 -- Reduz o tamanho do texto
     textBox.Text = "Aperte 'Analisar Item' para começar..."
     textBox.Parent = frame
     textBox.MultiLine = true
     textBox.ReadOnly = true
 
     local copyButton = Instance.new("TextButton")
-    copyButton.Size = UDim2.new(0.2, 0, 0.1, 0)
-    copyButton.Position = UDim2.new(0.4, 0, 0.8, 0)
+    copyButton.Size = UDim2.new(0.4, 0, 0.1, 0)
+    copyButton.Position = UDim2.new(0.55, 0, 0.85, 0)
     copyButton.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
     copyButton.Text = "Copiar"
     copyButton.Font = Enum.Font.SourceSansBold
-    copyButton.TextSize = 16
+    copyButton.TextSize = 14
     copyButton.Parent = frame
     copyButton.Visible = false
 
     local analyzeButton = Instance.new("TextButton")
-    analyzeButton.Size = UDim2.new(0.3, 0, 0.1, 0)
-    analyzeButton.Position = UDim2.new(0.35, 0, 0.9, 0)
+    analyzeButton.Size = UDim2.new(0.5, 0, 0.1, 0)
+    analyzeButton.Position = UDim2.new(0.05, 0, 0.85, 0)
     analyzeButton.BackgroundColor3 = Color3.new(0.6, 0.6, 0.6)
     analyzeButton.Text = "Analisar Item"
     analyzeButton.Font = Enum.Font.SourceSansBold
-    analyzeButton.TextSize = 16
+    analyzeButton.TextSize = 14
     analyzeButton.Parent = frame
 
     return screenGui, frame, textBox, copyButton, analyzeButton
@@ -52,13 +63,36 @@ end
 -- Criar a interface
 local screenGui, frame, textBox, copyButton, analyzeButton = createUI()
 
+-- Verifica se a interface foi criada com sucesso
+if not screenGui then
+    return -- Aborta a execução se a interface não foi criada
+end
+
 -- Função para obter o item equipado (segurado na mão), esperando o Character carregar
 local function getEquippedItem()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     if character then
         local humanoid = character:FindFirstChild("Humanoid")
         if humanoid then
-            return humanoid.Tool
+            -- Tenta encontrar o item equipado na RightHand ou LeftHand
+            local rightHand = character:FindFirstChild("RightHand")
+            local leftHand = character:FindFirstChild("LeftHand")
+            if rightHand and rightHand.Tool then
+                return rightHand.Tool
+            elseif leftHand and leftHand.Tool then
+                return leftHand.Tool
+            else
+                -- Se não encontrar na mão, tenta encontrar na Backpack (mochila)
+                local backpack = LocalPlayer:FindFirstChild("Backpack")
+                if backpack then
+                    for _, item in ipairs(backpack:GetChildren()) do
+                        if item:IsA("Tool") then
+                            return item
+                        end
+                    end
+                end
+                return nil
+            end
         else
             warn("Humanoid não encontrado no Character")
             return nil
@@ -125,9 +159,9 @@ local function analyzeItem()
         end
 
         -- Exemplo: verificar se a Parent é diferente do esperado
-        local expectedParent = LocalPlayer.Character -- Agora espera que esteja no Character (equipado)
-        if item.Parent ~= expectedParent then
-            reportText = reportText .. "Parent do item é inesperado: " .. (item.Parent and item.Parent:GetFullName() or "nil") .. ". Esperado: " .. (expectedParent and expectedParent:GetFullName() or "nil") .. "\n"
+        local expectedParent = LocalPlayer.Character -- Agora espera que esteja no Character (equipado) ou Backpack
+        if item.Parent ~= expectedParent and item.Parent ~= LocalPlayer.Backpack then
+            reportText = reportText .. "Parent do item é inesperado: " .. (item.Parent and item.Parent:GetFullName() or "nil") .. ". Esperado: " .. (expectedParent and expectedParent:GetFullName() or "Backpack") .. "\n"
         end
 
         -- Exemplo: verificar se o item está Locked (se for Tool)
@@ -156,9 +190,15 @@ local function analyzeItem()
 end
 
 -- Conectar o botão de análise à função analyzeItem
-analyzeButton.MouseButton1Click:Connect(analyzeItem)
+if analyzeButton then
+    analyzeButton.MouseButton1Click:Connect(analyzeItem)
+end
 
--- Função para copiar o texto
-copyButton.MouseButton1Click:Connect(function()
-    UserInputService.Clipboard = textBox.Text
-end)
+-- Função para copiar o texto (protegido contra exploits)
+if copyButton then
+    copyButton.MouseButton1Click:Connect(function()
+        -- Limita o tamanho do texto copiado para evitar abusos
+        local textToCopy = string.sub(textBox.Text, 1, 1024) -- Limita a 1024 caracteres
+        UserInputService.Clipboard = textToCopy
+    end)
+end
