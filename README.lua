@@ -38,24 +38,30 @@ local function createUI()
     textBox.MultiLine = true
     textBox.ReadOnly = true
 
-    local copyButton = Instance.new("TextButton")
-    copyButton.Size = UDim2.new(0.4, 0, 0.1, 0)
-    copyButton.Position = UDim2.new(0.55, 0, 0.85, 0)
-    copyButton.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
-    copyButton.Text = "Copiar"
-    copyButton.Font = Enum.Font.SourceSansBold
-    copyButton.TextSize = 14
-    copyButton.Parent = frame
-    copyButton.Visible = false
-
     local analyzeButton = Instance.new("TextButton")
-    analyzeButton.Size = UDim2.new(0.5, 0, 0.1, 0)
-    analyzeButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+    analyzeButton.Name = "AnalyzeButton"
+    analyzeButton.Size = UDim2.new(0.9, 0, 0.15, 0) -- Aumenta a altura do botão
+    analyzeButton.Position = UDim2.new(0.05, 0, 0.75, 0) -- Posiciona na parte inferior
     analyzeButton.BackgroundColor3 = Color3.new(0.6, 0.6, 0.6)
+    analyzeButton.TextColor3 = Color3.new(1, 1, 1) -- Garante que o texto seja branco
     analyzeButton.Text = "Analisar Item"
     analyzeButton.Font = Enum.Font.SourceSansBold
     analyzeButton.TextSize = 14
     analyzeButton.Parent = frame
+    analyzeButton.ZIndex = 2 -- Garante que o botão esteja na frente
+
+    local copyButton = Instance.new("TextButton")
+    copyButton.Name = "CopyButton"
+    copyButton.Size = UDim2.new(0.9, 0, 0.15, 0) -- Aumenta a altura do botão
+    copyButton.Position = UDim2.new(0.05, 0, 0.9, 0) -- Posiciona abaixo do botão de análise
+    copyButton.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
+    copyButton.TextColor3 = Color3.new(1, 1, 1) -- Garante que o texto seja branco
+    copyButton.Text = "Copiar"
+    copyButton.Font = Enum.Font.SourceSansBold
+    copyButton.TextSize = 14
+    copyButton.Parent = frame
+    copyButton.Visible = false -- Inicialmente invisível
+    copyButton.ZIndex = 2 -- Garante que o botão esteja na frente
 
     return screenGui, frame, textBox, copyButton, analyzeButton
 end
@@ -107,7 +113,7 @@ end
 -- Função para analisar o item
 local function analyzeItem()
     -- Verifica se os elementos da interface existem
-    if not textBox or not copyButton then
+    if not textBox or not copyButton or not analyzeButton then
         warn("Elementos da interface não encontrados. A análise não pode ser executada.")
         return
     end
