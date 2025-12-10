@@ -22,35 +22,22 @@ local function createUI()
     -- Verifica se o PlayerGui existe
     if not LocalPlayer.PlayerGui then
         warn("PlayerGui não encontrado! A interface não será criada.")
-        return nil, nil, nil, nil, nil, nil
+        return nil, nil, nil, nil, nil
     end
 
-    -- Frame principal
+    -- Frame principal (menu)
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0.5, 0, 0.6, 0) -- Aumenta o tamanho
-    mainFrame.Position = UDim2.new(0.05, 0, 0.1, 0) -- Ajusta a posição
+    mainFrame.Size = UDim2.new(0.6, 0, 0.4, 0) -- Tamanho menor e mais "menu"
+    mainFrame.Position = UDim2.new(0.2, 0, 0.3, 0) -- Centralizado
     mainFrame.BackgroundColor3 = backgroundColor
     mainFrame.Parent = screenGui
     mainFrame.Active = true
     mainFrame.Draggable = true
 
-    -- Botão "Iniciar" (na parte inferior)
-    local startButton = Instance.new("TextButton")
-    startButton.Name = "StartButton"
-    startButton.Size = UDim2.new(0.4, 0, 0.1, 0)
-    startButton.Position = UDim2.new(0.05, 0, 0.85, 0) -- Posição inferior
-    startButton.BackgroundColor3 = buttonColor
-    startButton.TextColor3 = buttonTextColor
-    startButton.Text = "Iniciar"
-    startButton.Font = Enum.Font.SourceSansBold
-    startButton.TextSize = 14
-    startButton.Parent = mainFrame
-    startButton.ZIndex = 2
-
-    -- Área de texto (parte superior)
+    -- Área de texto (menor, com ScrollBar)
     local textBox = Instance.new("TextBox")
-    textBox.Size = UDim2.new(0.9, 0, 0.7, 0)
-    textBox.Position = UDim2.new(0.05, 0, 0.05, 0)
+    textBox.Size = UDim2.new(0.65, 0, 0.8, 0) -- Menor largura
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0) -- Ajusta a posição
     textBox.BackgroundColor3 = backgroundColor
     textBox.TextColor3 = textColor
     textBox.Font = Enum.Font.SourceSans
@@ -59,12 +46,27 @@ local function createUI()
     textBox.Parent = mainFrame
     textBox.MultiLine = true
     textBox.ReadOnly = true
+	textBox.ScrollBarThickness = 3 -- Adiciona ScrollBar
+    textBox.AutomaticSize = Enum.AutomaticSize.XY -- Ajusta o tamanho automaticamente
 
-    -- Botão "Copiar" (abaixo da área de texto)
+    -- Botão "Iniciar" (na direita)
+    local startButton = Instance.new("TextButton")
+    startButton.Name = "StartButton"
+    startButton.Size = UDim2.new(0.25, 0, 0.3, 0) -- Mais alto
+    startButton.Position = UDim2.new(0.7, 0, 0.1, 0) -- Posição à direita
+    startButton.BackgroundColor3 = buttonColor
+    startButton.TextColor3 = buttonTextColor
+    startButton.Text = "Iniciar"
+    startButton.Font = Enum.Font.SourceSansBold
+    startButton.TextSize = 14
+    startButton.Parent = mainFrame
+    startButton.ZIndex = 2
+
+    -- Botão "Copiar" (abaixo do "Iniciar")
     local copyButton = Instance.new("TextButton")
     copyButton.Name = "CopyButton"
-    copyButton.Size = UDim2.new(0.4, 0, 0.1, 0)
-    copyButton.Position = UDim2.new(0.55, 0, 0.85, 0) -- Abaixo da área de texto e à direita
+    copyButton.Size = UDim2.new(0.25, 0, 0.3, 0) -- Mais alto
+    copyButton.Position = UDim2.new(0.7, 0, 0.5, 0) -- Posição abaixo do "Iniciar"
     copyButton.BackgroundColor3 = buttonColor
     copyButton.TextColor3 = buttonTextColor
     copyButton.Text = "Copiar"
