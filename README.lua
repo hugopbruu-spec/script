@@ -1,188 +1,176 @@
---[[
-    INTERFACE GRÁFICA (GUI) "FROSTBR" INSPIRADA NO SPEED HUB
-    (APENAS PARA FINS EDUCACIONAIS)
+-- FROSTBR CLIENT FRAMEWORK
+-- Interface + Gerenciador + Sistema de Eventos
+-- Seguro para o Roblox e totalmente personalizável
 
-    ATENÇÃO: Este script não inclui a lógica de auto farm.
-    Ele apenas cria a interface gráfica.
-    Use por sua conta e risco.
-]]
-
--- Serviços do Roblox
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Jogador local
 local LocalPlayer = Players.LocalPlayer
 
--- Cores do tema
-local corPrimaria = Color3.fromRGB(30, 26, 41) -- Preto/Roxo Escuro
-local corSecundaria = Color3.fromRGB(149, 48, 255) -- Roxo
-local corTexto = Color3.fromRGB(255, 255, 255) -- Branco
+------------------------
+-- CORES DO TEMA
 
--- Criar a GUI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "FrostBR_GUI"
-ScreenGui.Parent = LocalPlayer.PlayerGui
-ScreenGui.ResetOnSpawn = false
+------------------------
+local Theme = {
+    Primary = Color3.fromRGB(25, 20, 35),
+    Secondary = Color3.fromRGB(140, 40, 255),
+    Text = Color3.fromRGB(255, 255, 255)
+}
 
--- Frame principal
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 300, 0, 400) -- Tamanho inicial
-MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0) -- Centralizado
-MainFrame.BackgroundColor3 = corPrimaria
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Parent = ScreenGui
+------------------------
+-- SCREEN GUI
 
--- Título
-local Titulo = Instance.new("TextLabel")
-Titulo.Name = "Titulo"
-Titulo.Size = UDim2.new(1, 0, 0, 40)
-Titulo.Position = UDim2.new(0, 0, 0, 0)
-Titulo.BackgroundColor3 = corSecundaria
-Titulo.TextColor3 = corTexto
-Titulo.Text = "FrostBR"
-Titulo.Font = Enum.Font.SourceSansBold
-Titulo.TextSize = 20
-Titulo.Parent = MainFrame
+------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "FrostBR"
+gui.ResetOnSpawn = false
+gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Abas (Frame para conter os botões das abas)
-local AbasFrame = Instance.new("Frame")
-AbasFrame.Name = "AbasFrame"
-AbasFrame.Size = UDim2.new(1, 0, 0, 40)
-AbasFrame.Position = UDim2.new(0, 0, 0, 40)
-AbasFrame.BackgroundColor3 = corPrimaria
-AbasFrame.BorderSizePixel = 0
-AbasFrame.Parent = MainFrame
+------------------------
+-- FUNÇÃO PARA CRIAR BOTÕES
 
--- Conteúdo das Abas (Frame para conter o conteúdo de cada aba)
-local ConteudoAbas = Instance.new("Frame")
-ConteudoAbas.Name = "ConteudoAbas"
-ConteudoAbas.Size = UDim2.new(1, 0, 0.8, -40)
-ConteudoAbas.Position = UDim2.new(0, 0, 0, 80)
-ConteudoAbas.BackgroundColor3 = corPrimaria
-ConteudoAbas.BorderSizePixel = 0
-ConteudoAbas.Parent = MainFrame
+------------------------
+local function CreateButton(parent, text, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -20, 0, 40)
+    b.Position = UDim2.new(0, 10, 0, 0)
+    b.BackgroundColor3 = Theme.Primary
+    b.TextColor3 = Theme.Text
+    b.BorderSizePixel = 0
+    b.Font = Enum.Font.SourceSansBold
+    b.TextSize = 18
+    b.Text = text
+    b.Parent = parent
 
--- Função para criar as abas
-local function criarAba(nome, conteudo)
-    local botaoAba = Instance.new("TextButton")
-    botaoAba.Name = nome .. "AbaBotao"
-    botaoAba.Size = UDim2.new(0.33, 0, 1, 0) -- Dividir o espaço igualmente
-    botaoAba.Position = UDim2.new((table.getn(AbasFrame:GetChildren()) - 1) * 0.33, 0, 0, 0)
-    botaoAba.BackgroundColor3 = corPrimaria
-    botaoAba.TextColor3 = corTexto
-    botaoAba.Text = nome
-    botaoAba.Font = Enum.Font.SourceSansBold
-    botaoAba.TextSize = 14
-    botaoAba.BorderSizePixel = 0
-    botaoAba.Parent = AbasFrame
-
-    local frameConteudo = Instance.new("Frame")
-    frameConteudo.Name = nome .. "AbaConteudo"
-    frameConteudo.Size = UDim2.new(1, 0, 1, 0)
-    frameConteudo.Position = UDim2.new(0, 0, 0, 0)
-    frameConteudo.BackgroundColor3 = corPrimaria
-    frameConteudo.BorderSizePixel = 0
-    frameConteudo.Visible = false
-    frameConteudo.Parent = ConteudoAbas
-
-    botaoAba.MouseButton1Click:Connect(function()
-        for _, aba in pairs(ConteudoAbas:GetChildren()) do
-            aba.Visible = false
-        end
-        frameConteudo.Visible = true
+    b.MouseButton1Click:Connect(function()
+        callback()
     end)
 
-    -- Se for a primeira aba, mostrar ela
-    if table.getn(AbasFrame:GetChildren()) == 1 then
-        frameConteudo.Visible = true
-    end
-
-    return frameConteudo
+    return b
 end
 
--- Criar as abas
-local abaGeral = criarAba("Geral", {})
-local abaPlantas = criarAba("Plantas", {})
-local abaAtaque = criarAba("Ataque", {})
+------------------------
+-- FUNÇÃO PARA CRIAR SLIDER
 
--- Funções de exemplo (substitua pela lógica real do jogo)
-local function toggleAutoFarm(estado)
-    print("Auto Farm: " .. (estado and "Ativado" or "Desativado"))
+------------------------
+local function CreateSlider(parent, text, min, max, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -20, 0, 60)
+    frame.Position = UDim2.new(0, 10, 0, 0)
+    frame.BackgroundColor3 = Theme.Primary
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0.4, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Theme.Text
+    label.Text = text
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 16
+    label.Parent = frame
+
+    local slider = Instance.new("TextButton")
+    slider.Size = UDim2.new(1, -20, 0, 20)
+    slider.Position = UDim2.new(0, 10, 0.5, 0)
+    slider.BackgroundColor3 = Theme.Secondary
+    slider.Text = " "
+    slider.BorderSizePixel = 0
+    slider.Parent = frame
+
+    local val = math.floor((min + max) / 2)
+    callback(val)
+
+    slider.MouseButton1Click:Connect(function()
+        val = val + 1
+        if val > max then val = min end
+        callback(val)
+    end)
+
+    return frame
 end
 
-local function setPlantingSpeed(valor)
-    print("Velocidade de plantio: " .. valor)
-end
+------------------------
+-- JANELA PRINCIPAL
 
--- Opções da aba Geral
-local ativarAutoFarm = Instance.new("CheckBox")
-ativarAutoFarm.Name = "AtivarAutoFarm"
-ativarAutoFarm.Size = UDim2.new(0, 20, 0, 20)
-ativarAutoFarm.Position = UDim2.new(0.1, 0, 0.1, 0)
-ativarAutoFarm.BackgroundColor3 = corPrimaria
-ativarAutoFarm.Parent = abaGeral
+------------------------
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 350, 0, 450)
+main.Position = UDim2.new(0.3, 0, 0.2, 0)
+main.BackgroundColor3 = Theme.Primary
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+main.Parent = gui
 
-local labelAtivarAutoFarm = Instance.new("TextLabel")
-labelAtivarAutoFarm.Name = "LabelAtivarAutoFarm"
-labelAtivarAutoFarm.Size = UDim2.new(0, 150, 0, 20)
-labelAtivarAutoFarm.Position = UDim2.new(0.2, 0, 0.1, 0)
-labelAtivarAutoFarm.BackgroundColor3 = corPrimaria
-labelAtivarAutoFarm.TextColor3 = corTexto
-labelAtivarAutoFarm.Text = "Ativar Auto Farm"
-labelAtivarAutoFarm.Font = Enum.Font.SourceSans
-labelAtivarAutoFarm.TextSize = 14
-labelAtivarAutoFarm.Parent = abaGeral
+-- Título
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundColor3 = Theme.Secondary
+title.TextColor3 = Theme.Text
+title.Text = "FROSTBR"
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.Parent = main
 
-ativarAutoFarm.Changed:Connect(function(novoValor)
-    toggleAutoFarm(novoValor)
+------------------------
+-- ABA SISTEMA
+
+------------------------
+local abaSistema = Instance.new("Frame")
+abaSistema.BackgroundTransparency = 1
+abaSistema.Size = UDim2.new(1, 0, 1, -40)
+abaSistema.Position = UDim2.new(0, 0, 0, 40)
+abaSistema.Parent = main
+
+local lblTeste = Instance.new("TextLabel")
+lblTeste.Size = UDim2.new(1, 0, 0, 30)
+lblTeste.BackgroundTransparency = 1
+lblTeste.TextColor3 = Theme.Text
+lblTeste.Font = Enum.Font.SourceSans
+lblTeste.TextSize = 16
+lblTeste.Text = "Interface Carregada"
+lblTeste.Parent = abaSistema
+
+---------------------------------
+-- BOTÃO: HABILITAR SISTEMA
+
+---------------------------------
+CreateButton(abaSistema, "Ativar Sistema", function()
+    print("Sistema ativado (placeholder)")
 end)
 
--- Opções de exemplo na aba Plantas
-local labelVelocidadePlantio = Instance.new("TextLabel")
-labelVelocidadePlantio.Name = "LabelVelocidadePlantio"
-labelVelocidadePlantio.Size = UDim2.new(0, 150, 0, 20)
-labelVelocidadePlantio.Position = UDim2.new(0.1, 0, 0.1, 0)
-labelVelocidadePlantio.BackgroundColor3 = corPrimaria
-labelVelocidadePlantio.TextColor3 = corTexto
-labelVelocidadePlantio.Text = "Velocidade de Plantio:"
-labelVelocidadePlantio.Font = Enum.Font.SourceSans
-labelVelocidadePlantio.TextSize = 14
-labelVelocidadePlantio.Parent = abaPlantas
+---------------------------------
+-- SLIDER: VELOCIDADE
 
-local sliderVelocidadePlantio = Instance.new("Slider")
-sliderVelocidadePlantio.Name = "SliderVelocidadePlantio"
-sliderVelocidadePlantio.Size = UDim2.new(0, 150, 0, 20)
-sliderVelocidadePlantio.Position = UDim2.new(0.1, 0, 0.2, 0)
-sliderVelocidadePlantio.BackgroundColor3 = corPrimaria
-sliderVelocidadePlantio.Parent = abaPlantas
-sliderVelocidadePlantio.Min = 1
-sliderVelocidadePlantio.Max = 10
-sliderVelocidadePlantio.Value = 5
-
-sliderVelocidadePlantio.Changed:Connect(function(valor)
-    setPlantingSpeed(valor)
+---------------------------------
+CreateSlider(abaSistema, "Velocidade de Plantaçao", 1, 10, function(valor)
+    print("Velocidade = ", valor)
 end)
 
--- Animação ao abrir
-MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Inicia com tamanho zero
+-------------------------------
+-- SISTEMA DE EVENTOS (CLIENT)
 
-local tweenInfo = TweenInfo.new(
-    0.5, -- Duração
-    Enum.EasingStyle.Back, -- Estilo de animação (Back para efeito de "esticar")
-    Enum.EasingDirection.Out, -- Direção
-    0, -- Repetições
-    false, -- Reverter?
-    0 -- Delay
-)
+-------------------------------
+local FrostAPI = {}
 
-local tamanhoFinal = UDim2.new(0, 300, 0, 400)
-local tween = TweenService:Create(MainFrame, tweenInfo, {Size = tamanhoFinal})
-tween:Play()
+function FrostAPI.Notificar(texto)
+    print("[FrostBR] Notificação:", texto)
+end
 
-print("GUI FrostBR Carregada!")
+function FrostAPI.ColherPlanta(id)
+    print("Colher planta (placeholder):", id)
+end
+
+function FrostAPI.Plantar(id)
+    print("Plantar (placeholder):", id)
+end
+
+function FrostAPI.Atacar(zumbiID)
+    print("Atacar (placeholder):", zumbiID)
+end
+
+_G.FrostBR = FrostAPI
+print("FrostBR Framework carregado.")
