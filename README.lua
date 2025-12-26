@@ -1,5 +1,9 @@
 --[[
-    
+    EXEMPLO GENÉRICO DE SCRIPT DE AUTO FARM (APENAS PARA FINS EDUCACIONAIS)
+    COM MENU MAIS COMPLETO E PROFISSIONAL
+
+    ATENÇÃO: Este script é apenas um exemplo e pode não funcionar diretamente em nenhum jogo.
+    Use por sua conta e risco.
 ]]
 
 -- Serviços do Roblox
@@ -14,41 +18,25 @@ local LocalPlayer = Players.LocalPlayer
 -- Variáveis de controle
 local rodando = false
 local intervaloDeAcao = 2 -- Segundos entre cada ação
-local guiArrastavel = false
-local guiPosicaoInicial = nil
 
--- Função para simular clique em um botão (substitua pela lógica real do jogo)
+-- Funções (substitua pela lógica real do jogo)
 local function simularClique(botao)
-    --firetouchinput(botao.Position.X.Offset, botao.Position.Y.Offset, 1280, 720)
-    -- Não consigo simular o clique diretamente, mas você pode adaptar essa função
-    -- para interagir com elementos do jogo de alguma outra forma.
     print("Simulando clique em: " .. botao.Name)
 end
 
--- Função para encontrar um local para plantar (substitua pela lógica real do jogo)
 local function encontrarLocalParaPlantar()
-    -- Lógica para encontrar um local válido no jogo
-    -- Retorne um Vector3 com a posição
     return Vector3.new(0, 0, 0) -- Posição de exemplo
 end
 
--- Função para plantar (substitua pela lógica real do jogo)
 local function plantar(posicao)
-    -- Use RemoteEvents ou funções do jogo para plantar
     print("Plantando em: " .. posicao)
-    -- Exemplo: ReplicatedStorage.Plantar:FireServer(posicao)
 end
 
 -- Função principal do auto farm
 local function autoFarm()
     while rodando do
-        -- Encontrar um local para plantar
         local posicao = encontrarLocalParaPlantar()
-
-        -- Plantar na posição encontrada
         plantar(posicao)
-
-        -- Esperar um intervalo antes da próxima ação
         wait(intervaloDeAcao)
     end
 end
@@ -57,25 +45,116 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AutoFarmGUI"
 ScreenGui.Parent = LocalPlayer.PlayerGui
-ScreenGui.ResetOnSpawn = false -- Manter a GUI após o respawn
+ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 0.3, 0, 0.4) -- Tamanho maior (30% da tela na largura, 40% na altura)
-MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0) -- Centralizado (35% da largura, 30% da altura)
-MainFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 0.4, 0, 0.5) -- Maior
+MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0) -- Centralizado
+MainFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15) -- Cor mais escura
 MainFrame.BorderSizePixel = 0
-MainFrame.Active = true -- Necessário para tornar a GUI arrastável
+MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
-local AutoFarmButton = Instance.new("TextButton")
-AutoFarmButton.Name = "AutoFarmButton"
-AutoFarmButton.Size = UDim2.new(0, 150, 0, 30)
-AutoFarmButton.Position = UDim2.new(0.25, 0, 0.1, 0)
-AutoFarmButton.Text = "Iniciar Auto Farm"
-AutoFarmButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-AutoFarmButton.Parent = MainFrame
+-- Título
+local Titulo = Instance.new("TextLabel")
+Titulo.Name = "Titulo"
+Titulo.Size = UDim2.new(1, 0, 0, 30)
+Titulo.Position = UDim2.new(0, 0, 0, 0)
+Titulo.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+Titulo.TextColor3 = Color3.new(1, 1, 1)
+Titulo.Text = "Auto Farm Script"
+Titulo.Font = Enum.Font.SourceSansBold
+Titulo.TextSize = 16
+Titulo.Parent = MainFrame
+
+-- Abas (Frame para conter os botões das abas)
+local AbasFrame = Instance.new("Frame")
+AbasFrame.Name = "AbasFrame"
+AbasFrame.Size = UDim2.new(0, 100, 0, 30)
+AbasFrame.Position = UDim2.new(0, 0, 0, 30)
+AbasFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+AbasFrame.BorderSizePixel = 0
+AbasFrame.Parent = MainFrame
+
+-- Conteúdo das Abas (Frame para conter o conteúdo de cada aba)
+local ConteudoAbas = Instance.new("Frame")
+ConteudoAbas.Name = "ConteudoAbas"
+ConteudoAbas.Size = UDim2.new(1, 0, 0.8, 0)
+ConteudoAbas.Position = UDim2.new(0, 0, 0, 60)
+ConteudoAbas.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+ConteudoAbas.BorderSizePixel = 0
+ConteudoAbas.Parent = MainFrame
+
+--Função para criar as abas
+local function criarAba(nome, conteudo)
+    local botaoAba = Instance.new("TextButton")
+    botaoAba.Name = nome .. "AbaBotao"
+    botaoAba.Size = UDim2.new(0, 100, 1, 0)
+    botaoAba.Position = UDim2.new(0, (table.getn(AbasFrame:GetChildren()) -1) * 100, 0, 0)
+    botaoAba.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    botaoAba.TextColor3 = Color3.new(1, 1, 1)
+    botaoAba.Text = nome
+    botaoAba.Font = Enum.Font.SourceSansBold
+    botaoAba.TextSize = 14
+    botaoAba.BorderSizePixel = 0
+    botaoAba.Parent = AbasFrame
+
+    local frameConteudo = Instance.new("Frame")
+    frameConteudo.Name = nome .. "AbaConteudo"
+    frameConteudo.Size = UDim2.new(1, 0, 1, 0)
+    frameConteudo.Position = UDim2.new(0, 0, 0, 0)
+    frameConteudo.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    frameConteudo.BorderSizePixel = 0
+    frameConteudo.Visible = false
+    frameConteudo.Parent = ConteudoAbas
+
+    botaoAba.MouseButton1Click:Connect(function()
+        for _, aba in pairs(ConteudoAbas:GetChildren()) do
+            aba.Visible = false
+        end
+        frameConteudo.Visible = true
+    end)
+
+    --Se for a primeira aba, mostrar ela
+    if table.getn(AbasFrame:GetChildren()) == 1 then
+        frameConteudo.Visible = true
+    end
+
+    return frameConteudo
+end
+
+-- Criar as abas
+local abaGeral = criarAba("Geral", {})
+local abaPlantas = criarAba("Plantas", {})
+local abaAtaque = criarAba("Ataque", {})
+
+-- Opções da aba Geral
+local ativarAutoFarm = Instance.new("CheckBox")
+ativarAutoFarm.Name = "AtivarAutoFarm"
+ativarAutoFarm.Size = UDim2.new(0, 20, 0, 20)
+ativarAutoFarm.Position = UDim2.new(0.1, 0, 0.1, 0)
+ativarAutoFarm.Parent = abaGeral
+
+local labelAtivarAutoFarm = Instance.new("TextLabel")
+labelAtivarAutoFarm.Name = "LabelAtivarAutoFarm"
+labelAtivarAutoFarm.Size = UDim2.new(0, 150, 0, 20)
+labelAtivarAutoFarm.Position = UDim2.new(0.2, 0, 0.1, 0)
+labelAtivarAutoFarm.BackgroundColor3 = Color3.new(1, 1, 1)
+labelAtivarAutoFarm.BackgroundTransparency = 1
+labelAtivarAutoFarm.TextColor3 = Color3.new(1, 1, 1)
+labelAtivarAutoFarm.Text = "Ativar Auto Farm"
+labelAtivarAutoFarm.Font = Enum.Font.SourceSans
+labelAtivarAutoFarm.TextSize = 14
+labelAtivarAutoFarm.Parent = abaGeral
+
+ativarAutoFarm.Changed:Connect(function(novoValor)
+    rodando = novoValor
+    if rodando then
+        task.spawn(autoFarm)
+    end
+end)
 
 --Animação ao abrir
 MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Inicia com tamanho zero
@@ -89,21 +168,8 @@ local tweenInfo = TweenInfo.new(
     0 -- Delay
 )
 
-local tamanhoFinal = UDim2.new(0, 0.3, 0, 0.4)
+local tamanhoFinal = UDim2.new(0, 0.4, 0, 0.5)
 local tween = TweenService:Create(MainFrame, tweenInfo, {Size = tamanhoFinal})
 tween:Play()
-
--- Ação do botão
-AutoFarmButton.MouseButton1Click:Connect(function()
-    rodando = not rodando
-    if rodando then
-        AutoFarmButton.Text = "Parar Auto Farm"
-        -- Iniciar a função de auto farm em uma nova thread
-        task.spawn(autoFarm)
-    else
-        AutoFarmButton.Text = "Iniciar Auto Farm"
-        print("Auto Farm Parado!")
-    end
-end)
 
 print("Script de Auto Farm (Exemplo) Carregado!")
