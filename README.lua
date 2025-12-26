@@ -44,6 +44,9 @@ TextBox.MultiLine = true
 TextBox.Parent = Frame
 TextBox.ReadOnly = true -- Impede a edição direta
 
+-- Variável para verificar se o script foi atualizado
+local scriptVersion = "Versão 2.0"
+
 local function CopyToClipboard(text)
     GuiService:SetClipboard(text)
     print("Copiado para a área de transferência: " .. text)
@@ -101,7 +104,7 @@ local function UpdateList()
     end
     TextBox.Text = table.concat(allPaths, "\n")
 
-    -- Lógica do botão "Copiar Todos" (agora obsoleto)
+    -- Lógica do botão "Copiar Todos"
     CopyAllButton.MouseButton1Click:Connect(function()
         CopyToClipboard(TextBox.Text)
     end)
@@ -123,3 +126,6 @@ end)
 
 -- Inicializar a lista
 UpdateList()
+
+-- Imprimir a versão do script no console
+print("Script de RemoteEventsList " .. scriptVersion .. " carregado com sucesso!")
