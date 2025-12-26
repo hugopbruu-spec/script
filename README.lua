@@ -10,26 +10,39 @@ ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 300, 0, 400)
+Frame.Size = UDim2.new(0, 600, 0, 400) -- Aumentei a largura
 Frame.Position = UDim2.new(0.35, 0, 0.3, 0)
 Frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 Frame.BorderSizePixel = 0
 Frame.Parent = ScreenGui
 
 local ScrollingFrame = Instance.new("ScrollingFrame")
-ScrollingFrame.Size = UDim2.new(1, 0, 0.75, 0)
+ScrollingFrame.Size = UDim2.new(0.45, 0, 0.75, 0) -- Reduzi a largura
 ScrollingFrame.Position = UDim2.new(0, 0, 0.1, 0)
 ScrollingFrame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 ScrollingFrame.BorderSizePixel = 0
 ScrollingFrame.Parent = Frame
 
 local CopyAllButton = Instance.new("TextButton")
-CopyAllButton.Size = UDim2.new(1, -10, 0, 30)
+CopyAllButton.Size = UDim2.new(0.45, -10, 0, 30)
 CopyAllButton.Position = UDim2.new(0, 5, 0, 350)
 CopyAllButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
 CopyAllButton.TextColor3 = Color3.new(1, 1, 1)
 CopyAllButton.Text = "Copiar Todos"
 CopyAllButton.Parent = Frame
+
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(0.45, 0, 0.75, 0) -- Mesma altura do ScrollingFrame
+TextBox.Position = UDim2.new(0.5, 0, 0.1, 0) -- Alinhado à direita
+TextBox.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+TextBox.BorderSizePixel = 0
+TextBox.Text = ""
+TextBox.Font = Enum.Font.SourceSans
+TextBox.TextXAlignment = Enum.TextXAlignment.Left
+TextBox.TextYAlignment = Enum.TextYAlignment.Top
+TextBox.MultiLine = true
+TextBox.Parent = Frame
+TextBox.ReadOnly = true -- Impede a edição direta
 
 local function CopyToClipboard(text)
     GuiService:SetClipboard(text)
@@ -81,14 +94,16 @@ local function UpdateList()
     -- Ajustar o tamanho do ScrollingFrame
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #allRemoteEvents * 35)
 
-    -- Lógica do botão "Copiar Todos" (agora dentro do UpdateList)
+    -- Atualizar TextBox com todos os caminhos
+    local allPaths = {}
+    for _, remoteEvent in ipairs(allRemoteEvents) do
+        table.insert(allPaths, remoteEvent:GetFullName())
+    end
+    TextBox.Text = table.concat(allPaths, "\n")
+
+    -- Lógica do botão "Copiar Todos" (agora obsoleto)
     CopyAllButton.MouseButton1Click:Connect(function()
-        local allPaths = {}
-        for _, remoteEvent in ipairs(allRemoteEvents) do -- Usar allRemoteEvents aqui
-            table.insert(allPaths, remoteEvent:GetFullName())
-        end
-        local combinedText = table.concat(allPaths, "\n") -- Separa com quebras de linha
-        CopyToClipboard(combinedText)
+        CopyToClipboard(TextBox.Text)
     end)
 end
 
