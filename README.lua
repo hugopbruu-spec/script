@@ -28,40 +28,65 @@ local function CopyToClipboard(text)
     print("Copiado para a área de transferência: " .. text)
 end
 
-local function ListRemoteEvents()
-    local allRemoteEvents = {}
+local function CreateButton(remoteEvent, index)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -10, 0, 30)
+    button.Position = UDim2.new(0, 5, 0, index * 35 + 5)
+    button.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Text = remoteEvent:GetFullName()
+    button.Parent = ScrollingFrame
 
-    -- Função recursiva para procurar RemoteEvents em todos os objetos
+    button.MouseButton1Click:Connect(function()
+        CopyToClipboard(remoteEvent:GetFullName())
+    end)
+
+    return button
+end
+
+local remoteEventButtons = {}
+
+local function UpdateList()
+    -- Destruir todos os botões existentes
+    for _, button in ipairs(remoteEventButtons) do
+        button:Destroy()
+    end
+    remoteEventButtons = {}
+
+    -- Encontrar todos os RemoteEvents no jogo
+    local allRemoteEvents = {}
     local function FindRemoteEvents(obj)
-        for _, child in ipairs(obj:GetChildren()) do
+        for _, child in ipairs(obj:GetDescendants()) do
             if child:IsA("RemoteEvent") then
                 table.insert(allRemoteEvents, child)
-            elseif child:GetChildrenCount() > 0 then
-                FindRemoteEvents(child)
             end
         end
     end
-
-    -- Iniciar a busca a partir do game
     FindRemoteEvents(game)
 
-    -- Criar botões para cada RemoteEvent encontrado
+    -- Criar botões para cada RemoteEvent
     for i, remoteEvent in ipairs(allRemoteEvents) do
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, -10, 0, 30)
-        button.Position = UDim2.new(0, 5, 0, (i - 1) * 35 + 5)
-        button.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-        button.TextColor3 = Color3.new(1, 1, 1)
-        button.Text = remoteEvent:GetFullName()
-        button.Parent = ScrollingFrame
-
-        button.MouseButton1Click:Connect(function()
-            CopyToClipboard(remoteEvent:GetFullName())
-        end)
+        local button = CreateButton(remoteEvent, i - 1)
+        table.insert(remoteEventButtons, button)
     end
 
     -- Ajustar o tamanho do ScrollingFrame
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #allRemoteEvents * 35)
 end
 
-ListRemoteEvents()
+-- Detectar RemoteEvents adicionados dinamicamente
+game.DescendantAdded:Connect(function(descendant)
+    if descendant:IsA("RemoteEvent") then
+        UpdateList()
+    end
+end)
+
+-- Detectar RemoteEvents removidos
+game.DescendantRemoving:Connect(function(descendant)
+    if descendant:IsA("RemoteEvent") then
+        UpdateList()
+    end
+end)
+
+-- Inicializar a lista
+UpdateList()
