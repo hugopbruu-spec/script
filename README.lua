@@ -80,6 +80,16 @@ local function UpdateList()
 
     -- Ajustar o tamanho do ScrollingFrame
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #allRemoteEvents * 35)
+
+    -- Lógica do botão "Copiar Todos" (agora dentro do UpdateList)
+    CopyAllButton.MouseButton1Click:Connect(function()
+        local allPaths = {}
+        for _, remoteEvent in ipairs(allRemoteEvents) do -- Usar allRemoteEvents aqui
+            table.insert(allPaths, remoteEvent:GetFullName())
+        end
+        local combinedText = table.concat(allPaths, "\n") -- Separa com quebras de linha
+        CopyToClipboard(combinedText)
+    end)
 end
 
 -- Detectar RemoteEvents adicionados dinamicamente
@@ -98,13 +108,3 @@ end)
 
 -- Inicializar a lista
 UpdateList()
-
--- Lógica do botão "Copiar Todos"
-CopyAllButton.MouseButton1Click:Connect(function()
-    local allPaths = {}
-    for _, button in ipairs(remoteEventButtons) do
-        table.insert(allPaths, button.Text)
-    end
-    local combinedText = table.concat(allPaths, "\n") -- Separa com quebras de linha
-    CopyToClipboard(combinedText)
-end)
