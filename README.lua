@@ -1,176 +1,185 @@
--- FROSTBR CLIENT FRAMEWORK
--- Interface + Gerenciador + Sistema de Eventos
--- Seguro para o Roblox e totalmente personalizável
-
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-------------------------
--- CORES DO TEMA
+-----------------------------------------------------
+-- CONFIGURAÇÕES
 
-------------------------
-local Theme = {
-    Primary = Color3.fromRGB(25, 20, 35),
-    Secondary = Color3.fromRGB(140, 40, 255),
-    Text = Color3.fromRGB(255, 255, 255)
+-----------------------------------------------------
+
+local Config = {
+    Intervalo = 2, 
+    CorAtivo = Color3.fromRGB(50, 200, 50),
+    CorDesativo = Color3.fromRGB(200, 50, 50),
+    CorBG = Color3.fromRGB(40, 40, 40),
+    CorBotoes = Color3.fromRGB(70, 70, 70),
+    Fonte = Enum.Font.GothamBold
 }
 
-------------------------
--- SCREEN GUI
+-----------------------------------------------------
+-- VARIÁVEIS DE CONTROLE
 
-------------------------
-local gui = Instance.new("ScreenGui")
-gui.Name = "FrostBR"
-gui.ResetOnSpawn = false
-gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+-----------------------------------------------------
 
-------------------------
--- FUNÇÃO PARA CRIAR BOTÕES
+local Rodando = false
 
-------------------------
-local function CreateButton(parent, text, callback)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1, -20, 0, 40)
-    b.Position = UDim2.new(0, 10, 0, 0)
-    b.BackgroundColor3 = Theme.Primary
-    b.TextColor3 = Theme.Text
-    b.BorderSizePixel = 0
-    b.Font = Enum.Font.SourceSansBold
-    b.TextSize = 18
-    b.Text = text
-    b.Parent = parent
+-----------------------------------------------------
+-- FUNÇÕES UTILITÁRIAS
 
-    b.MouseButton1Click:Connect(function()
-        callback()
-    end)
+-----------------------------------------------------
 
-    return b
+local Utils = {}
+
+function Utils:Log(txt)
+    print("[AutoFarm] " .. txt)
 end
 
-------------------------
--- FUNÇÃO PARA CRIAR SLIDER
-
-------------------------
-local function CreateSlider(parent, text, min, max, callback)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -20, 0, 60)
-    frame.Position = UDim2.new(0, 10, 0, 0)
-    frame.BackgroundColor3 = Theme.Primary
-    frame.BorderSizePixel = 0
-    frame.Parent = parent
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0.4, 0)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Theme.Text
-    label.Text = text
-    label.Font = Enum.Font.SourceSansBold
-    label.TextSize = 16
-    label.Parent = frame
-
-    local slider = Instance.new("TextButton")
-    slider.Size = UDim2.new(1, -20, 0, 20)
-    slider.Position = UDim2.new(0, 10, 0.5, 0)
-    slider.BackgroundColor3 = Theme.Secondary
-    slider.Text = " "
-    slider.BorderSizePixel = 0
-    slider.Parent = frame
-
-    local val = math.floor((min + max) / 2)
-    callback(val)
-
-    slider.MouseButton1Click:Connect(function()
-        val = val + 1
-        if val > max then val = min end
-        callback(val)
-    end)
-
-    return frame
+function Utils:Tweener(obj, dur, props, easing)
+    local info = TweenInfo.new(
+        dur,
+        easing or Enum.EasingStyle.Quad,
+        Enum.EasingDirection.Out
+    )
+    local tween = TweenService:Create(obj, info, props)
+    tween:Play()
+    return tween
 end
 
-------------------------
--- JANELA PRINCIPAL
+-----------------------------------------------------
+-- FUNÇÕES DO AUTO FARM
 
-------------------------
-local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 350, 0, 450)
-main.Position = UDim2.new(0.3, 0, 0.2, 0)
-main.BackgroundColor3 = Theme.Primary
-main.BorderSizePixel = 0
-main.Active = true
-main.Draggable = true
-main.Parent = gui
+-----------------------------------------------------
 
--- Título
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundColor3 = Theme.Secondary
-title.TextColor3 = Theme.Text
-title.Text = "FROSTBR"
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 20
-title.Parent = main
+local Farm = {}
 
-------------------------
--- ABA SISTEMA
+function Farm:EncontrarLocal()
+    -- Substituir pela lógica real do jogo
+    return Vector3.new(math.random(-10,10), 0, math.random(-10,10))
+end
 
-------------------------
-local abaSistema = Instance.new("Frame")
-abaSistema.BackgroundTransparency = 1
-abaSistema.Size = UDim2.new(1, 0, 1, -40)
-abaSistema.Position = UDim2.new(0, 0, 0, 40)
-abaSistema.Parent = main
+function Farm:Plantar(pos)
+    Utils:Log("Plantando em: " .. tostring(pos))
 
-local lblTeste = Instance.new("TextLabel")
-lblTeste.Size = UDim2.new(1, 0, 0, 30)
-lblTeste.BackgroundTransparency = 1
-lblTeste.TextColor3 = Theme.Text
-lblTeste.Font = Enum.Font.SourceSans
-lblTeste.TextSize = 16
-lblTeste.Text = "Interface Carregada"
-lblTeste.Parent = abaSistema
+    -- Exemplo:
+    -- ReplicatedStorage.Plantar:FireServer(pos)
+end
 
----------------------------------
--- BOTÃO: HABILITAR SISTEMA
+function Farm:Loop()
+    while Rodando do
+        local pos = Farm:EncontrarLocal()
+        Farm:Plantar(pos)
+        task.wait(Config.Intervalo)
+    end
+    Utils:Log("Loop finalizado")
+end
 
----------------------------------
-CreateButton(abaSistema, "Ativar Sistema", function()
-    print("Sistema ativado (placeholder)")
+-----------------------------------------------------
+-- GUI
+
+-----------------------------------------------------
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AutoFarmUI"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.fromOffset(0,0)
+Frame.Position = UDim2.new(0.35, 0, 0.3, 0)
+Frame.BackgroundColor3 = Config.CorBG
+Frame.BorderSizePixel = 0
+
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 10)
+
+-----------------------------------------------------
+-- SISTEMA DE ARRASTAR
+
+-----------------------------------------------------
+
+local dragging = false
+local dragStart, startPos
+
+Frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
----------------------------------
--- SLIDER: VELOCIDADE
-
----------------------------------
-CreateSlider(abaSistema, "Velocidade de Plantaçao", 1, 10, function(valor)
-    print("Velocidade = ", valor)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        Frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
 end)
 
--------------------------------
--- SISTEMA DE EVENTOS (CLIENT)
+-----------------------------------------------------
+-- BOTÃO PRINCIPAL
 
--------------------------------
-local FrostAPI = {}
+-----------------------------------------------------
 
-function FrostAPI.Notificar(texto)
-    print("[FrostBR] Notificação:", texto)
-end
+local Btn = Instance.new("TextButton")
+Btn.Parent = Frame
+Btn.Size = UDim2.new(1, -20, 0, 40)
+Btn.Position = UDim2.new(0, 10, 0, 10)
+Btn.BackgroundColor3 = Config.CorDesativo
+Btn.Text = "Iniciar AutoFarm"
+Btn.TextScaled = true
+Btn.Font = Config.Fonte
+Btn.TextColor3 = Color3.new(1,1,1)
 
-function FrostAPI.ColherPlanta(id)
-    print("Colher planta (placeholder):", id)
-end
+local UICorner2 = Instance.new("UICorner", Btn)
 
-function FrostAPI.Plantar(id)
-    print("Plantar (placeholder):", id)
-end
+-----------------------------------------------------
+-- ANIMAÇÃO DE ABERTURA
 
-function FrostAPI.Atacar(zumbiID)
-    print("Atacar (placeholder):", zumbiID)
-end
+-----------------------------------------------------
 
-_G.FrostBR = FrostAPI
-print("FrostBR Framework carregado.")
+task.wait(0.15)
+
+Utils:Tweener(Frame, 0.5, {
+    Size = UDim2.new(0, 260, 0, 150)
+}, Enum.EasingStyle.Back)
+
+-----------------------------------------------------
+-- LÓGICA DO BOTÃO
+
+-----------------------------------------------------
+
+Btn.MouseButton1Click:Connect(function()
+    Rodando = not Rodando
+
+    if Rodando then
+        Btn.Text = "Parar AutoFarm"
+        Btn.BackgroundColor3 = Config.CorAtivo
+        Utils:Log("AutoFarm iniciado")
+
+        task.spawn(function()
+            Farm:Loop()
+        end)
+    else
+        Btn.Text = "Iniciar AutoFarm"
+        Btn.BackgroundColor3 = Config.CorDesativo
+        Utils:Log("AutoFarm parado")
+    end
+end)
+
+Utils:Log("Interface carregada com sucesso!")
