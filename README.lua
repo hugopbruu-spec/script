@@ -1,7 +1,9 @@
 -----------------------------------------------------
--- SERVICES
+-- ❄️ FrostBR | Plants vs Brainrots
+-- UI Profissional | Preto & Roxo | Arrastável
 -----------------------------------------------------
 
+-- SERVICES
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -18,17 +20,16 @@ local Config = {
     Interval = 1.2,
 
     Theme = {
-        Background = Color3.fromRGB(15, 15, 20),
-        Accent = Color3.fromRGB(160, 70, 255),
-        Button = Color3.fromRGB(30, 30, 40),
-        ButtonOn = Color3.fromRGB(120, 60, 200),
-        Text = Color3.fromRGB(255, 255, 255)
+        BG = Color3.fromRGB(12, 12, 18),
+        Panel = Color3.fromRGB(20, 20, 30),
+        Button = Color3.fromRGB(35, 35, 50),
+        ButtonOn = Color3.fromRGB(140, 70, 255),
+        Accent = Color3.fromRGB(170, 80, 255),
+        Text = Color3.fromRGB(255,255,255),
+        SubText = Color3.fromRGB(180,180,180)
     },
 
     Font = Enum.Font.GothamBold,
-
-    WindowSize = Vector2.new(420, 520),
-
     PlantName = "Peashooter"
 }
 
@@ -47,75 +48,59 @@ local State = {
 -- UTILS
 -----------------------------------------------------
 
-local Utils = {}
-
-function Utils:Tween(obj, t, props)
+local function Tween(obj, time, props)
     TweenService:Create(
         obj,
-        TweenInfo.new(t, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+        TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
         props
     ):Play()
 end
 
-function Utils:Log(msg)
-    print("[PVB AUTO] " .. msg)
+local function Log(msg)
+    print("[FrostBR] "..msg)
 end
 
 -----------------------------------------------------
--- GAME FUNCTIONS
+-- GAME LOGIC (ADAPTÁVEL)
 -----------------------------------------------------
 
 local Game = {}
 
--- 🔹 Busca tiles livres
 function Game:GetFreeTile()
     local tiles = workspace:FindFirstChild("Tiles")
-    if not tiles then return nil end
+    if not tiles then return end
 
     for _, tile in ipairs(tiles:GetChildren()) do
-        if tile:FindFirstChild("Occupied")
-        and tile.Occupied.Value == false then
+        if tile:FindFirstChild("Occupied") and tile.Occupied.Value == false then
             return tile
         end
     end
 end
 
--- 🔹 Plantar
 function Game:Plant(tile)
     if not tile then return end
-
-    -- 🔴 REMOTE REAL AQUI
+    -- 🔴 COLOQUE O REMOTE REAL AQUI
     -- ReplicatedStorage.Remotes.Plant:FireServer(tile, Config.PlantName)
-
-    Utils:Log("Plantado em "..tile.Name)
+    Log("Plantando em "..tile.Name)
 end
 
--- 🔹 Comprar planta
-function Game:BuyPlant()
-    -- 🔴 REMOTE REAL AQUI
-    -- ReplicatedStorage.Remotes.BuyPlant:FireServer(Config.PlantName)
-
-    Utils:Log("Comprando planta "..Config.PlantName)
+function Game:Buy()
+    -- 🔴 REMOTE REAL
+    Log("Comprando planta")
 end
 
--- 🔹 Coletar dinheiro
 function Game:Collect()
-    -- 🔴 REMOTE REAL AQUI
-    -- ReplicatedStorage.Remotes.Collect:FireServer()
-
-    Utils:Log("Coletando dinheiro")
+    -- 🔴 REMOTE REAL
+    Log("Coletando dinheiro")
 end
 
--- 🔹 Resgatar recompensa
 function Game:Claim()
-    -- 🔴 REMOTE REAL AQUI
-    -- ReplicatedStorage.Remotes.Claim:FireServer()
-
-    Utils:Log("Resgatando recompensa")
+    -- 🔴 REMOTE REAL
+    Log("Resgatando recompensa")
 end
 
 -----------------------------------------------------
--- MAIN LOOP (SEGURADO)
+-- MAIN LOOP (SEGURO)
 -----------------------------------------------------
 
 task.spawn(function()
@@ -124,7 +109,7 @@ task.spawn(function()
             Game:Plant(Game:GetFreeTile())
         end
         if State.AutoBuy then
-            Game:BuyPlant()
+            Game:Buy()
         end
         if State.AutoCollect then
             Game:Collect()
@@ -136,19 +121,19 @@ task.spawn(function()
 end)
 
 -----------------------------------------------------
--- UI
+-- UI BASE
 -----------------------------------------------------
 
 local Gui = Instance.new("ScreenGui", PlayerGui)
-Gui.Name = "PVB_UI"
+Gui.Name = "FrostBR_UI"
 Gui.ResetOnSpawn = false
 
 local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.fromOffset(0, 0)
-Main.Position = UDim2.fromScale(0.32, 0.25)
-Main.BackgroundColor3 = Config.Theme.Background
+Main.Size = UDim2.fromOffset(0,0)
+Main.Position = UDim2.fromScale(0.32,0.25)
+Main.BackgroundColor3 = Config.Theme.BG
 Main.BorderSizePixel = 0
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 16)
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,18)
 
 -----------------------------------------------------
 -- DRAG SYSTEM
@@ -182,34 +167,75 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 -----------------------------------------------------
--- TITLE
+-- HEADER
 -----------------------------------------------------
 
-local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, -20, 0, 40)
-Title.Position = UDim2.new(0, 10, 0, 10)
-Title.Text = "🌱 Plants vs Brainrots AUTO"
+local Header = Instance.new("Frame", Main)
+Header.Size = UDim2.new(1,0,0,60)
+Header.BackgroundColor3 = Config.Theme.Panel
+Header.BorderSizePixel = 0
+Instance.new("UICorner", Header).CornerRadius = UDim.new(0,18)
+
+local Icon = Instance.new("Frame", Header)
+Icon.Size = UDim2.fromOffset(36,36)
+Icon.Position = UDim2.new(0,15,0.5,-18)
+Icon.BackgroundColor3 = Config.Theme.Accent
+Instance.new("UICorner", Icon).CornerRadius = UDim.new(1,0)
+
+local Title = Instance.new("TextLabel", Header)
+Title.Position = UDim2.new(0,65,0,10)
+Title.Size = UDim2.new(1,-70,0,25)
+Title.Text = "FrostBR"
 Title.Font = Config.Font
 Title.TextScaled = true
-Title.TextColor3 = Config.Theme.Accent
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextColor3 = Config.Theme.Text
 Title.BackgroundTransparency = 1
 
+local Sub = Instance.new("TextLabel", Header)
+Sub.Position = UDim2.new(0,65,0,32)
+Sub.Size = UDim2.new(1,-70,0,18)
+Sub.Text = "Plants vs Brainrots"
+Sub.Font = Enum.Font.Gotham
+Sub.TextScaled = true
+Sub.TextXAlignment = Enum.TextXAlignment.Left
+Sub.TextColor3 = Config.Theme.SubText
+Sub.BackgroundTransparency = 1
+
 -----------------------------------------------------
--- BUTTON CREATOR
+-- BUTTON CREATOR (PRO)
 -----------------------------------------------------
 
-local function CreateButton(text, y, callback)
+local function CreateToggle(text, y, stateKey)
     local btn = Instance.new("TextButton", Main)
-    btn.Size = UDim2.new(1, -40, 0, 45)
-    btn.Position = UDim2.new(0, 20, 0, y)
-    btn.Text = text
+    btn.Size = UDim2.new(1,-40,0,46)
+    btn.Position = UDim2.new(0,20,0,y)
+    btn.BackgroundColor3 = Config.Theme.Button
+    btn.Text = text.." : OFF"
     btn.Font = Config.Font
     btn.TextScaled = true
     btn.TextColor3 = Config.Theme.Text
-    btn.BackgroundColor3 = Config.Theme.Button
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,12)
 
-    btn.MouseButton1Click:Connect(callback)
+    btn.MouseEnter:Connect(function()
+        Tween(btn,0.15,{BackgroundColor3 = Config.Theme.ButtonOn})
+    end)
+
+    btn.MouseLeave:Connect(function()
+        if not State[stateKey] then
+            Tween(btn,0.15,{BackgroundColor3 = Config.Theme.Button})
+        end
+    end)
+
+    btn.MouseButton1Click:Connect(function()
+        State[stateKey] = not State[stateKey]
+        btn.Text = text.." : "..(State[stateKey] and "ON" or "OFF")
+        Tween(btn,0.2,{
+            BackgroundColor3 = State[stateKey] and Config.Theme.ButtonOn or Config.Theme.Button
+        })
+        Log(text.." = "..tostring(State[stateKey]))
+    end)
+
     return btn
 end
 
@@ -217,37 +243,15 @@ end
 -- BUTTONS
 -----------------------------------------------------
 
-local btnPlant = CreateButton("Auto Plant: OFF", 70, function()
-    State.AutoPlant = not State.AutoPlant
-    btnPlant.Text = "Auto Plant: "..(State.AutoPlant and "ON" or "OFF")
-    btnPlant.BackgroundColor3 = State.AutoPlant and Config.Theme.ButtonOn or Config.Theme.Button
-end)
-
-local btnBuy = CreateButton("Auto Buy Plant: OFF", 130, function()
-    State.AutoBuy = not State.AutoBuy
-    btnBuy.Text = "Auto Buy Plant: "..(State.AutoBuy and "ON" or "OFF")
-    btnBuy.BackgroundColor3 = State.AutoBuy and Config.Theme.ButtonOn or Config.Theme.Button
-end)
-
-local btnCollect = CreateButton("Auto Collect: OFF", 190, function()
-    State.AutoCollect = not State.AutoCollect
-    btnCollect.Text = "Auto Collect: "..(State.AutoCollect and "ON" or "OFF")
-    btnCollect.BackgroundColor3 = State.AutoCollect and Config.Theme.ButtonOn or Config.Theme.Button
-end)
-
-local btnClaim = CreateButton("Auto Claim: OFF", 250, function()
-    State.AutoClaim = not State.AutoClaim
-    btnClaim.Text = "Auto Claim: "..(State.AutoClaim and "ON" or "OFF")
-    btnClaim.BackgroundColor3 = State.AutoClaim and Config.Theme.ButtonOn or Config.Theme.Button
-end)
+CreateToggle("Auto Plant", 90, "AutoPlant")
+CreateToggle("Auto Buy Plant", 150, "AutoBuy")
+CreateToggle("Auto Collect", 210, "AutoCollect")
+CreateToggle("Auto Claim", 270, "AutoClaim")
 
 -----------------------------------------------------
 -- OPEN ANIMATION
 -----------------------------------------------------
 
 task.wait(0.1)
-Utils:Tween(Main, 0.6, {
-    Size = UDim2.fromOffset(Config.WindowSize.X, Config.WindowSize.Y)
-})
-
-Utils:Log("UI carregada com sucesso")
+Tween(Main,0.6,{Size = UDim2.fromOffset(460,560)})
+Log("FrostBR carregado com sucesso")
