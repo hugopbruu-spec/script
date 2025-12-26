@@ -17,11 +17,19 @@ Frame.BorderSizePixel = 0
 Frame.Parent = ScreenGui
 
 local ScrollingFrame = Instance.new("ScrollingFrame")
-ScrollingFrame.Size = UDim2.new(1, 0, 0.9, 0)
+ScrollingFrame.Size = UDim2.new(1, 0, 0.75, 0)
 ScrollingFrame.Position = UDim2.new(0, 0, 0.1, 0)
 ScrollingFrame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 ScrollingFrame.BorderSizePixel = 0
 ScrollingFrame.Parent = Frame
+
+local CopyAllButton = Instance.new("TextButton")
+CopyAllButton.Size = UDim2.new(1, -10, 0, 30)
+CopyAllButton.Position = UDim2.new(0, 5, 0, 350)
+CopyAllButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+CopyAllButton.TextColor3 = Color3.new(1, 1, 1)
+CopyAllButton.Text = "Copiar Todos"
+CopyAllButton.Parent = Frame
 
 local function CopyToClipboard(text)
     GuiService:SetClipboard(text)
@@ -90,3 +98,13 @@ end)
 
 -- Inicializar a lista
 UpdateList()
+
+-- Lógica do botão "Copiar Todos"
+CopyAllButton.MouseButton1Click:Connect(function()
+    local allPaths = {}
+    for _, button in ipairs(remoteEventButtons) do
+        table.insert(allPaths, button.Text)
+    end
+    local combinedText = table.concat(allPaths, "\n") -- Separa com quebras de linha
+    CopyToClipboard(combinedText)
+end)
