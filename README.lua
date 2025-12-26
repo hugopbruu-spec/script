@@ -10,14 +10,14 @@ ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 600, 0, 400) -- Aumentei a largura
+Frame.Size = UDim2.new(0, 600, 0, 400)
 Frame.Position = UDim2.new(0.35, 0, 0.3, 0)
 Frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 Frame.BorderSizePixel = 0
 Frame.Parent = ScreenGui
 
 local ScrollingFrame = Instance.new("ScrollingFrame")
-ScrollingFrame.Size = UDim2.new(0.45, 0, 0.75, 0) -- Reduzi a largura
+ScrollingFrame.Size = UDim2.new(0.45, 0, 0.75, 0)
 ScrollingFrame.Position = UDim2.new(0, 0, 0.1, 0)
 ScrollingFrame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 ScrollingFrame.BorderSizePixel = 0
@@ -32,8 +32,8 @@ CopyAllButton.Text = "Copiar Todos"
 CopyAllButton.Parent = Frame
 
 local TextBox = Instance.new("TextBox")
-TextBox.Size = UDim2.new(0.45, 0, 0.75, 0) -- Mesma altura do ScrollingFrame
-TextBox.Position = UDim2.new(0.5, 0, 0.1, 0) -- Alinhado à direita
+TextBox.Size = UDim2.new(0.45, 0, 0.75, 0)
+TextBox.Position = UDim2.new(0.5, 0, 0.1, 0)
 TextBox.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 TextBox.BorderSizePixel = 0
 TextBox.Text = ""
@@ -42,10 +42,9 @@ TextBox.TextXAlignment = Enum.TextXAlignment.Left
 TextBox.TextYAlignment = Enum.TextYAlignment.Top
 TextBox.MultiLine = true
 TextBox.Parent = Frame
-TextBox.ReadOnly = true -- Impede a edição direta
+TextBox.ReadOnly = true
 
--- Variável para verificar se o script foi atualizado
-local scriptVersion = "Versão 3.0"
+local scriptVersion = "Versão 4.0"
 
 local function CopyToClipboard(text)
     GuiService:SetClipboard(text)
@@ -70,12 +69,13 @@ end
 
 local remoteEventButtons = {}
 
--- Função para encontrar todos os objetos na memória
+-- Função para encontrar todos os objetos na memória (CORRIGIDA)
 local function GetAllObjects()
     local objects = {}
-    local garbageCollector = debug.getregistry() -- Obtém a tabela de registro do coletor de lixo
+    local garbageCollector = debug.getregistry()
 
     for i, v in pairs(garbageCollector) do
+        -- Verifique se o valor é uma instância e se ela é visível
         if typeof(v) == "Instance" then
             table.insert(objects, v)
         end
@@ -91,7 +91,7 @@ local function UpdateList()
     end
     remoteEventButtons = {}
 
-    -- Encontrar todos os RemoteEvents no jogo (incluindo os "escondidos")
+    -- Encontrar todos os RemoteEvents no jogo
     local allRemoteEvents = {}
     local allObjects = GetAllObjects()
 
