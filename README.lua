@@ -45,7 +45,7 @@ TextBox.Parent = Frame
 TextBox.ReadOnly = true -- Impede a edição direta
 
 -- Variável para verificar se o script foi atualizado
-local scriptVersion = "Versão 2.0"
+local scriptVersion = "Versão 3.0"
 
 local function CopyToClipboard(text)
     GuiService:SetClipboard(text)
@@ -70,6 +70,20 @@ end
 
 local remoteEventButtons = {}
 
+-- Função para encontrar todos os objetos na memória
+local function GetAllObjects()
+    local objects = {}
+    local garbageCollector = debug.getregistry() -- Obtém a tabela de registro do coletor de lixo
+
+    for i, v in pairs(garbageCollector) do
+        if typeof(v) == "Instance" then
+            table.insert(objects, v)
+        end
+    end
+
+    return objects
+end
+
 local function UpdateList()
     -- Destruir todos os botões existentes
     for _, button in ipairs(remoteEventButtons) do
@@ -77,16 +91,15 @@ local function UpdateList()
     end
     remoteEventButtons = {}
 
-    -- Encontrar todos os RemoteEvents no jogo
+    -- Encontrar todos os RemoteEvents no jogo (incluindo os "escondidos")
     local allRemoteEvents = {}
-    local function FindRemoteEvents(obj)
-        for _, child in ipairs(obj:GetDescendants()) do
-            if child:IsA("RemoteEvent") then
-                table.insert(allRemoteEvents, child)
-            end
+    local allObjects = GetAllObjects()
+
+    for _, obj in ipairs(allObjects) do
+        if obj:IsA("RemoteEvent") then
+            table.insert(allRemoteEvents, obj)
         end
     end
-    FindRemoteEvents(game)
 
     -- Criar botões para cada RemoteEvent
     for i, remoteEvent in ipairs(allRemoteEvents) do
