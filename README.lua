@@ -1,385 +1,199 @@
+-- SERVICES
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 -----------------------------------------------------
--- CONFIGURAÇÕES
-
+-- CONFIG
 -----------------------------------------------------
 
 local Config = {
-    Intervalo = 2,
-    CorAtivo = Color3.fromRGB(50, 200, 50),
-    CorDesativo = Color3.fromRGB(200, 50, 50),
-    CorBG = Color3.fromRGB(40, 40, 40),
-    CorBotoes = Color3.fromRGB(70, 70, 70),
-    Fonte = Enum.Font.GothamBold,
+    Interval = 1.5,
 
-    -- Seeds
-    AutoComprarSeedsAtivar = true,
-    NomeSeed = "Semente Mágica",
-    CustoSeed = 100,
+    Colors = {
+        On = Color3.fromRGB(60, 200, 60),
+        Off = Color3.fromRGB(200, 60, 60),
+        BG = Color3.fromRGB(35, 35, 35),
+        Button = Color3.fromRGB(70, 70, 70)
+    },
 
-    -- Gear
-    AutoComprarGearAtivar = true,
-    IdGear = 123456789,
+    Font = Enum.Font.GothamBold,
 
-    -- Venda
-    AutoSellAtivar = true,
-    ItemParaVender = "Trigo",
-    ValorItem = 5,
+    -- PLANTS VS BRAINROTS
+    PlantName = "Peashooter", -- nome da planta
+    AutoPlant = false,
+    AutoBuyPlant = false,
+    AutoCollect = false,
+    AutoClaim = false,
 
-    -- Auto Resgate
-    AutoResgateAtivar = true,
-    NomeBotaoResgate = "Resgatar Recompensa",
-
-    -- Interface
-    TamanhoJanelaX = 300,
-    TamanhoJanelaY = 450
+    WindowSize = Vector2.new(300, 420)
 }
 
 -----------------------------------------------------
--- VARIÁVEIS DE CONTROLE
-
------------------------------------------------------
-
-local Rodando = false
-local AutoComprarSeedsRodando = false
-local AutoComprarGearRodando = false
-local AutoSellRodando = false
-local AutoResgateRodando = false
-
------------------------------------------------------
--- FUNÇÕES UTILITÁRIAS
-
+-- UTILS
 -----------------------------------------------------
 
 local Utils = {}
 
-function Utils:Log(txt)
-    print("[AutoFarm] " .. txt)
-end
-
-function Utils:Tweener(obj, dur, props, easing)
-    local info = TweenInfo.new(
-        dur,
-        easing or Enum.EasingStyle.Quad,
-        Enum.EasingDirection.Out
+function Utils:Tween(obj, t, props)
+    local tw = TweenService:Create(
+        obj,
+        TweenInfo.new(t, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+        props
     )
-    local tween = TweenService:Create(obj, info, props)
-    tween:Play()
-    return tween
+    tw:Play()
+end
+
+function Utils:Log(msg)
+    print("[PVB Auto] " .. msg)
 end
 
 -----------------------------------------------------
--- FUNÇÕES DO AUTO FARM
-
+-- GAME LOGIC
 -----------------------------------------------------
 
-local Farm = {}
+local Game = {}
 
-function Farm:EncontrarLocal()
-    -- Substituir pela lógica real do jogo
-    return Vector3.new(math.random(-10,10), 0, math.random(-10,10))
-end
+-- Procura tiles disponíveis
+function Game:GetFreeTile()
+    local tilesFolder = workspace:FindFirstChild("Tiles")
+    if not tilesFolder then return end
 
-function Farm:Plantar(pos)
-    Utils:Log("Plantando em: " .. tostring(pos))
-
-    -- Exemplo:
-    -- ReplicatedStorage.Plantar:FireServer(pos)
-end
-
-function Farm:Loop()
-    while Rodando do
-        local pos = Farm:EncontrarLocal()
-        Farm:Plantar(pos)
-        task.wait(Config.Intervalo)
+    for _, tile in ipairs(tilesFolder:GetChildren()) do
+        if tile:FindFirstChild("Occupied") and tile.Occupied.Value == false then
+            return tile
+        end
     end
-    Utils:Log("Loop finalizado")
+end
+
+-- PLANTAR
+function Game:Plant(tile)
+    if not tile then return end
+
+    -- 🔴 SUBSTITUA PELO REMOTE REAL
+    -- ReplicatedStorage.Remotes.Plant:FireServer(tile, Config.PlantName)
+
+    Utils:Log("Plantando em "..tile.Name)
+end
+
+-- COMPRAR PLANTA
+function Game:BuyPlant()
+    -- 🔴 SUBSTITUA PELO REMOTE REAL
+    -- ReplicatedStorage.Remotes.BuyPlant:FireServer(Config.PlantName)
+
+    Utils:Log("Comprando planta "..Config.PlantName)
+end
+
+-- COLETAR DINHEIRO
+function Game:Collect()
+    -- 🔴 SUBSTITUA PELO REMOTE REAL
+    -- ReplicatedStorage.Remotes.CollectMoney:FireServer()
+
+    Utils:Log("Coletando dinheiro")
+end
+
+-- RESGATAR RECOMPENSA
+function Game:Claim()
+    -- 🔴 SUBSTITUA PELO REMOTE REAL
+    -- ReplicatedStorage.Remotes.ClaimReward:FireServer()
+
+    Utils:Log("Resgatando recompensa")
 end
 
 -----------------------------------------------------
--- FUNÇÕES DE COMPRA, VENDA E RESGATE
-
+-- LOOPS
 -----------------------------------------------------
 
-local Funcoes = {}
+task.spawn(function()
+    while task.wait(Config.Interval) do
+        if Config.AutoPlant then
+            Game:Plant(Game:GetFreeTile())
+        end
 
-function Funcoes:AutoComprarSeeds()
-    while AutoComprarSeedsRodando do
-        -- Lógica para comprar sementes
-        Utils:Log("Comprando sementes: " .. Config.NomeSeed)
+        if Config.AutoBuyPlant then
+            Game:BuyPlant()
+        end
 
-        -- Exemplo:
-        -- ReplicatedStorage.ComprarSemente:FireServer(Config.NomeSeed)
+        if Config.AutoCollect then
+            Game:Collect()
+        end
 
-        task.wait(Config.Intervalo * 2)
+        if Config.AutoClaim then
+            Game:Claim()
+        end
     end
-    Utils:Log("Auto compra de sementes finalizada")
-end
-
-function Funcoes:AutoComprarGear()
-    while AutoComprarGearRodando do
-        -- Lógica para comprar equipamentos
-        Utils:Log("Comprando equipamento: " .. Config.IdGear)
-
-        -- Exemplo:
-        -- ReplicatedStorage.ComprarEquipamento:FireServer(Config.IdGear)
-
-        task.wait(Config.Intervalo * 3)
-    end
-    Utils:Log("Auto compra de equipamento finalizada")
-end
-
-function Funcoes:AutoSell()
-    while AutoSellRodando do
-        -- Lógica para vender itens
-        Utils:Log("Vendendo item: " .. Config.ItemParaVender)
-
-        -- Exemplo:
-        -- ReplicatedStorage.VenderItem:FireServer(Config.ItemParaVender)
-
-        task.wait(Config.Intervalo * 1.5)
-    end
-    Utils:Log("Auto venda finalizada")
-end
-
-function Funcoes:AutoResgate()
-    while AutoResgateRodando do
-        -- Lógica para resgatar recompensas
-        Utils:Log("Resgatando recompensa")
-
-        -- Exemplo:
-        -- StarterGui:SetCore("SendNotification", {
-        --     Title = "Recompensa Resgatada!",
-        --     Text = "Você resgatou uma recompensa gratuita.",
-        --     Duration = 5
-        -- })
-
-        task.wait(Config.Intervalo * 4)
-    end
-    Utils:Log("Auto resgate finalizado")
-end
+end)
 
 -----------------------------------------------------
--- GUI
-
+-- UI
 -----------------------------------------------------
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AutoFarmUI"
-ScreenGui.Parent = PlayerGui
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = "PVB_AutoUI"
 ScreenGui.ResetOnSpawn = false
 
-local Frame = Instance.new("Frame")
-Frame.Parent = ScreenGui
-Frame.Size = UDim2.fromOffset(0, 0)
-Frame.Position = UDim2.new(0.35, 0, 0.3, 0)
-Frame.BackgroundColor3 = Config.CorBG
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.BackgroundColor3 = Config.Colors.BG
 Frame.BorderSizePixel = 0
+Frame.Size = UDim2.fromOffset(0, 0)
+Frame.Position = UDim2.fromScale(0.35, 0.3)
 
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
 
------------------------------------------------------
--- SISTEMA DE ARRASTAR
+local function Button(text, y, callback)
+    local b = Instance.new("TextButton", Frame)
+    b.Size = UDim2.new(1, -20, 0, 32)
+    b.Position = UDim2.new(0, 10, 0, y)
+    b.Text = text
+    b.Font = Config.Font
+    b.TextScaled = true
+    b.TextColor3 = Color3.new(1,1,1)
+    b.BackgroundColor3 = Config.Colors.Off
+    Instance.new("UICorner", b)
 
------------------------------------------------------
-
-local dragging = false
-local dragStart, startPos
-
-Frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = Frame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        Frame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
------------------------------------------------------
--- FUNÇÕES DA INTERFACE
-
------------------------------------------------------
-
-local function CriarBotao(pai, nome, texto, pos, callback)
-    local btn = Instance.new("TextButton")
-    btn.Name = nome
-    btn.Parent = pai
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = pos
-    btn.BackgroundColor3 = Config.CorBotoes
-    btn.Text = texto
-    btn.TextScaled = true
-    btn.Font = Config.Fonte
-    btn.TextColor3 = Color3.new(1, 1, 1)
-
-    local uiCorner = Instance.new("UICorner", btn)
-
-    btn.MouseButton1Click:Connect(callback)
-
-    return btn
-end
-
-local function CriarLabel(pai, texto, pos)
-    local label = Instance.new("TextLabel")
-    label.Parent = pai
-    label.Size = UDim2.new(1, -20, 0, 20)
-    label.Position = pos
-    label.BackgroundColor3 = Color3.new(0, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = texto
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextScaled = true
-    label.Font = Config.Fonte
-    label.TextColor3 = Color3.new(1, 1, 1)
-
-    return label
+    b.MouseButton1Click:Connect(callback)
+    return b
 end
 
 -----------------------------------------------------
--- BOTÕES PRINCIPAIS
-
+-- BUTTONS
 -----------------------------------------------------
 
-local BtnAutoFarm = CriarBotao(Frame, "BtnAutoFarm", "Iniciar AutoFarm", UDim2.new(0, 10, 0, 10), function()
-    Rodando = not Rodando
-
-    if Rodando then
-        BtnAutoFarm.Text = "Parar AutoFarm"
-        BtnAutoFarm.BackgroundColor3 = Config.CorAtivo
-        Utils:Log("AutoFarm iniciado")
-
-        task.spawn(function()
-            Farm:Loop()
-        end)
-    else
-        BtnAutoFarm.Text = "Iniciar AutoFarm"
-        BtnAutoFarm.BackgroundColor3 = Config.CorDesativo
-        Utils:Log("AutoFarm parado")
-    end
+local btnPlant = Button("Auto Plant: OFF", 10, function()
+    Config.AutoPlant = not Config.AutoPlant
+    btnPlant.Text = "Auto Plant: "..(Config.AutoPlant and "ON" or "OFF")
+    btnPlant.BackgroundColor3 = Config.AutoPlant and Config.Colors.On or Config.Colors.Off
 end)
 
-local BtnAutoComprarSeeds = CriarBotao(Frame, "BtnAutoComprarSeeds", "Auto Comprar Seeds: OFF", UDim2.new(0, 10, 0, 50), function()
-    AutoComprarSeedsRodando = not AutoComprarSeedsRodando
-
-    if AutoComprarSeedsRodando then
-        BtnAutoComprarSeeds.Text = "Auto Comprar Seeds: ON"
-        BtnAutoComprarSeeds.BackgroundColor3 = Config.CorAtivo
-        Utils:Log("Auto compra de seeds ativada")
-
-        task.spawn(function()
-            Funcoes:AutoComprarSeeds()
-        end)
-    else
-        BtnAutoComprarSeeds.Text = "Auto Comprar Seeds: OFF"
-        BtnAutoComprarSeeds.BackgroundColor3 = Config.CorDesativo
-        Utils:Log("Auto compra de seeds desativada")
-    end
+local btnBuy = Button("Auto Buy Plant: OFF", 52, function()
+    Config.AutoBuyPlant = not Config.AutoBuyPlant
+    btnBuy.Text = "Auto Buy Plant: "..(Config.AutoBuyPlant and "ON" or "OFF")
+    btnBuy.BackgroundColor3 = Config.AutoBuyPlant and Config.Colors.On or Config.Colors.Off
 end)
 
-local BtnAutoComprarGear = CriarBotao(Frame, "BtnAutoComprarGear", "Auto Comprar Gear: OFF", UDim2.new(0, 10, 0, 90), function()
-    AutoComprarGearRodando = not AutoComprarGearRodando
-
-    if AutoComprarGearRodando then
-        BtnAutoComprarGear.Text = "Auto Comprar Gear: ON"
-        BtnAutoComprarGear.BackgroundColor3 = Config.CorAtivo
-        Utils:Log("Auto compra de gear ativada")
-
-        task.spawn(function()
-            Funcoes:AutoComprarGear()
-        end)
-    else
-        BtnAutoComprarGear.Text = "Auto Comprar Gear: OFF"
-        BtnAutoComprarGear.BackgroundColor3 = Config.CorDesativo
-        Utils:Log("Auto compra de gear desativada")
-    end
+local btnCollect = Button("Auto Collect: OFF", 94, function()
+    Config.AutoCollect = not Config.AutoCollect
+    btnCollect.Text = "Auto Collect: "..(Config.AutoCollect and "ON" or "OFF")
+    btnCollect.BackgroundColor3 = Config.AutoCollect and Config.Colors.On or Config.Colors.Off
 end)
 
-local BtnAutoSell = CriarBotao(Frame, "BtnAutoSell", "Auto Sell: OFF", UDim2.new(0, 10, 0, 130), function()
-    AutoSellRodando = not AutoSellRodando
-
-    if AutoSellRodando then
-        BtnAutoSell.Text = "Auto Sell: ON"
-        BtnAutoSell.BackgroundColor3 = Config.CorAtivo
-        Utils:Log("Auto venda ativada")
-
-        task.spawn(function()
-            Funcoes:AutoSell()
-        end)
-    else
-        BtnAutoSell.Text = "Auto Sell: OFF"
-        BtnAutoSell.BackgroundColor3 = Config.CorDesativo
-        Utils:Log("Auto venda desativada")
-    end
-end)
-
-local InputItemParaVender = Instance.new("TextBox")
-InputItemParaVender.Parent = Frame
-InputItemParaVender.Size = UDim2.new(1, -20, 0, 30)
-InputItemParaVender.Position = UDim2.new(0, 10, 0, 170)
-InputItemParaVender.PlaceholderText = "Item para vender"
-InputItemParaVender.Font = Config.Fonte
-InputItemParaVender.Text = Config.ItemParaVender
-InputItemParaVender.TextColor3 = Color3.new(1, 1, 1)
-InputItemParaVender.BackgroundColor3 = Config.CorBotoes
-
-InputItemParaVender.FocusLost:Connect(function()
-    Config.ItemParaVender = InputItemParaVender.Text
-    Utils:Log("Item para vender alterado para: " .. Config.ItemParaVender)
-end)
-
-local BtnAutoResgate = CriarBotao(Frame, "BtnAutoResgate", "Auto Resgate: OFF", UDim2.new(0, 10, 0, 210), function()
-    AutoResgateRodando = not AutoResgateRodando
-
-    if AutoResgateRodando then
-        BtnAutoResgate.Text = "Auto Resgate: ON"
-        BtnAutoResgate.BackgroundColor3 = Config.CorAtivo
-        Utils:Log("Auto resgate ativado")
-
-        task.spawn(function()
-            Funcoes:AutoResgate()
-        end)
-    else
-        BtnAutoResgate.Text = "Auto Resgate: OFF"
-        BtnAutoResgate.BackgroundColor3 = Config.CorDesativo
-        Utils:Log("Auto resgate desativado")
-    end
+local btnClaim = Button("Auto Claim: OFF", 136, function()
+    Config.AutoClaim = not Config.AutoClaim
+    btnClaim.Text = "Auto Claim: "..(Config.AutoClaim and "ON" or "OFF")
+    btnClaim.BackgroundColor3 = Config.AutoClaim and Config.Colors.On or Config.Colors.Off
 end)
 
 -----------------------------------------------------
--- ANIMAÇÃO DE ABERTURA
-
+-- OPEN ANIMATION
 -----------------------------------------------------
 
-task.wait(0.15)
+task.wait(0.1)
+Utils:Tween(Frame, 0.5, {
+    Size = UDim2.fromOffset(Config.WindowSize.X, Config.WindowSize.Y)
+})
 
-Utils:Tweener(Frame, 0.5, {
-    Size = UDim2.new(0, Config.TamanhoJanelaX, 0, Config.TamanhoJanelaY)
-}, Enum.EasingStyle.Back)
-
-Utils:Log("Interface carregada com sucesso!")
+Utils:Log("UI carregada")
