@@ -1,8 +1,9 @@
 --[[
-    EXEMPLO GENÉRICO DE SCRIPT DE AUTO FARM (APENAS PARA FINS EDUCACIONAIS)
-    COM MENU MAIS COMPLETO E PROFISSIONAL
+    INTERFACE GRÁFICA (GUI) "FROSTBR" INSPIRADA NO SPEED HUB
+    (APENAS PARA FINS EDUCACIONAIS)
 
-    ATENÇÃO: Este script é apenas um exemplo e pode não funcionar diretamente em nenhum jogo.
+    ATENÇÃO: Este script não inclui a lógica de auto farm.
+    Ele apenas cria a interface gráfica.
     Use por sua conta e risco.
 ]]
 
@@ -15,43 +16,23 @@ local UserInputService = game:GetService("UserInputService")
 -- Jogador local
 local LocalPlayer = Players.LocalPlayer
 
--- Variáveis de controle
-local rodando = false
-local intervaloDeAcao = 2 -- Segundos entre cada ação
+-- Cores do tema
+local corPrimaria = Color3.fromRGB(30, 26, 41) -- Preto/Roxo Escuro
+local corSecundaria = Color3.fromRGB(149, 48, 255) -- Roxo
+local corTexto = Color3.fromRGB(255, 255, 255) -- Branco
 
--- Funções (substitua pela lógica real do jogo)
-local function simularClique(botao)
-    print("Simulando clique em: " .. botao.Name)
-end
-
-local function encontrarLocalParaPlantar()
-    return Vector3.new(0, 0, 0) -- Posição de exemplo
-end
-
-local function plantar(posicao)
-    print("Plantando em: " .. posicao)
-end
-
--- Função principal do auto farm
-local function autoFarm()
-    while rodando do
-        local posicao = encontrarLocalParaPlantar()
-        plantar(posicao)
-        wait(intervaloDeAcao)
-    end
-end
-
--- Criar a GUI (Interface Gráfica)
+-- Criar a GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AutoFarmGUI"
+ScreenGui.Name = "FrostBR_GUI"
 ScreenGui.Parent = LocalPlayer.PlayerGui
 ScreenGui.ResetOnSpawn = false
 
+-- Frame principal
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 0.4, 0, 0.5) -- Maior
-MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0) -- Centralizado
-MainFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15) -- Cor mais escura
+MainFrame.Size = UDim2.new(0, 300, 0, 400) -- Tamanho inicial
+MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0) -- Centralizado
+MainFrame.BackgroundColor3 = corPrimaria
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -60,41 +41,41 @@ MainFrame.Parent = ScreenGui
 -- Título
 local Titulo = Instance.new("TextLabel")
 Titulo.Name = "Titulo"
-Titulo.Size = UDim2.new(1, 0, 0, 30)
+Titulo.Size = UDim2.new(1, 0, 0, 40)
 Titulo.Position = UDim2.new(0, 0, 0, 0)
-Titulo.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-Titulo.TextColor3 = Color3.new(1, 1, 1)
-Titulo.Text = "Auto Farm Script"
+Titulo.BackgroundColor3 = corSecundaria
+Titulo.TextColor3 = corTexto
+Titulo.Text = "FrostBR"
 Titulo.Font = Enum.Font.SourceSansBold
-Titulo.TextSize = 16
+Titulo.TextSize = 20
 Titulo.Parent = MainFrame
 
 -- Abas (Frame para conter os botões das abas)
 local AbasFrame = Instance.new("Frame")
 AbasFrame.Name = "AbasFrame"
-AbasFrame.Size = UDim2.new(0, 100, 0, 30)
-AbasFrame.Position = UDim2.new(0, 0, 0, 30)
-AbasFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+AbasFrame.Size = UDim2.new(1, 0, 0, 40)
+AbasFrame.Position = UDim2.new(0, 0, 0, 40)
+AbasFrame.BackgroundColor3 = corPrimaria
 AbasFrame.BorderSizePixel = 0
 AbasFrame.Parent = MainFrame
 
 -- Conteúdo das Abas (Frame para conter o conteúdo de cada aba)
 local ConteudoAbas = Instance.new("Frame")
 ConteudoAbas.Name = "ConteudoAbas"
-ConteudoAbas.Size = UDim2.new(1, 0, 0.8, 0)
-ConteudoAbas.Position = UDim2.new(0, 0, 0, 60)
-ConteudoAbas.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+ConteudoAbas.Size = UDim2.new(1, 0, 0.8, -40)
+ConteudoAbas.Position = UDim2.new(0, 0, 0, 80)
+ConteudoAbas.BackgroundColor3 = corPrimaria
 ConteudoAbas.BorderSizePixel = 0
 ConteudoAbas.Parent = MainFrame
 
---Função para criar as abas
+-- Função para criar as abas
 local function criarAba(nome, conteudo)
     local botaoAba = Instance.new("TextButton")
     botaoAba.Name = nome .. "AbaBotao"
-    botaoAba.Size = UDim2.new(0, 100, 1, 0)
-    botaoAba.Position = UDim2.new(0, (table.getn(AbasFrame:GetChildren()) -1) * 100, 0, 0)
-    botaoAba.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-    botaoAba.TextColor3 = Color3.new(1, 1, 1)
+    botaoAba.Size = UDim2.new(0.33, 0, 1, 0) -- Dividir o espaço igualmente
+    botaoAba.Position = UDim2.new((table.getn(AbasFrame:GetChildren()) - 1) * 0.33, 0, 0, 0)
+    botaoAba.BackgroundColor3 = corPrimaria
+    botaoAba.TextColor3 = corTexto
     botaoAba.Text = nome
     botaoAba.Font = Enum.Font.SourceSansBold
     botaoAba.TextSize = 14
@@ -105,7 +86,7 @@ local function criarAba(nome, conteudo)
     frameConteudo.Name = nome .. "AbaConteudo"
     frameConteudo.Size = UDim2.new(1, 0, 1, 0)
     frameConteudo.Position = UDim2.new(0, 0, 0, 0)
-    frameConteudo.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    frameConteudo.BackgroundColor3 = corPrimaria
     frameConteudo.BorderSizePixel = 0
     frameConteudo.Visible = false
     frameConteudo.Parent = ConteudoAbas
@@ -117,7 +98,7 @@ local function criarAba(nome, conteudo)
         frameConteudo.Visible = true
     end)
 
-    --Se for a primeira aba, mostrar ela
+    -- Se for a primeira aba, mostrar ela
     if table.getn(AbasFrame:GetChildren()) == 1 then
         frameConteudo.Visible = true
     end
@@ -130,33 +111,65 @@ local abaGeral = criarAba("Geral", {})
 local abaPlantas = criarAba("Plantas", {})
 local abaAtaque = criarAba("Ataque", {})
 
+-- Funções de exemplo (substitua pela lógica real do jogo)
+local function toggleAutoFarm(estado)
+    print("Auto Farm: " .. (estado and "Ativado" or "Desativado"))
+end
+
+local function setPlantingSpeed(valor)
+    print("Velocidade de plantio: " .. valor)
+end
+
 -- Opções da aba Geral
 local ativarAutoFarm = Instance.new("CheckBox")
 ativarAutoFarm.Name = "AtivarAutoFarm"
 ativarAutoFarm.Size = UDim2.new(0, 20, 0, 20)
 ativarAutoFarm.Position = UDim2.new(0.1, 0, 0.1, 0)
+ativarAutoFarm.BackgroundColor3 = corPrimaria
 ativarAutoFarm.Parent = abaGeral
 
 local labelAtivarAutoFarm = Instance.new("TextLabel")
 labelAtivarAutoFarm.Name = "LabelAtivarAutoFarm"
 labelAtivarAutoFarm.Size = UDim2.new(0, 150, 0, 20)
 labelAtivarAutoFarm.Position = UDim2.new(0.2, 0, 0.1, 0)
-labelAtivarAutoFarm.BackgroundColor3 = Color3.new(1, 1, 1)
-labelAtivarAutoFarm.BackgroundTransparency = 1
-labelAtivarAutoFarm.TextColor3 = Color3.new(1, 1, 1)
+labelAtivarAutoFarm.BackgroundColor3 = corPrimaria
+labelAtivarAutoFarm.TextColor3 = corTexto
 labelAtivarAutoFarm.Text = "Ativar Auto Farm"
 labelAtivarAutoFarm.Font = Enum.Font.SourceSans
 labelAtivarAutoFarm.TextSize = 14
 labelAtivarAutoFarm.Parent = abaGeral
 
 ativarAutoFarm.Changed:Connect(function(novoValor)
-    rodando = novoValor
-    if rodando then
-        task.spawn(autoFarm)
-    end
+    toggleAutoFarm(novoValor)
 end)
 
---Animação ao abrir
+-- Opções de exemplo na aba Plantas
+local labelVelocidadePlantio = Instance.new("TextLabel")
+labelVelocidadePlantio.Name = "LabelVelocidadePlantio"
+labelVelocidadePlantio.Size = UDim2.new(0, 150, 0, 20)
+labelVelocidadePlantio.Position = UDim2.new(0.1, 0, 0.1, 0)
+labelVelocidadePlantio.BackgroundColor3 = corPrimaria
+labelVelocidadePlantio.TextColor3 = corTexto
+labelVelocidadePlantio.Text = "Velocidade de Plantio:"
+labelVelocidadePlantio.Font = Enum.Font.SourceSans
+labelVelocidadePlantio.TextSize = 14
+labelVelocidadePlantio.Parent = abaPlantas
+
+local sliderVelocidadePlantio = Instance.new("Slider")
+sliderVelocidadePlantio.Name = "SliderVelocidadePlantio"
+sliderVelocidadePlantio.Size = UDim2.new(0, 150, 0, 20)
+sliderVelocidadePlantio.Position = UDim2.new(0.1, 0, 0.2, 0)
+sliderVelocidadePlantio.BackgroundColor3 = corPrimaria
+sliderVelocidadePlantio.Parent = abaPlantas
+sliderVelocidadePlantio.Min = 1
+sliderVelocidadePlantio.Max = 10
+sliderVelocidadePlantio.Value = 5
+
+sliderVelocidadePlantio.Changed:Connect(function(valor)
+    setPlantingSpeed(valor)
+end)
+
+-- Animação ao abrir
 MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Inicia com tamanho zero
 
 local tweenInfo = TweenInfo.new(
@@ -168,8 +181,8 @@ local tweenInfo = TweenInfo.new(
     0 -- Delay
 )
 
-local tamanhoFinal = UDim2.new(0, 0.4, 0, 0.5)
+local tamanhoFinal = UDim2.new(0, 300, 0, 400)
 local tween = TweenService:Create(MainFrame, tweenInfo, {Size = tamanhoFinal})
 tween:Play()
 
-print("Script de Auto Farm (Exemplo) Carregado!")
+print("GUI FrostBR Carregada!")
